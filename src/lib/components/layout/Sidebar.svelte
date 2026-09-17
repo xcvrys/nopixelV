@@ -102,13 +102,13 @@
         class="fixed inset-x-0 bottom-0 z-50 flex min-h-[50dvh] max-h-[85dvh] flex-col border-t border-neutral-800 bg-black p-6 shadow-2xl outline-none transition-transform duration-300 ease-out"
       >
         <nav class="flex flex-col gap-10 pt-6">
-          {#each navigationSections as section}
+          {#each navigationSections as section (section.label)}
             <div>
               <h2 class="mb-4 text-2xl font-black italic uppercase tracking-wide text-white">
                 {section.label}
               </h2>
               <div class="flex flex-col items-start gap-1.5">
-                {#each section.items as item}
+                {#each section.items as item (item.href)}
                   {#if item.available}
                     <a
                       href={item.href}
@@ -147,7 +147,7 @@
       : "opacity-20 hover:opacity-100 focus-within:opacity-100",
   )}
 >
-  {#each navigationSections as section}
+  {#each navigationSections as section (section.label)}
     <div>
       <h2
         class="text-2xl md:text-3xl font-black italic text-white uppercase tracking-wide mb-3 md:mb-4"
@@ -155,7 +155,7 @@
         {section.label}
       </h2>
       <div class="flex flex-col items-start gap-1.5">
-        {#each section.items as item}
+        {#each section.items as item (item.href)}
           {#if item.available}
             <a
               href={item.href}
