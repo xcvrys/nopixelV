@@ -91,6 +91,12 @@ Configured for automatic deployment on **Cloudflare Workers**:
 
 This project is an independent community project. It is not affiliated with, endorsed, sponsored, or supported by Rockstar Games, Take-Two Interactive, or the NoPixel team. All trademarks, game titles, logos, and copyrights are the property of their respective owners.
 
+## Attribution
+
+Created and maintained by [XCVRYS](https://github.com/xcvrys).
+
+Copyright © 2026 XCVRYS. Licensed under the [MIT License](./LICENSE).
+
 ## License
 
 MIT
