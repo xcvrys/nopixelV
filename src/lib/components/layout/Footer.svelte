@@ -1,16 +1,18 @@
 <footer
-  class="w-full flex flex-col md:grid md:grid-cols-3 items-center gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
+  class="w-full grid grid-cols-[1fr_auto_auto_1fr] md:grid-cols-3 items-center gap-x-2 gap-y-3 md:gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
 >
   <a
     href="https://github.com/xcvrys"
     target="_blank"
     rel="noopener noreferrer"
-    class="inline-flex items-center px-2.5 py-1.5 leading-none uppercase font-semibold italic text-xs md:text-sm text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer select-none rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:justify-self-start"
+    class="order-3 col-start-3 row-start-2 inline-flex h-8 items-center justify-self-center px-2.5 leading-none uppercase font-semibold italic text-xs md:order-none md:col-start-3 md:row-start-1 md:justify-self-end md:text-sm text-neutral-400 hover:bg-neutral-900 hover:text-white border border-transparent hover:border-neutral-800 transition-colors cursor-pointer select-none rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
   >
-    CREATED BY @XCVRYS
+    CREATED BY XCVRYS
   </a>
 
-  <div class="flex flex-col items-center gap-1 md:justify-self-center">
+  <div
+    class="order-1 col-span-4 flex flex-col items-center gap-1 md:order-none md:col-span-1 md:col-start-2 md:row-start-1 md:justify-self-center"
+  >
     <div
       class="flex items-center justify-center gap-2 text-[10px] md:text-[11px] font-mono not-italic"
     >
@@ -44,7 +46,7 @@
     target="_blank"
     rel="noopener noreferrer"
     aria-label="GitHub Repository"
-    class="inline-flex items-center justify-center p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:justify-self-end"
+    class="order-3 col-start-2 row-start-2 inline-flex h-8 w-8 items-center justify-self-center p-1.5 md:order-none md:col-start-1 md:row-start-1 md:justify-self-start text-neutral-400 hover:bg-neutral-900 hover:text-white border border-transparent hover:border-neutral-800 transition-colors cursor-pointer rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
   >
     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
       <path
