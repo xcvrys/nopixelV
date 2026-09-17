@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { STARTER_ITEMS, getItem } from '../../src/lib/data/items';
-import { STARTER_RECIPES, getRecipe, getRecipesForMachine } from '../../src/lib/data/recipes';
-import { STARTER_MACHINES, getMachine } from '../../src/lib/data/machines';
+import { STARTER_RECIPES, getRecipesForMachine } from '../../src/lib/data/recipes';
+import { getMachine } from '../../src/lib/data/machines';
 
 describe('Starter Data Catalog', () => {
 	it('defines items with valid IDs and categories', () => {

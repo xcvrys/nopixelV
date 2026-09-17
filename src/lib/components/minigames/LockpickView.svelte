@@ -14,7 +14,6 @@
 		LockpickLogic,
 		STAGE_TIMEOUT,
 		type GameMode,
-		type SingleDifficulty,
 		type LockpickSnapshot,
 	} from "$lib/engine/lockpick";
 	import {
