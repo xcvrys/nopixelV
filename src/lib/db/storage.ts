@@ -15,6 +15,21 @@ export interface SavedWorkflow {
  edges: unknown[];
 }
 
+export interface LockpickSettings {
+ mode: 'single' | 'progressive' | 'maxing';
+ singleDifficulty: 'easy' | 'medium' | 'hard' | 'custom';
+ decayRate: number;
+ progressPerTap: number;
+}
+
+export interface LockpickStats {
+ bestStreak: number;
+ bestStreakTime: number;
+}
+
+const STORAGE_KEY_LOCKPICK_SETTINGS = 'nopixelv_lockpick_settings_v1';
+const STORAGE_KEY_LOCKPICK_STATS = 'nopixelv_lockpick_stats_v1';
+
 const STORAGE_KEY_WORKFLOWS = 'nopixelv_workflows_v1';
 const STORAGE_KEY_ACTIVE = 'nopixelv_active_workflow_v1';
 
@@ -92,3 +107,32 @@ export async function setActiveWorkflowId(id: string): Promise<void> {
  await setStoredValue(STORAGE_KEY_ACTIVE, id);
 }
 
+
+export async function getLockpickSettings(): Promise<LockpickSettings | undefined> {
+ return getStoredValue<LockpickSettings>(STORAGE_KEY_LOCKPICK_SETTINGS);
+}
+
+export async function saveLockpickSettings(settings: LockpickSettings): Promise<void> {
+ await setStoredValue(STORAGE_KEY_LOCKPICK_SETTINGS, settings);
+}
+
+export async function getLockpickStats(): Promise<LockpickStats | undefined> {
+ return getStoredValue<LockpickStats>(STORAGE_KEY_LOCKPICK_STATS);
+}
+
+export async function saveLockpickStats(stats: LockpickStats): Promise<void> {
+ await setStoredValue(STORAGE_KEY_LOCKPICK_STATS, stats);
+}
+
+export async function clearLockpickStorage(): Promise<void> {
+ if (hasIndexedDB()) {
+  try {
+   await del(STORAGE_KEY_LOCKPICK_SETTINGS);
+   await del(STORAGE_KEY_LOCKPICK_STATS);
+  } catch {
+   // ignore
+  }
+ }
+ memoryStore.delete(STORAGE_KEY_LOCKPICK_SETTINGS);
+ memoryStore.delete(STORAGE_KEY_LOCKPICK_STATS);
+}

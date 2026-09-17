@@ -3,6 +3,14 @@
 	import { dev } from "$app/environment";
 	import { soundEngine } from "$lib/engine/audio";
 	import {
+		getLockpickSettings,
+		getLockpickStats,
+		saveLockpickSettings,
+		saveLockpickStats,
+		type LockpickSettings,
+		type LockpickStats,
+	} from "$lib/db/storage";
+	import {
 		LockpickLogic,
 		STAGE_TIMEOUT,
 		type GameMode,
@@ -35,8 +43,65 @@
 	let failResetTimer: number | null = null;
 	let winResetTimer: number | null = null;
 
+	let persistedStats: LockpickStats | null = null;
+
+	function currentSettings(): LockpickSettings {
+		return {
+			mode: engine.mode,
+			singleDifficulty: engine.singleDifficulty,
+			decayRate: engine.decayRate,
+			progressPerTap: engine.progressPerTap,
+		};
+	}
+
+	function persistSettings() {
+		void saveLockpickSettings(currentSettings());
+	}
+
 	function syncState() {
-		lockState = engine.snapshot;
+		const snapshot = engine.snapshot;
+		lockState = snapshot;
+
+		const stats = {
+			bestStreak: snapshot.bestStreak,
+			bestStreakTime: snapshot.bestStreakTime,
+		};
+		if (
+			persistedStats &&
+			(stats.bestStreak !== persistedStats.bestStreak ||
+				stats.bestStreakTime !== persistedStats.bestStreakTime)
+		) {
+			persistedStats = stats;
+			void saveLockpickStats(stats);
+		}
+	}
+
+	async function restorePersistedState() {
+		const [settings, stats] = await Promise.all([
+			getLockpickSettings(),
+			getLockpickStats(),
+		]);
+
+		if (settings) {
+			engine.setMode(settings.mode);
+			if (settings.mode === "single") {
+				if (settings.singleDifficulty !== "custom") {
+					engine.setSingleDifficulty(settings.singleDifficulty);
+				} else {
+					engine.setCustomPhysics(settings.decayRate, settings.progressPerTap);
+				}
+			}
+		}
+
+		if (stats) {
+			engine.bestStreak = stats.bestStreak;
+			engine.bestStreakTime = stats.bestStreakTime;
+		}
+		persistedStats = {
+			bestStreak: engine.bestStreak,
+			bestStreakTime: engine.bestStreakTime,
+		};
+		syncState();
 	}
 
 	function handleTap() {
@@ -99,21 +164,25 @@
 	function setMode(newMode: GameMode) {
 		engine.setMode(newMode);
 		syncState();
+		persistSettings();
 	}
 
 	function setSingleDifficulty(diff: "easy" | "medium" | "hard") {
 		engine.setSingleDifficulty(diff);
 		syncState();
+		persistSettings();
 	}
 
 	function handleCustomPhysicsInput() {
 		engine.setCustomPhysics(lockState.decayRate, lockState.progressPerTap);
 		syncState();
+		persistSettings();
 	}
 
 	function resetPhysicsPreset() {
 		engine.applyDifficultyForCurrentState();
 		syncState();
+		persistSettings();
 	}
 
 	function loop(now: number) {
@@ -139,9 +208,11 @@
 	}
 
 	onMount(() => {
-		lastTick = performance.now();
-		animFrame = requestAnimationFrame(loop);
 		window.addEventListener("keydown", handleKeyDown);
+		void restorePersistedState().finally(() => {
+			lastTick = performance.now();
+			animFrame = requestAnimationFrame(loop);
+		});
 	});
 
 	onDestroy(() => {
