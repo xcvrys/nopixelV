@@ -244,11 +244,11 @@
 </script>
 
 <div
-	class="relative w-full h-screen bg-black flex flex-col items-center justify-center select-none overflow-hidden"
+	class="relative flex min-h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-black select-none"
 >
 	<!-- Top Mode Switcher & Stage Tracker -->
 	<div
-		class="absolute top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-40 select-none"
+		class="absolute top-16 right-2 left-auto z-40 flex translate-x-0 select-none flex-col items-center gap-2.5 md:top-6 md:right-auto md:left-1/2 md:-translate-x-1/2"
 	>
 		<LockpickModeSelector mode={lockState.mode} onModeChange={setMode} />
 		<LockpickStageTracker

@@ -7,7 +7,7 @@
 </svelte:head>
 
 <div
-	class="flex h-full min-h-screen items-center justify-center bg-black px-6 text-white"
+	class="flex min-h-[100dvh] items-center justify-center bg-black px-6 text-white"
 >
 	<section class="w-full max-w-xl text-center" aria-labelledby="error-title">
 		<h1

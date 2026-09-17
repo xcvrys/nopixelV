@@ -41,7 +41,7 @@
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-8 md:left-12 lg:left-14 top-1/2 -translate-y-1/2 z-50 select-none transition-opacity duration-200 flex flex-col gap-10 md:gap-14 {isHovered
+	class="fixed left-3 top-4 z-50 flex select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:gap-14 {isHovered
 		? 'opacity-100'
 		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
 >
@@ -62,7 +62,11 @@
 			>
 				LOCKPICK
 			</a>
-			<ComingSoon label="STORE SAFE" badge="SOON" class="px-3 md:px-3.5 py-1 text-base md:text-lg" />
+			<ComingSoon
+				label="STORE SAFE"
+				badge="SOON"
+				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
+			/>
 		</div>
 	</div>
 
@@ -74,14 +78,18 @@
 			RESOURCES
 		</h2>
 		<div class="flex flex-col items-start gap-1.5">
-			<ComingSoon label="FACTORY" badge="SOON" class="px-3 md:px-3.5 py-1 text-base md:text-lg" />
+			<ComingSoon
+				label="FACTORY"
+				badge="SOON"
+				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
+			/>
 		</div>
 	</div>
 </aside>
 
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
 <div
-	class="fixed bottom-8 md:bottom-9 left-8 md:left-12 lg:left-14 z-40 select-none transition-opacity duration-200 flex flex-col gap-1 {isHovered
+	class="fixed bottom-5 left-3 z-40 flex select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:bottom-9 {isHovered
 		? 'opacity-100'
 		: 'opacity-30 hover:opacity-100'}"
 >

@@ -27,10 +27,12 @@
 	}
 </script>
 
-<div class="absolute bottom-6 right-6 z-40 flex items-center gap-3 md:right-8">
+<div
+	class="absolute bottom-5 right-4 z-40 flex items-center gap-3 md:bottom-6 md:right-8"
+>
 	{#if showSettings}
 		<div
-			class="absolute bottom-12 right-0 z-50 w-[min(16rem,calc(100vw-2rem))] bg-black border border-neutral-900 p-4 text-xs shadow-2xl"
+			class="absolute bottom-24 right-0 z-50 w-[min(16rem,calc(100vw-2rem))] border border-neutral-900 bg-black p-4 text-xs shadow-2xl md:bottom-12"
 		>
 			<div
 				class="mb-3 flex items-center justify-between border-b border-neutral-900 pb-2"
