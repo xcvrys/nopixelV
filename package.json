@@ -31,6 +31,7 @@
 		"clsx": "^2.1.1",
 		"idb-keyval": "^6.3.0",
 		"lucide-svelte": "^1.0.1",
-		"tailwind-merge": "^3.7.0"
+		"tailwind-merge": "^3.7.0",
+		"vaul-svelte": "^0.3.2"
 	}
 }

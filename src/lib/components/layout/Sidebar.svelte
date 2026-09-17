@@ -1,10 +1,35 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { Volume2, Volume1, VolumeX } from "lucide-svelte";
+	import { Drawer } from "vaul-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
 	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
 	import { audioStore } from "$lib/stores/audio.svelte";
 	import { cn } from "$lib/utils/cn";
+
+	type NavigationItem = {
+		label: string;
+		href: string;
+		available: boolean;
+	};
+
+	const navigationSections: { label: string; items: NavigationItem[] }[] = [
+		{
+			label: "MINIGAMES",
+			items: [
+				{ label: "LOCKPICK", href: "/minigames/lockpick", available: true },
+				{
+					label: "STORE SAFE",
+					href: "/minigames/store-safe",
+					available: false,
+				},
+			],
+		},
+		{
+			label: "RESOURCES",
+			items: [{ label: "MACHINERY", href: "/calculator", available: false }],
+		},
+	];
 
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
@@ -21,7 +46,7 @@
 		return () =>
 			pointerQuery.removeEventListener("change", handlePointerChange);
 	});
-	const isLockpickActive = $derived(currentPath === "/minigames/lockpick");
+
 	let isMobileMenuOpen = $state(false);
 
 	function closeMobileMenu() {
@@ -57,54 +82,69 @@
 </script>
 
 <div class="fixed right-3 top-4 z-50 md:hidden">
-	<Button
-		variant={isMobileMenuOpen ? "primary" : "quiet"}
-		ariaLabel="Toggle navigation menu"
-		ariaExpanded={isMobileMenuOpen}
-		ariaControls="mobile-navigation"
-		onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-		class="px-3.5 py-2"
-	>
-		Menu
-	</Button>
-
-	{#if isMobileMenuOpen}
-		<nav
-			id="mobile-navigation"
-			aria-label="Mobile navigation"
-			class="absolute right-0 top-11 w-52 border border-neutral-700 bg-neutral-950 p-4 shadow-[0_0_30px_rgba(0,0,0,0.9)]"
+	<Drawer.Root bind:open={isMobileMenuOpen} shouldScaleBackground>
+		<Drawer.Trigger
+			aria-label="Toggle navigation menu"
+			aria-controls="mobile-navigation"
+			class={cn(
+				"inline-flex items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-3 py-2 text-xs font-semibold italic uppercase leading-none outline-none transition-[background-color,color,border-color,transform] duration-150 active:translate-y-px focus-visible:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+				isMobileMenuOpen
+					? "bg-white text-black hover:bg-neutral-200"
+					: "bg-transparent text-neutral-300 hover:bg-neutral-900 hover:text-white",
+			)}
 		>
-			<div
-				class="mb-3 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+			Menu
+		</Drawer.Trigger>
+		<Drawer.Portal>
+			<Drawer.Overlay
+				class="fixed inset-0 z-40 bg-black/70 transition-opacity duration-300"
+			/>
+			<Drawer.Content
+				id="mobile-navigation"
+				aria-label="Mobile navigation"
+				class="fixed inset-x-0 bottom-0 z-50 flex min-h-[50dvh] max-h-[85dvh] flex-col border-t border-neutral-800 bg-black p-6 shadow-2xl outline-none transition-transform duration-300 ease-out"
 			>
-				Minigames
-			</div>
-			<div class="flex flex-col items-start gap-1.5">
-				<a
-					href="/minigames/lockpick"
-					aria-current={isLockpickActive ? "page" : undefined}
-					onclick={closeMobileMenu}
-					class="inline-flex items-center px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
-						? 'bg-white text-black'
-						: 'text-white hover:bg-white hover:text-black'}"
-				>
-					LOCKPICK
-				</a>
-				<ComingSoon
-					label="STORE SAFE"
-					badge="SOON"
-					class="px-3.5 py-1 text-lg"
-				/>
-			</div>
-
-			<div
-				class="mb-3 mt-6 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
-			>
-				Resources
-			</div>
-			<ComingSoon label="MACHINERY" badge="SOON" class="px-3.5 py-1 text-lg" />
-		</nav>
-	{/if}
+				<nav class="flex flex-col gap-10 pt-6">
+					{#each navigationSections as section}
+						<div>
+							<h2
+								class="mb-4 text-2xl font-black italic uppercase tracking-wide text-white"
+							>
+								{section.label}
+							</h2>
+							<div class="flex flex-col items-start gap-1.5">
+								{#each section.items as item}
+									{#if item.available}
+										<a
+											href={item.href}
+											aria-current={currentPath === item.href
+												? "page"
+												: undefined}
+											onclick={closeMobileMenu}
+											class={cn(
+												"inline-flex items-center px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+												currentPath === item.href
+													? "bg-white text-black"
+													: "text-white hover:bg-white hover:text-black",
+											)}
+										>
+											{item.label}
+										</a>
+									{:else}
+										<ComingSoon
+											label={item.label}
+											badge="SOON"
+											class="px-3.5 py-1 text-lg"
+										/>
+									{/if}
+								{/each}
+							</div>
+						</div>
+					{/each}
+				</nav>
+			</Drawer.Content>
+		</Drawer.Portal>
+	</Drawer.Root>
 </div>
 
 <!-- Desktop sidebar -->
@@ -118,49 +158,39 @@
 			: "opacity-20 hover:opacity-100 focus-within:opacity-100",
 	)}
 >
-	<!-- Section 1: MINIGAMES -->
-	<div>
-		<h2
-			class="text-2xl md:text-3xl font-black italic text-white uppercase tracking-wide mb-3 md:mb-4"
-		>
-			MINIGAMES
-		</h2>
-		<div class="flex flex-col items-start gap-1.5">
-			<a
-				href="/minigames/lockpick"
-				aria-current={isLockpickActive ? "page" : undefined}
-				class={cn(
-					"inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-					isLockpickActive
-						? "bg-white text-black"
-						: "bg-transparent text-white hover:bg-white hover:text-black",
-				)}
+	{#each navigationSections as section}
+		<div>
+			<h2
+				class="text-2xl md:text-3xl font-black italic text-white uppercase tracking-wide mb-3 md:mb-4"
 			>
-				LOCKPICK
-			</a>
-			<ComingSoon
-				label="STORE SAFE"
-				badge="SOON"
-				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
-			/>
+				{section.label}
+			</h2>
+			<div class="flex flex-col items-start gap-1.5">
+				{#each section.items as item}
+					{#if item.available}
+						<a
+							href={item.href}
+							aria-current={currentPath === item.href ? "page" : undefined}
+							class={cn(
+								"inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+								currentPath === item.href
+									? "bg-white text-black"
+									: "bg-transparent text-white hover:bg-white hover:text-black",
+							)}
+						>
+							{item.label}
+						</a>
+					{:else}
+						<ComingSoon
+							label={item.label}
+							badge="SOON"
+							class="px-3 md:px-3.5 py-1 text-base md:text-lg"
+						/>
+					{/if}
+				{/each}
+			</div>
 		</div>
-	</div>
-
-	<!-- Section 2: RESOURCES -->
-	<div>
-		<h2
-			class="text-2xl md:text-3xl font-black italic text-white uppercase tracking-wide mb-3 md:mb-4"
-		>
-			RESOURCES
-		</h2>
-		<div class="flex flex-col items-start gap-1.5">
-			<ComingSoon
-				label="MACHINERY"
-				badge="SOON"
-				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
-			/>
-		</div>
-	</div>
+	{/each}
 </aside>
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
 <div
@@ -239,5 +269,17 @@
 		cursor: pointer;
 		border-radius: 0;
 		border: none;
+	}
+	@keyframes mobile-drawer-enter {
+		from {
+			transform: translate3d(0, 100%, 0);
+		}
+		to {
+			transform: translate3d(0, 0, 0);
+		}
+	}
+
+	:global([data-vaul-drawer][data-vaul-drawer-visible="true"]) {
+		animation: mobile-drawer-enter 500ms cubic-bezier(0.32, 0.72, 0, 1);
 	}
 </style>

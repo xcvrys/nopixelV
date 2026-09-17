@@ -22,6 +22,7 @@
 </svelte:head>
 
 <div
+	data-vaul-drawer-wrapper
 	class="relative min-h-[100dvh] overflow-hidden bg-black text-neutral-100 antialiased"
 >
 	{#if !isHome}
