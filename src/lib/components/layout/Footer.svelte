@@ -31,6 +31,12 @@
 			REQUEST FEATURE
 		</a>
 	</div>
+	<div
+		class="text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center max-w-xl"
+	>
+		Not affiliated with, endorsed, or sponsored by Rockstar Games, Take-Two
+		Interactive, or NoPixel. All trademarks belong to their respective owners.
+	</div>
 	<a
 		href="https://github.com/xcvrys/nopixelV"
 		target="_blank"
