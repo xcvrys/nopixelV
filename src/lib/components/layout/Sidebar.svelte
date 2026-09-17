@@ -194,9 +194,10 @@
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
 {#if showVolumeControl}
   <div
-    class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
-      ? 'opacity-100'
-      : 'opacity-30 hover:opacity-100'}"
+    class={cn(
+      "fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9",
+      isHovered ? "opacity-100" : "opacity-30 hover:opacity-100",
+    )}
   >
     <div class="flex items-center gap-2">
       <span
@@ -205,11 +206,11 @@
         VOL
       </span>
       <span
-        class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
-          ? 'text-neutral-600 line-through'
-          : 'text-neutral-300'}"
+        class={cn(
+          "font-mono text-[10px] md:text-[11px] font-bold tabular-nums",
+          audioStore.muted ? "text-neutral-600 line-through" : "text-neutral-300",
+        )}
       >
-        {audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
       </span>
     </div>
 
