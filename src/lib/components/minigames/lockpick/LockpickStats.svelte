@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { LockpickSnapshot } from "$lib/engine/lockpick";
+	import type { LockpickSnapshot } from "$lib/stores/lockpick.svelte";
 
 	let { snapshot }: { snapshot: LockpickSnapshot } = $props();
 </script>

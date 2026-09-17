@@ -2,7 +2,7 @@
 	import { factoryStore } from '$lib/stores/factory.svelte';
 	import { getItem } from '$lib/data/items';
 	import { STARTER_MACHINES } from '$lib/data/machines';
-	import type { SavedWorkflow } from '$lib/db/storage';
+	import type { SavedWorkflow } from '$lib/stores/factory.svelte';
 	import {
 		Zap,
 		ArrowDownRight,

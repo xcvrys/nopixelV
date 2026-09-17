@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "$lib/components/ui/Button.svelte";
-	import type { GameMode } from "$lib/engine/lockpick";
+	import type { GameMode } from "$lib/stores/lockpick.svelte";
 
 	let {
 		mode,

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { dev } from "$app/environment";
-	import { STAGE_TIMEOUT } from "$lib/engine/lockpick";
 	import { Check, X } from "lucide-svelte";
 	import { createLockpickStore } from "$lib/stores/lockpick.svelte";
 	import LockpickModeSelector from "./LockpickModeSelector.svelte";
@@ -27,7 +26,7 @@
 	let countdownColor = $derived.by(() => {
 		const ratio = Math.max(
 			0,
-			Math.min(1, lockpick.snapshot.stageTimeLeft / STAGE_TIMEOUT),
+			Math.min(1, lockpick.snapshot.stageTimeLeft / lockpick.stageTimeout),
 		);
 		const hue = Math.round(ratio * 32);
 		return `hsl(${hue}, 95%, 55%)`;

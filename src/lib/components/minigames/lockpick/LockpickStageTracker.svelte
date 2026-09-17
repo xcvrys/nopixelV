@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Flame, Timer } from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
-	import type { LockpickSnapshot } from "$lib/engine/lockpick";
+	import type { LockpickSnapshot } from "$lib/stores/lockpick.svelte";
 
 	let {
 		snapshot,
@@ -24,7 +24,8 @@
 				{@const isPassed =
 					stage < snapshot.currentStage ||
 					(stage === snapshot.currentStage &&
-						(snapshot.status === "stage_complete" || snapshot.status === "won"))}
+						(snapshot.status === "stage_complete" ||
+							snapshot.status === "won"))}
 				{@const isFailed =
 					stage === snapshot.currentStage && snapshot.status === "failed"}
 				{@const isActive =

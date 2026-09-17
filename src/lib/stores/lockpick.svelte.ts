@@ -1,17 +1,28 @@
 import { soundEngine } from '$lib/engine/audio';
-import {
-	getLockpickSettings,
-	getLockpickStats,
-	saveLockpickSettings,
-	saveLockpickStats,
-	type LockpickSettings,
-	type LockpickStats
-} from '$lib/db/storage';
+import { getValue, setValue } from '$lib/db/storage';
 import {
 	LockpickLogic,
+	STAGE_TIMEOUT,
 	type GameMode,
 	type LockpickSnapshot
 } from '$lib/engine/lockpick';
+
+export type { GameMode, LockpickSnapshot };
+
+export interface LockpickSettings {
+	mode: GameMode;
+	singleDifficulty: 'easy' | 'medium' | 'hard' | 'custom';
+	decayRate: number;
+	progressPerTap: number;
+}
+
+export interface LockpickStats {
+	bestStreak: number;
+	bestStreakTime: number;
+}
+
+const LOCKPICK_SETTINGS_KEY = 'nopixelv_lockpick_settings_v1';
+const LOCKPICK_STATS_KEY = 'nopixelv_lockpick_stats_v1';
 
 export class LockpickStore {
 	private readonly engine = new LockpickLogic();
@@ -24,6 +35,7 @@ export class LockpickStore {
 	private isStarted = false;
 	private persistedStats: LockpickStats | null = null;
 
+	public readonly stageTimeout = STAGE_TIMEOUT;
 	public snapshot = $state<LockpickSnapshot>(this.engine.snapshot);
 	public isKeyPressed = $state(false);
 	public isFailedShaking = $state(false);
@@ -111,7 +123,7 @@ export class LockpickStore {
 	}
 
 	private persistSettings(): void {
-		void saveLockpickSettings(this.currentSettings());
+		void setValue(LOCKPICK_SETTINGS_KEY, this.currentSettings());
 	}
 
 	private syncState(): void {
@@ -128,14 +140,14 @@ export class LockpickStore {
 				stats.bestStreakTime !== this.persistedStats.bestStreakTime)
 		) {
 			this.persistedStats = stats;
-			void saveLockpickStats(stats);
+			void setValue(LOCKPICK_STATS_KEY, stats);
 		}
 	}
 
 	private async restorePersistedState(): Promise<void> {
 		const [settings, stats] = await Promise.all([
-			getLockpickSettings(),
-			getLockpickStats()
+			getValue<LockpickSettings>(LOCKPICK_SETTINGS_KEY),
+			getValue<LockpickStats>(LOCKPICK_STATS_KEY)
 		]);
 
 		if (settings) {

@@ -1,50 +1,29 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-	saveWorkflow,
-	getWorkflow,
-	listWorkflows,
-	deleteWorkflow,
-	clearAllWorkflows
-} from '../../src/lib/db/storage';
-import { FactoryStore } from '../../src/lib/stores/factory.svelte';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { getRecipe } from '../../src/lib/data/recipes';
-
-describe('Workflow Database Storage', () => {
-	beforeEach(async () => {
-		await clearAllWorkflows();
-	});
-
-	it('saves, retrieves, lists, and deletes a workflow', async () => {
-		const testWorkflow = {
-			id: 'wf-1',
-			name: 'Iron Smelting Line',
-			createdAt: Date.now(),
-			updatedAt: Date.now(),
-			nodes: [{ id: 'n1', type: 'furnace', position: { x: 0, y: 0 }, data: {} }],
-			edges: []
-		};
-
-		await saveWorkflow(testWorkflow);
-
-		const retrieved = await getWorkflow('wf-1');
-		expect(retrieved).toBeDefined();
-		expect(retrieved?.name).toBe('Iron Smelting Line');
-
-		const list = await listWorkflows();
-		expect(list).toHaveLength(1);
-		expect(list[0].id).toBe('wf-1');
-
-		await deleteWorkflow('wf-1');
-		const emptyList = await listWorkflows();
-		expect(emptyList).toHaveLength(0);
-	});
-});
+import { FactoryStore } from '../../src/lib/stores/factory.svelte';
 
 describe('FactoryStore', () => {
 	let store: FactoryStore;
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		store = new FactoryStore();
+		await store.clearSavedWorkflows();
+	});
+
+	it('saves, loads, lists, and deletes a workflow', async () => {
+		store.clearCanvas();
+		store.addMachine('furnace', { x: 0, y: 0 });
+
+		const id = await store.saveWorkflowToDb('Iron Smelting Line');
+		const loadedStore = new FactoryStore();
+
+		expect(await loadedStore.loadWorkflowFromDb(id)).toBe(true);
+		expect(loadedStore.activeWorkflowName).toBe('Iron Smelting Line');
+		expect(loadedStore.nodes).toHaveLength(1);
+		expect((await store.listSavedWorkflows())[0].id).toBe(id);
+
+		await store.deleteSavedWorkflow(id);
+		expect(await store.listSavedWorkflows()).toHaveLength(0);
 	});
 
 	it('initializes with a demo layout', () => {

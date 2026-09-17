@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { RotateCcw, SlidersHorizontal } from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
-	import type { LockpickSnapshot } from "$lib/engine/lockpick";
+	import type { LockpickSnapshot } from "$lib/stores/lockpick.svelte";
 
 	let {
 		snapshot,
