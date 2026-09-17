@@ -146,9 +146,7 @@
               id={input.itemId}
               class="!w-3 !h-3 !-left-5 !bg-cyan-500 !border-2 !border-slate-950 hover:!scale-125 transition-transform"
             />
-            <span
-              class="w-2 h-2 rounded-full shrink-0"
-              style="background-color: {item?.color || '#38bdf8'}"
+            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: var(--color-muted)"
             ></span>
             <div class="min-w-0">
               <div class="text-[11px] font-semibold text-neutral-300 truncate">
@@ -185,9 +183,7 @@
                   : (output.amount * 20).toFixed(0)}/m
               </div>
             </div>
-            <span
-              class="w-2 h-2 rounded-full shrink-0"
-              style="background-color: {item?.color || '#10b981'}"
+            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: var(--color-white)"
             ></span>
             <Handle
               type="source"

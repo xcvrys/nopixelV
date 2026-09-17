@@ -299,7 +299,7 @@
               {y}
               text-anchor="middle"
               dominant-baseline="central"
-              fill="#94a3b8"
+              fill="var(--color-muted)"
               font-size="4.5"
               font-weight="bold"
               font-family="'Barlow Condensed', sans-serif"
@@ -324,7 +324,7 @@
               {y1}
               {x2}
               {y2}
-              stroke={isMajor ? "#cbd5e1" : "#475569"}
+              stroke={isMajor ? "var(--color-foreground)" : "var(--color-muted-dark)"}
               stroke-width={isMajor ? "1" : "0.5"}
             />
           {/each}
@@ -379,7 +379,8 @@
         </div>
         <p class="text-neutral-400 text-xs">
           Combination <span class="text-white font-mono font-bold">{code.join(" - ")}</span>
-          unlocked in <span class="text-white font-bold">{elapsedTime.toFixed(1)}s</span>.
+          unlocked in
+          <span class="text-white font-bold">{elapsedTime.toFixed(1)}s</span>.
         </p>
         <button
           onclick={handleReset}

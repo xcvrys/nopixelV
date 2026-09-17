@@ -4,8 +4,8 @@
   "description": "NoPixel V minigame trainers, heist practice tools and resources.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "rgb(0 0 0)",
+  "theme_color": "rgb(0 0 0)",
   "icons": [
     {
       "src": "/favicon.svg",

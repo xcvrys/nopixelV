@@ -17,7 +17,7 @@
     >
       <span>NOPIXEL</span>
       <span
-        class="text-[#2dd4bf] text-[1.35em] font-black italic leading-none inline-block -translate-y-[3.5px]"
+        class="text-accent text-[1.35em] font-black italic leading-none inline-block -translate-y-[3.5px]"
         >V</span
       >
     </h1>

@@ -85,7 +85,7 @@
           cy="50"
           r={radius}
           fill="transparent"
-          stroke="#ef4444"
+          stroke="var(--color-danger)"
           stroke-width="12"
           stroke-linecap="butt"
         />
@@ -95,7 +95,9 @@
           cy="50"
           r={radius}
           fill="transparent"
-          stroke={lockpick.snapshot.status === "won" ? "#34d399" : "#ffffff"}
+          stroke={lockpick.snapshot.status === "won"
+            ? "var(--color-success)"
+            : "var(--color-white)"}
           stroke-width="12"
           stroke-dasharray={circumference}
           stroke-dashoffset={dashOffset}

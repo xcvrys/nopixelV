@@ -251,15 +251,15 @@
   .sharp-range {
     -webkit-appearance: none;
     appearance: none;
-    background: #141414;
-    border: 1px solid #262626;
+    background: var(--color-surface-input);
+    border: 1px solid var(--color-border-subtle);
   }
   .sharp-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 6px;
     height: 12px;
-    background: #ffffff;
+    background: var(--color-white);
     cursor: pointer;
     border-radius: 0;
   }
@@ -267,7 +267,7 @@
   .sharp-range::-moz-range-thumb {
     width: 6px;
     height: 12px;
-    background: #ffffff;
+    background: var(--color-white);
     cursor: pointer;
     border-radius: 0;
     border: none;

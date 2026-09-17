@@ -17,6 +17,22 @@
 @theme {
   --font-sans: "Barlow Condensed", sans-serif;
   --font-mono: "Barlow Condensed", monospace;
+  --color-background: #000000;
+  --color-foreground: #ededed;
+  --color-white: #ffffff;
+  --color-accent: #2dd4bf;
+  --color-danger: #ef4444;
+  --color-success: #34d399;
+  --color-surface: #0a0a0a;
+  --color-surface-raised: #171717;
+  --color-surface-input: #141414;
+  --color-surface-deep: #050505;
+  --color-border: #222222;
+  --color-border-subtle: #262626;
+  --color-muted: #888888;
+  --color-muted-dark: #444444;
+  --color-selection: #333333;
+  --color-scrollbar-thumb: #222222;
 }
 
 :root {
@@ -33,16 +49,16 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #000000;
-  color: #ededed;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   font-family: "Barlow Condensed", sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: #333333;
-  color: #ffffff;
+  background: var(--color-selection);
+  color: var(--color-white);
 }
 
 /* Vercel-style minimal scrollbars */
@@ -51,42 +67,42 @@ body {
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #222222;
+  background: var(--color-scrollbar-thumb);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+  background: var(--color-selection);
 }
 
 /* SvelteFlow dark monochrome overrides */
 .svelte-flow {
-  background-color: #000000 !important;
+  background-color: var(--color-background) !important;
 }
 .svelte-flow__controls {
-  background: #0a0a0a !important;
-  border: 1px solid #222222 !important;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
   box-shadow: none !important;
   border-radius: 8px !important;
 }
 .svelte-flow__controls button {
-  background: #0a0a0a !important;
-  border-bottom: 1px solid #222222 !important;
-  color: #888888 !important;
-  fill: #888888 !important;
+  background: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  color: var(--color-muted) !important;
+  fill: var(--color-muted) !important;
 }
 .svelte-flow__controls button:hover {
-  background: #171717 !important;
-  color: #ffffff !important;
-  fill: #ffffff !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-white) !important;
+  fill: var(--color-white) !important;
 }
 .svelte-flow__minimap {
-  background: #050505 !important;
-  border: 1px solid #222222 !important;
+  background: var(--color-surface-deep) !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
 }
 .svelte-flow__edge-path {
-  stroke: #444444 !important;
+  stroke: var(--color-muted-dark) !important;
 }

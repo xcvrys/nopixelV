@@ -59,10 +59,15 @@
     class="bg-black"
   >
     <Controls class="!bottom-4 !left-4 !rounded-none" />
-    <Background variant={BackgroundVariant.Dots} gap={20} size={1} patternColor="#505050" />
+    <Background
+      variant={BackgroundVariant.Dots}
+      gap={20}
+      size={1}
+      patternColor="var(--color-muted-dark)"
+    />
     <MiniMap
       class="!rounded-none !bg-neutral-950/95 !border-neutral-800"
-      nodeColor="#ffffff"
+      nodeColor="var(--color-white)"
       maskColor="rgba(0, 0, 0, 0.8)"
     />
   </SvelteFlow>
