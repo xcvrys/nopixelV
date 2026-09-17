@@ -11,10 +11,25 @@
 	</a>
 
 	<div
-		class="text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center max-w-xl"
+		class="flex items-center justify-center gap-2 text-[10px] md:text-[11px] font-mono not-italic"
 	>
-		Not affiliated with, endorsed, or sponsored by Rockstar Games, Take-Two
-		Interactive, or NoPixel. All trademarks belong to their respective owners.
+		<a
+			href="https://github.com/xcvrys/nopixelV/issues/new?template=bug_report.md"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+		>
+			REPORT BUG
+		</a>
+		<span class="text-neutral-700" aria-hidden="true">/</span>
+		<a
+			href="https://github.com/xcvrys/nopixelV/issues/new?template=feature_request.md"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+		>
+			REQUEST FEATURE
+		</a>
 	</div>
 	<a
 		href="https://github.com/xcvrys/nopixelV"
