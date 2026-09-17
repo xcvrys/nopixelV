@@ -1,0 +1,16 @@
+{
+  "ignorePatterns": [".svelte-kit/**", "node_modules/**", "build/**", "docs/**"],
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "svelte": {
+    "indentScriptAndStyle": true,
+    "sortOrder": "options-scripts-markup-styles",
+    "allowShorthand": true
+  }
+}

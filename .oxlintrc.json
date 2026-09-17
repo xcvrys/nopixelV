@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "vitest"],
+  "rules": {
+    "no-unused-vars": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/prefer-as-const": "error",
+    "unicorn/prefer-date-now": "error",
+    "unicorn/prefer-structured-clone": "error",
+    "no-async-promise-executor": "error",
+    "no-promise-executor-return": "error",
+    "no-await-in-loop": "warn",
+    "import/no-duplicates": "error",
+    "import/first": "error",
+    "import/no-self-import": "error",
+    "oxc/no-accumulating-spread": "error",
+    "oxc/double-comparisons": "error",
+    "oxc/bad-min-max-func": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [".svelte-kit/**", "build/**", "node_modules/**", "docs/**"]
+}
