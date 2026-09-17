@@ -50,6 +50,7 @@
     bind:nodes={machineryStore.nodes}
     bind:edges={machineryStore.edges}
     {nodeTypes}
+    proOptions={{ hideAttribution: true }}
     onconnect={handleConnect}
     ondelete={handleDelete}
     fitView
@@ -57,10 +58,10 @@
     maxZoom={2}
     class="bg-black"
   >
-    <Controls class="!bg-neutral-950 !border-neutral-800 !fill-neutral-400" />
-    <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+    <Controls class="!bottom-4 !left-4 !rounded-none" />
+    <Background variant={BackgroundVariant.Dots} gap={20} size={1} patternColor="#505050" />
     <MiniMap
-      class="!bg-neutral-950/95 !border-neutral-800"
+      class="!rounded-none !bg-neutral-950/95 !border-neutral-800"
       nodeColor="#ffffff"
       maskColor="rgba(0, 0, 0, 0.8)"
     />
