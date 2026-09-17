@@ -59,10 +59,10 @@
 		<nav
 			id="mobile-navigation"
 			aria-label="Mobile navigation"
-			class="absolute right-0 top-11 w-52 border border-neutral-900 bg-black p-4 shadow-2xl"
+			class="absolute right-0 top-11 w-52 border border-neutral-700 bg-neutral-950 p-4 shadow-[0_0_30px_rgba(0,0,0,0.9)]"
 		>
 			<div
-				class="mb-3 border-b border-neutral-900 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+				class="mb-3 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
 			>
 				Minigames
 			</div>
@@ -85,7 +85,7 @@
 			</div>
 
 			<div
-				class="mb-3 mt-6 border-b border-neutral-900 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+				class="mb-3 mt-6 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
 			>
 				Resources
 			</div>
