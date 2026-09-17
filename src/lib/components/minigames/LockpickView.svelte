@@ -506,109 +506,111 @@
 		</div>
 	</div>
 
-	<!-- Bottom Right Controls Area (SETTINGS Only) -->
-	<div
-		class="absolute bottom-6 right-6 md:right-8 z-40 flex items-center gap-3"
-	>
-		{#if showSettings}
-			<div
-				class="absolute bottom-12 right-0 w-64 bg-black border border-neutral-900 p-4 z-50 text-xs shadow-2xl"
-			>
+	{#if dev}
+		<!-- Bottom Right Controls Area (SETTINGS Only) -->
+		<div
+			class="absolute bottom-6 right-6 md:right-8 z-40 flex items-center gap-3"
+		>
+			{#if showSettings}
 				<div
-					class="flex items-center justify-between mb-3 border-b border-neutral-900 pb-2"
+					class="absolute bottom-12 right-0 w-64 bg-black border border-neutral-900 p-4 z-50 text-xs shadow-2xl"
 				>
-					<div class="flex items-center gap-2">
-						<SlidersHorizontal class="w-3.5 h-3.5 text-neutral-400" />
-						<span class="font-bold italic text-white tracking-wider uppercase"
-							>Settings</span
-						>
+					<div
+						class="flex items-center justify-between mb-3 border-b border-neutral-900 pb-2"
+					>
+						<div class="flex items-center gap-2">
+							<SlidersHorizontal class="w-3.5 h-3.5 text-neutral-400" />
+							<span class="font-bold italic text-white tracking-wider uppercase"
+								>Settings</span
+							>
+							{#if dev}
+								<span
+									class="text-[9px] font-mono px-1.5 py-0.5 bg-neutral-900 text-neutral-400 border border-neutral-800 uppercase"
+									>DEV</span
+								>
+							{:else}
+								<span
+									class="text-[9px] font-mono px-1.5 py-0.5 bg-neutral-950 text-neutral-600 border border-neutral-900 uppercase"
+									>LOCKED</span
+								>
+							{/if}
+						</div>
 						{#if dev}
-							<span
-								class="text-[9px] font-mono px-1.5 py-0.5 bg-neutral-900 text-neutral-400 border border-neutral-800 uppercase"
-								>DEV</span
+							<button
+								onclick={resetPhysicsPreset}
+								class="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white underline italic border-0 outline-none bg-transparent cursor-pointer"
 							>
-						{:else}
-							<span
-								class="text-[9px] font-mono px-1.5 py-0.5 bg-neutral-950 text-neutral-600 border border-neutral-900 uppercase"
-								>LOCKED</span
-							>
+								<RotateCcw class="w-3 h-3" />
+								<span>Reset Preset</span>
+							</button>
 						{/if}
 					</div>
-					{#if dev}
-						<button
-							onclick={resetPhysicsPreset}
-							class="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white underline italic border-0 outline-none bg-transparent cursor-pointer"
+
+					{#if !dev}
+						<div
+							class="p-2.5 bg-neutral-950 border border-neutral-900 text-[11px] text-neutral-500 italic mb-3"
 						>
-							<RotateCcw class="w-3 h-3" />
-							<span>Reset Preset</span>
-						</button>
+							Settings can only be edited in development mode.
+						</div>
 					{/if}
-				</div>
 
-				{#if !dev}
 					<div
-						class="p-2.5 bg-neutral-950 border border-neutral-900 text-[11px] text-neutral-500 italic mb-3"
+						class="space-y-3 {dev
+							? ''
+							: 'opacity-40 pointer-events-none select-none'}"
 					>
-						Settings can only be edited in development mode.
-					</div>
-				{/if}
-
-				<div
-					class="space-y-3 {dev
-						? ''
-						: 'opacity-40 pointer-events-none select-none'}"
-				>
-					<div>
-						<div class="flex justify-between text-neutral-400 mb-1">
-							<span>Decay Rate</span>
-							<span class="font-mono text-white font-bold"
-								>{lockState.decayRate.toFixed(1)}% / s</span
-							>
+						<div>
+							<div class="flex justify-between text-neutral-400 mb-1">
+								<span>Decay Rate</span>
+								<span class="font-mono text-white font-bold"
+									>{lockState.decayRate.toFixed(1)}% / s</span
+								>
+							</div>
+							<input
+								type="range"
+								min="3"
+								max="35"
+								step="0.5"
+								disabled={!dev}
+								bind:value={lockState.decayRate}
+								oninput={handleCustomPhysicsInput}
+								class="w-full accent-white bg-neutral-800 cursor-pointer h-1 border-0 outline-none disabled:cursor-not-allowed"
+							/>
 						</div>
-						<input
-							type="range"
-							min="3"
-							max="35"
-							step="0.5"
-							disabled={!dev}
-							bind:value={lockState.decayRate}
-							oninput={handleCustomPhysicsInput}
-							class="w-full accent-white bg-neutral-800 cursor-pointer h-1 border-0 outline-none disabled:cursor-not-allowed"
-						/>
-					</div>
 
-					<div>
-						<div class="flex justify-between text-neutral-400 mb-1">
-							<span>Progress per Tap</span>
-							<span class="font-mono text-white font-bold"
-								>+{lockState.progressPerTap.toFixed(1)}%</span
-							>
+						<div>
+							<div class="flex justify-between text-neutral-400 mb-1">
+								<span>Progress per Tap</span>
+								<span class="font-mono text-white font-bold"
+									>+{lockState.progressPerTap.toFixed(1)}%</span
+								>
+							</div>
+							<input
+								type="range"
+								min="2"
+								max="15"
+								step="0.5"
+								disabled={!dev}
+								bind:value={lockState.progressPerTap}
+								oninput={handleCustomPhysicsInput}
+								class="w-full accent-white bg-neutral-800 cursor-pointer h-1 border-0 outline-none disabled:cursor-not-allowed"
+							/>
 						</div>
-						<input
-							type="range"
-							min="2"
-							max="15"
-							step="0.5"
-							disabled={!dev}
-							bind:value={lockState.progressPerTap}
-							oninput={handleCustomPhysicsInput}
-							class="w-full accent-white bg-neutral-800 cursor-pointer h-1 border-0 outline-none disabled:cursor-not-allowed"
-						/>
 					</div>
 				</div>
-			</div>
-		{/if}
+			{/if}
 
-		<button
-			onclick={() => (showSettings = !showSettings)}
-			class="inline-flex items-center gap-1.5 px-3.5 py-2 font-semibold italic text-xs uppercase border-0 outline-none transition-colors select-none cursor-pointer {showSettings
-				? 'bg-white text-black'
-				: 'bg-black text-white hover:bg-white hover:text-black'}"
-		>
-			<SlidersHorizontal class="w-3.5 h-3.5" />
-			<span>SETTINGS</span>
-		</button>
-	</div>
+			<button
+				onclick={() => (showSettings = !showSettings)}
+				class="inline-flex items-center gap-1.5 px-3.5 py-2 font-semibold italic text-xs uppercase border-0 outline-none transition-colors select-none cursor-pointer {showSettings
+					? 'bg-white text-black'
+					: 'bg-black text-white hover:bg-white hover:text-black'}"
+			>
+				<SlidersHorizontal class="w-3.5 h-3.5" />
+				<span>SETTINGS</span>
+			</button>
+		</div>
+	{/if}
 </div>
 
 <style>
