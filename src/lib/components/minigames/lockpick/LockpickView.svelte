@@ -38,7 +38,7 @@
 >
 	<!-- Top Mode Switcher & Stage Tracker -->
 	<div
-		class="absolute top-16 right-2 left-auto z-40 flex translate-x-0 select-none flex-col items-center gap-2.5 md:top-6 md:right-auto md:left-1/2 md:-translate-x-1/2"
+		class="absolute top-16 left-1/2 z-40 flex -translate-x-1/2 select-none flex-col items-center gap-2.5 md:top-6"
 	>
 		<LockpickModeSelector
 			mode={lockpick.snapshot.mode}

@@ -9,6 +9,11 @@
 	let isHovered = $state(false);
 
 	const isLockpickActive = $derived(currentPath === "/minigames/lockpick");
+	let isMobileMenuOpen = $state(false);
+
+	function closeMobileMenu() {
+		isMobileMenuOpen = false;
+	}
 
 	function handleToggleMute() {
 		if (audioStore.muted) {
@@ -38,10 +43,62 @@
 	}
 </script>
 
+<div class="fixed right-3 top-4 z-50 md:hidden">
+	<Button
+		variant={isMobileMenuOpen ? "primary" : "quiet"}
+		ariaLabel="Toggle navigation menu"
+		ariaExpanded={isMobileMenuOpen}
+		ariaControls="mobile-navigation"
+		onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+		class="px-3.5 py-2"
+	>
+		Menu
+	</Button>
+
+	{#if isMobileMenuOpen}
+		<nav
+			id="mobile-navigation"
+			aria-label="Mobile navigation"
+			class="absolute right-0 top-11 w-52 border border-neutral-900 bg-black p-4 shadow-2xl"
+		>
+			<div
+				class="mb-3 border-b border-neutral-900 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+			>
+				Minigames
+			</div>
+			<div class="flex flex-col items-start gap-1.5">
+				<a
+					href="/minigames/lockpick"
+					aria-current={isLockpickActive ? "page" : undefined}
+					onclick={closeMobileMenu}
+					class="inline-flex items-center px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
+						? 'bg-white text-black'
+						: 'text-white hover:bg-white hover:text-black'}"
+				>
+					LOCKPICK
+				</a>
+				<ComingSoon
+					label="STORE SAFE"
+					badge="SOON"
+					class="px-3.5 py-1 text-lg"
+				/>
+			</div>
+
+			<div
+				class="mb-3 mt-6 border-b border-neutral-900 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+			>
+				Resources
+			</div>
+			<ComingSoon label="FACTORY" badge="SOON" class="px-3.5 py-1 text-lg" />
+		</nav>
+	{/if}
+</div>
+
+<!-- Desktop sidebar -->
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-3 top-4 z-50 flex select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:gap-14 {isHovered
+	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {isHovered
 		? 'opacity-100'
 		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
 >
@@ -86,10 +143,9 @@
 		</div>
 	</div>
 </aside>
-
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
 <div
-	class="fixed bottom-5 left-3 z-40 flex select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:bottom-9 {isHovered
+	class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
 		? 'opacity-100'
 		: 'opacity-30 hover:opacity-100'}"
 >
