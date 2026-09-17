@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { Volume2, Volume1, VolumeX } from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
 	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
@@ -7,7 +8,18 @@
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
 	let isHovered = $state(false);
+	let hasCursor = $state(false);
 
+	onMount(() => {
+		const pointerQuery = window.matchMedia("(pointer: fine)");
+		hasCursor = pointerQuery.matches;
+		const handlePointerChange = (event: MediaQueryListEvent) => {
+			hasCursor = event.matches;
+		};
+		pointerQuery.addEventListener("change", handlePointerChange);
+		return () =>
+			pointerQuery.removeEventListener("change", handlePointerChange);
+	});
 	const isLockpickActive = $derived(currentPath === "/minigames/lockpick");
 	let isMobileMenuOpen = $state(false);
 
@@ -98,7 +110,8 @@
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {isHovered
+	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {hasCursor ||
+	isHovered
 		? 'opacity-100'
 		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
 >
