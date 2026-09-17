@@ -1,48 +1,50 @@
 <footer
-	class="w-full flex flex-col md:flex-row items-center justify-between gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
+	class="w-full flex flex-col md:grid md:grid-cols-3 items-center gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
 >
 	<a
 		href="https://github.com/xcvrys"
 		target="_blank"
 		rel="noopener noreferrer"
-		class="inline-flex items-center px-2.5 py-1.5 leading-none uppercase font-semibold italic text-xs md:text-sm text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer select-none rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+		class="inline-flex items-center px-2.5 py-1.5 leading-none uppercase font-semibold italic text-xs md:text-sm text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer select-none rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:justify-self-start"
 	>
 		CREATED BY @XCVRYS
 	</a>
 
-	<div
-		class="flex items-center justify-center gap-2 text-[10px] md:text-[11px] font-mono not-italic"
-	>
-		<a
-			href="https://github.com/xcvrys/nopixelV/issues/new?template=bug_report.md"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+	<div class="flex flex-col items-center gap-1 md:justify-self-center">
+		<div
+			class="flex items-center justify-center gap-2 text-[10px] md:text-[11px] font-mono not-italic"
 		>
-			REPORT BUG
-		</a>
-		<span class="text-neutral-700" aria-hidden="true">/</span>
-		<a
-			href="https://github.com/xcvrys/nopixelV/issues/new?template=feature_request.md"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+			<a
+				href="https://github.com/xcvrys/nopixelV/issues/new?template=bug_report.md"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+			>
+				REPORT BUG
+			</a>
+			<span class="text-neutral-700" aria-hidden="true">/</span>
+			<a
+				href="https://github.com/xcvrys/nopixelV/issues/new?template=feature_request.md"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-neutral-500 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+			>
+				REQUEST FEATURE
+			</a>
+		</div>
+		<div
+			class="text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center max-w-xl"
 		>
-			REQUEST FEATURE
-		</a>
-	</div>
-	<div
-		class="text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center max-w-xl"
-	>
-		Not affiliated with, endorsed, or sponsored by Rockstar Games, Take-Two
-		Interactive, or NoPixel. All trademarks belong to their respective owners.
+			Not affiliated with, endorsed, or sponsored by Rockstar Games, Take-Two
+			Interactive, or NoPixel. All trademarks belong to their respective owners.
+		</div>
 	</div>
 	<a
 		href="https://github.com/xcvrys/nopixelV"
 		target="_blank"
 		rel="noopener noreferrer"
 		aria-label="GitHub Repository"
-		class="inline-flex items-center justify-center p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+		class="inline-flex items-center justify-center p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-900 border border-transparent hover:border-neutral-800 transition-colors cursor-pointer rounded-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:justify-self-end"
 	>
 		<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
 			<path
