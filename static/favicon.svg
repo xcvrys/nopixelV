@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Rockstar Launcher style dark squircle tile -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="#080808" stroke="#1c1c1c" stroke-width="2" />
+  
+  <!-- Authentic bold NoPixel V cyan Roman numeral emblem -->
+  <g transform="translate(64, 64) skewX(-7) translate(-64, -64)">
+    <path d="
+      M 26 22
+      H 66
+      V 34
+      H 58
+      L 66 69
+      L 73 34
+      H 65
+      V 22
+      H 102
+      V 34
+      H 92
+      L 80 106
+      H 48
+      L 36 34
+      H 26
+      Z
+    " fill="#00f2d5" />
+  </g>
+</svg>

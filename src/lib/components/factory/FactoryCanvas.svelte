@@ -1,0 +1,63 @@
+<script lang="ts">
+	import {
+		SvelteFlow,
+		Controls,
+		Background,
+		BackgroundVariant,
+		MiniMap,
+		type Connection,
+		type Edge
+	} from '@xyflow/svelte';
+	import MachineNode from './MachineNode.svelte';
+	import { factoryStore } from '$lib/stores/factory.svelte';
+
+	const nodeTypes = {
+		machine: MachineNode
+	};
+
+	function handleConnect(connection: Connection) {
+		if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
+			factoryStore.connectEdge(
+				connection.source,
+				connection.sourceHandle,
+				connection.target,
+				connection.targetHandle
+			);
+		}
+	}
+
+	function handleDelete(params: { nodes: { id: string }[]; edges: Edge[] }) {
+		if (params.nodes) {
+			for (const node of params.nodes) {
+				factoryStore.removeNode(node.id);
+			}
+		}
+		if (params.edges) {
+			for (const edge of params.edges) {
+				factoryStore.removeEdge(edge.id);
+			}
+		}
+	}
+</script>
+
+<div class="flex-1 w-full h-[calc(100vh-4.5rem)] relative bg-black">
+	<SvelteFlow
+		bind:nodes={factoryStore.nodes}
+		bind:edges={factoryStore.edges}
+		{nodeTypes}
+		onconnect={handleConnect}
+		ondelete={handleDelete}
+		fitView
+		minZoom={0.2}
+		maxZoom={2}
+		class="bg-black"
+	>
+		<Controls class="!bg-neutral-950 !border-neutral-800 !fill-neutral-400" />
+		<Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+		<MiniMap
+			class="!bg-neutral-950/95 !border-neutral-800"
+			nodeColor="#ffffff"
+			maskColor="rgba(0, 0, 0, 0.8)"
+		/>
+	</SvelteFlow>
+</div>
