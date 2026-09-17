@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Volume2, Volume1, VolumeX } from "lucide-svelte";
+	import Button from "$lib/components/ui/Button.svelte";
+	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
 	import { soundEngine } from "$lib/engine/audio";
 
 	let { currentPath = "/" }: { currentPath: string } = $props();
@@ -41,7 +43,7 @@
 	onmouseleave={() => (isHovered = false)}
 	class="fixed left-8 md:left-12 lg:left-14 top-1/2 -translate-y-1/2 z-50 select-none transition-opacity duration-200 flex flex-col gap-10 md:gap-14 {isHovered
 		? 'opacity-100'
-		: 'opacity-20 hover:opacity-100'}"
+		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
 >
 	<!-- Section 1: MINIGAMES -->
 	<div>
@@ -53,23 +55,14 @@
 		<div class="flex flex-col items-start gap-1.5">
 			<a
 				href="/minigames/lockpick"
-				class="inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors {isLockpickActive
+				aria-current={isLockpickActive ? "page" : undefined}
+				class="inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
 					? 'bg-white text-black'
 					: 'bg-transparent text-white hover:bg-white hover:text-black'}"
 			>
 				LOCKPICK
 			</a>
-			<div
-				class="inline-flex items-center gap-2 px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase text-neutral-600 select-none cursor-not-allowed"
-				title="Coming Soon"
-			>
-				<span>STORE SAFE</span>
-				<span
-					class="text-[9px] md:text-[10px] font-bold italic tracking-wider px-1.5 py-0.5 bg-neutral-900 text-neutral-400 uppercase leading-none"
-				>
-					SOON
-				</span>
-			</div>
+			<ComingSoon label="STORE SAFE" badge="SOON" class="px-3 md:px-3.5 py-1 text-base md:text-lg" />
 		</div>
 	</div>
 
@@ -81,17 +74,7 @@
 			RESOURCES
 		</h2>
 		<div class="flex flex-col items-start gap-1.5">
-			<div
-				class="inline-flex items-center gap-2 px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase text-neutral-600 select-none cursor-not-allowed"
-				title="Coming Soon"
-			>
-				<span>FACTORY</span>
-				<span
-					class="text-[9px] md:text-[10px] font-bold italic tracking-wider px-1.5 py-0.5 bg-neutral-900 text-neutral-400 uppercase leading-none"
-				>
-					SOON
-				</span>
-			</div>
+			<ComingSoon label="FACTORY" badge="SOON" class="px-3 md:px-3.5 py-1 text-base md:text-lg" />
 		</div>
 	</div>
 </aside>
@@ -118,14 +101,13 @@
 	</div>
 
 	<div class="flex items-center gap-2">
-		<button
+		<Button
+			variant="icon"
 			type="button"
 			onclick={handleToggleMute}
 			title={soundEngine.muted ? "Unmute audio" : "Mute audio"}
-			aria-label={soundEngine.muted ? "Unmute audio" : "Mute audio"}
-			class="inline-flex items-center justify-center w-5 h-5 rounded-none border border-neutral-800 outline-none transition-colors cursor-pointer {soundEngine.muted
-				? 'bg-neutral-900 text-neutral-600 hover:bg-neutral-800 hover:text-white'
-				: 'bg-white text-black hover:bg-neutral-200'}"
+			ariaLabel={soundEngine.muted ? "Unmute audio" : "Mute audio"}
+			class="h-5 w-5 px-0"
 		>
 			{#if soundEngine.muted || soundEngine.volume === 0}
 				<VolumeX class="w-3 h-3" />
@@ -134,7 +116,7 @@
 			{:else}
 				<Volume2 class="w-3 h-3" />
 			{/if}
-		</button>
+		</Button>
 
 		<input
 			type="range"
