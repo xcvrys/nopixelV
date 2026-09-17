@@ -17,6 +17,15 @@ import {
   getMaxingConfig,
 } from "./constants";
 
+type TapResultOptions = {
+  tapped?: boolean;
+  stageCompleted?: boolean;
+  runWon?: boolean;
+  newBestStreak?: boolean;
+  pinAdvanced?: boolean;
+  won?: boolean;
+};
+
 export class LockpickLogic {
   public mode: GameMode;
   public singleDifficulty: SingleDifficulty = "medium";
@@ -46,7 +55,6 @@ export class LockpickLogic {
   public maxPins: number = 1;
   public failOnZero: boolean;
 
-  private winTime: number = 0;
   private stageCompleteTime: number = 0;
   private hasBufferedNextStageTap: boolean = false;
 
@@ -102,20 +110,16 @@ export class LockpickLogic {
 
   public tap(): LockpickTapResult {
     if (this.status === "failed" || this.status === "lost") {
-      return this.createTapResult(false, false, false, false);
+      return this.createTapResult();
     }
 
     if (this.status === "stage_complete") {
       this.bufferInputIfNearEnd();
-      return this.createTapResult(false, false, false, false);
+      return this.createTapResult();
     }
 
     if (this.status === "won") {
-      if (Date.now() - this.winTime < 600) {
-        return this.createTapResult(false, false, false, false);
-      }
-      this.reset();
-      return this.createTapResult(false, false, false, false);
+      return this.createTapResult();
     }
 
     if (this.status === "idle") {
@@ -132,7 +136,7 @@ export class LockpickLogic {
       return this.handleProgressThresholdReached();
     }
 
-    return this.createTapResult(true, false, false, false);
+    return this.createTapResult({ tapped: true });
   }
 
   public tick(deltaSeconds: number): LockpickTickResult {
@@ -279,7 +283,7 @@ export class LockpickLogic {
     if (this.mode === "progressive") {
       if (this.currentStage < 3) {
         this.status = "stage_complete";
-        return this.createTapResult(true, true, false, false, true, false);
+        return this.createTapResult({ tapped: true, stageCompleted: true, pinAdvanced: true });
       }
       return this.triggerVictory();
     }
@@ -287,13 +291,18 @@ export class LockpickLogic {
     if (this.mode === "maxing") {
       this.status = "stage_complete";
       const newBest = this.updateBestStreakRecord(this.currentLevel);
-      return this.createTapResult(true, true, false, newBest, true, false);
+      return this.createTapResult({
+        tapped: true,
+        stageCompleted: true,
+        newBestStreak: newBest,
+        pinAdvanced: true,
+      });
     }
 
     if (this.currentStage < this.maxPins) {
       this.currentStage++;
       this.progress = 0;
-      return this.createTapResult(true, false, false, false, true, false);
+      return this.createTapResult({ tapped: true, pinAdvanced: true });
     }
 
     return this.triggerVictory();
@@ -301,10 +310,8 @@ export class LockpickLogic {
 
   private triggerVictory(): LockpickTapResult {
     this.status = "won";
-    this.winTime = Date.now();
     this.isRunActive = false;
-    this.recordRunMetrics();
-    return this.createTapResult(true, true, true, false, false, true);
+    return this.createTapResult({ tapped: true, stageCompleted: true, runWon: true, won: true });
   }
 
   private triggerFailure(reason: "decay" | "timeout"): LockpickTickResult {
@@ -342,14 +349,14 @@ export class LockpickLogic {
     return false;
   }
 
-  private createTapResult(
-    tapped: boolean,
-    stageCompleted: boolean,
-    runWon: boolean,
-    newBestStreak: boolean,
-    pinAdvanced: boolean = false,
-    won: boolean = false,
-  ): LockpickTapResult {
+  private createTapResult({
+    tapped = false,
+    stageCompleted = false,
+    runWon = false,
+    newBestStreak = false,
+    pinAdvanced = false,
+    won = false,
+  }: TapResultOptions = {}): LockpickTapResult {
     return {
       tapped,
       stageCompleted,

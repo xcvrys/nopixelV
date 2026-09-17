@@ -62,6 +62,30 @@ describe("LockpickLogic Engine", () => {
     expect(singlePinLock.status).toBe("won");
   });
 
+  it("ignores taps throughout the victory state", () => {
+    const singlePinLock = new LockpickLogic({
+      progressPerTap: 50,
+      decayRate: 0,
+      maxPins: 1,
+    });
+    const originalNow = Date.now;
+
+    try {
+      singlePinLock.tap();
+      singlePinLock.tap();
+      expect(singlePinLock.status).toBe("won");
+      singlePinLock.progressPerTap = 5;
+      Date.now = () => originalNow() + 601;
+      for (let index = 0; index < 10; index++) singlePinLock.tap();
+
+      expect(singlePinLock.status).toBe("won");
+      expect(singlePinLock.progress).toBe(100);
+      expect(singlePinLock.taps).toBe(2);
+    } finally {
+      Date.now = originalNow;
+    }
+  });
+
   it("advances through multiple pins", () => {
     const twoPinLock = new LockpickLogic({
       progressPerTap: 100,
