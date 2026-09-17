@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { factoryStore } from "$lib/stores/factory.svelte";
-	import { getItem } from "$lib/data/items";
-	import { STARTER_MACHINES } from "$lib/data/machines";
-	import type { SavedWorkflow } from "$lib/db/storage";
+	import { factoryStore } from '$lib/stores/factory.svelte';
+	import { getItem } from '$lib/data/items';
+	import { STARTER_MACHINES } from '$lib/data/machines';
+	import type { SavedWorkflow } from '$lib/db/storage';
 	import {
 		Zap,
 		ArrowDownRight,
@@ -15,8 +15,8 @@
 		Upload,
 		Database,
 		Save,
-		X,
-	} from "lucide-svelte";
+		X
+	} from 'lucide-svelte';
 
 	let summary = $derived(factoryStore.calculationResult.summary);
 	let bottlenecks = $derived(factoryStore.calculationResult.bottlenecks);
@@ -24,21 +24,21 @@
 	let showAddMenu = $state(false);
 	let showWorkflowModal = $state(false);
 	let savedWorkflows = $state<SavedWorkflow[]>([]);
-	let newWorkflowName = $state("");
-	let importError = $state("");
+	let newWorkflowName = $state('');
+	let importError = $state('');
 	let fileInput = $state<HTMLInputElement | null>(null);
 
 	function handleAddMachine(type: string) {
 		factoryStore.addMachine(type, {
 			x: 200 + Math.random() * 80,
-			y: 150 + Math.random() * 80,
+			y: 150 + Math.random() * 80
 		});
 		showAddMenu = false;
 	}
 
 	async function openWorkflowModal() {
 		savedWorkflows = await factoryStore.listSavedWorkflows();
-		newWorkflowName = factoryStore.activeWorkflowName || "";
+		newWorkflowName = factoryStore.activeWorkflowName || '';
 		showWorkflowModal = true;
 	}
 
@@ -60,9 +60,9 @@
 
 	function handleExportBlueprint() {
 		const json = factoryStore.exportBlueprintJson();
-		const blob = new Blob([json], { type: "application/json" });
+		const blob = new Blob([json], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
+		const a = document.createElement('a');
 		a.href = url;
 		a.download = `nopixel-v-blueprint-${Date.now()}.json`;
 		a.click();
@@ -70,7 +70,7 @@
 	}
 
 	function handleImportFile(e: Event) {
-		importError = "";
+		importError = '';
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
@@ -80,7 +80,7 @@
 			const content = event.target?.result as string;
 			const success = factoryStore.importBlueprintJson(content);
 			if (!success) {
-				importError = "Invalid blueprint JSON format.";
+				importError = 'Invalid blueprint JSON format.';
 			} else {
 				showWorkflowModal = false;
 			}
@@ -89,32 +89,22 @@
 	}
 </script>
 
-<header
-	class="w-full bg-black border-b border-neutral-900 px-4 py-3 flex flex-wrap items-center justify-between gap-4 z-20"
->
+<header class="w-full bg-black border-b border-neutral-900 px-4 py-3 flex flex-wrap items-center justify-between gap-4 z-20">
 	<!-- Left: Global Production Balance Totals -->
 	<div class="flex flex-wrap items-center gap-3">
 		<!-- Raw Inputs Demanded -->
-		<div
-			class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800"
-		>
+		<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800">
 			<ArrowDownRight class="w-4 h-4 text-neutral-400 shrink-0" />
 			<div class="text-xs">
-				<span class="text-[10px] uppercase font-semibold text-neutral-500 block"
-					>Raw Inflow</span
-				>
+				<span class="text-[10px] uppercase font-semibold text-neutral-500 block">Raw Inflow</span>
 				{#if summary.rawInputsNeeded.length > 0}
 					<div class="flex items-center gap-2">
 						{#each summary.rawInputsNeeded as inp}
 							{@const item = getItem(inp.itemId)}
-							<span
-								class="inline-flex items-center gap-1 font-mono font-bold text-white"
-							>
+							<span class="inline-flex items-center gap-1 font-mono font-bold text-white">
 								<span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
 								<span>{inp.ratePerMin}/m</span>
-								<span class="text-neutral-500 text-[10px] font-normal"
-									>{item?.name || inp.itemId}</span
-								>
+								<span class="text-neutral-500 text-[10px] font-normal">{item?.name || inp.itemId}</span>
 							</span>
 						{/each}
 					</div>
@@ -125,26 +115,18 @@
 		</div>
 
 		<!-- Net Outputs Produced -->
-		<div
-			class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800"
-		>
+		<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800">
 			<ArrowUpRight class="w-4 h-4 text-white shrink-0" />
 			<div class="text-xs">
-				<span class="text-[10px] uppercase font-semibold text-neutral-500 block"
-					>Net Products</span
-				>
+				<span class="text-[10px] uppercase font-semibold text-neutral-500 block">Net Products</span>
 				{#if summary.netOutputsProduced.length > 0}
 					<div class="flex items-center gap-2">
 						{#each summary.netOutputsProduced as out}
 							{@const item = getItem(out.itemId)}
-							<span
-								class="inline-flex items-center gap-1 font-mono font-bold text-white"
-							>
+							<span class="inline-flex items-center gap-1 font-mono font-bold text-white">
 								<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
 								<span>{out.ratePerMin}/m</span>
-								<span class="text-neutral-500 text-[10px] font-normal"
-									>{item?.name || out.itemId}</span
-								>
+								<span class="text-neutral-500 text-[10px] font-normal">{item?.name || out.itemId}</span>
 							</span>
 						{/each}
 					</div>
@@ -155,29 +137,19 @@
 		</div>
 
 		<!-- Global Power Consumption -->
-		<div
-			class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800"
-		>
+		<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800">
 			<Zap class="w-4 h-4 text-neutral-400 shrink-0" />
 			<div class="text-xs">
-				<span class="text-[10px] uppercase font-semibold text-neutral-500 block"
-					>Total Power</span
-				>
-				<span class="font-mono font-bold text-white"
-					>{summary.totalPowerDraw} kW/m</span
-				>
+				<span class="text-[10px] uppercase font-semibold text-neutral-500 block">Total Power</span>
+				<span class="font-mono font-bold text-white">{summary.totalPowerDraw} kW/m</span>
 			</div>
 		</div>
 
 		<!-- Bottleneck Warning Badge -->
 		{#if bottlenecks.length > 0}
-			<div
-				class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-semibold"
-			>
+			<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-semibold">
 				<TriangleAlert class="w-4 h-4 text-neutral-400 shrink-0" />
-				<span
-					>{bottlenecks.length} Bottleneck{bottlenecks.length > 1 ? "s" : ""} Detected</span
-				>
+				<span>{bottlenecks.length} Bottleneck{bottlenecks.length > 1 ? 's' : ''} Detected</span>
 			</div>
 		{/if}
 	</div>
@@ -195,9 +167,7 @@
 			</button>
 
 			{#if showAddMenu}
-				<div
-					class="absolute right-0 mt-2 w-52 bg-black border border-neutral-800 rounded-lg shadow-2xl p-1 z-50 animate-in fade-in duration-100"
-				>
+				<div class="absolute right-0 mt-2 w-52 bg-black border border-neutral-800 rounded-lg shadow-2xl p-1 z-50 animate-in fade-in duration-100">
 					{#each STARTER_MACHINES as m}
 						<button
 							onclick={() => handleAddMachine(m.type)}
@@ -243,29 +213,17 @@
 
 <!-- Workflows & Blueprints IndexedDB Modal -->
 {#if showWorkflowModal}
-	<div
-		class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-	>
-		<div
-			class="bg-black border border-neutral-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl"
-		>
+	<div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+		<div class="bg-black border border-neutral-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl">
 			<!-- Modal Header -->
-			<div
-				class="flex items-center justify-between pb-4 border-b border-neutral-900 mb-5"
-			>
+			<div class="flex items-center justify-between pb-4 border-b border-neutral-900 mb-5">
 				<div class="flex items-center gap-2.5">
-					<div
-						class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white"
-					>
+					<div class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white">
 						<Database class="w-4 h-4" />
 					</div>
 					<div>
-						<h3 class="font-bold text-white text-base">
-							Local Database Workflows
-						</h3>
-						<p class="text-[11px] text-neutral-400">
-							Save and load production blueprints in browser IndexedDB
-						</p>
+						<h3 class="font-bold text-white text-base">Local Database Workflows</h3>
+						<p class="text-[11px] text-neutral-400">Save and load production blueprints in browser IndexedDB</p>
 					</div>
 				</div>
 				<button
@@ -278,10 +236,7 @@
 
 			<!-- Save Current Workflow Form -->
 			<div class="mb-6 p-4 rounded-xl bg-neutral-950 border border-neutral-900">
-				<label
-					for="save-workflow-name-input"
-					class="text-xs font-semibold text-neutral-300 block mb-2"
-				>
+				<label for="save-workflow-name-input" class="text-xs font-semibold text-neutral-300 block mb-2">
 					Save Current Factory Workflow
 				</label>
 				<div class="flex gap-2">
@@ -304,22 +259,15 @@
 
 			<!-- Saved Workflows List -->
 			<div class="mb-6">
-				<h4
-					class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2"
-				>
-					Saved Workflows
-				</h4>
+				<h4 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Saved Workflows</h4>
 				{#if savedWorkflows.length > 0}
 					<div class="space-y-2 max-h-48 overflow-y-auto pr-1">
 						{#each savedWorkflows as wf}
-							<div
-								class="flex items-center justify-between p-3 rounded-lg bg-neutral-950 border border-neutral-900 hover:border-neutral-800"
-							>
+							<div class="flex items-center justify-between p-3 rounded-lg bg-neutral-950 border border-neutral-900 hover:border-neutral-800">
 								<div>
 									<div class="font-bold text-xs text-white">{wf.name}</div>
 									<div class="text-[10px] text-neutral-500">
-										{wf.nodes.length} machines • {wf.edges.length} conveyor lines
-										• {new Date(wf.updatedAt).toLocaleDateString()}
+										{wf.nodes.length} machines • {wf.edges.length} conveyor lines • {new Date(wf.updatedAt).toLocaleDateString()}
 									</div>
 								</div>
 								<div class="flex items-center gap-2">
@@ -341,18 +289,14 @@
 						{/each}
 					</div>
 				{:else}
-					<div
-						class="text-xs text-neutral-500 italic py-3 text-center bg-neutral-950 rounded-lg border border-dashed border-neutral-900"
-					>
+					<div class="text-xs text-neutral-500 italic py-3 text-center bg-neutral-950 rounded-lg border border-dashed border-neutral-900">
 						No saved workflows in local database yet.
 					</div>
 				{/if}
 			</div>
 
 			<!-- Import & Export Section -->
-			<div
-				class="flex items-center justify-between pt-4 border-t border-neutral-900 text-xs"
-			>
+			<div class="flex items-center justify-between pt-4 border-t border-neutral-900 text-xs">
 				<div class="flex items-center gap-2">
 					<button
 						onclick={handleExportBlueprint}
@@ -379,9 +323,7 @@
 				</div>
 
 				{#if importError}
-					<span class="text-neutral-400 text-xs font-semibold"
-						>{importError}</span
-					>
+					<span class="text-neutral-400 text-xs font-semibold">{importError}</span>
 				{/if}
 			</div>
 		</div>
