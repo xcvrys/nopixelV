@@ -2,12 +2,12 @@
 	import { factoryStore } from '$lib/stores/factory.svelte';
 	import { getItem } from '$lib/data/items';
 	import { STARTER_MACHINES } from '$lib/data/machines';
-	import type { SavedWorkflow } from '$lib/db/storage';
+	import type { SavedWorkflow } from '$lib/stores/factory.svelte';
 	import {
 		Zap,
 		ArrowDownRight,
 		ArrowUpRight,
-		AlertTriangle,
+		TriangleAlert,
 		Plus,
 		RotateCcw,
 		Trash2,
@@ -15,7 +15,6 @@
 		Upload,
 		Database,
 		Save,
-		FolderOpen,
 		X
 	} from 'lucide-svelte';
 
@@ -149,7 +148,7 @@
 		<!-- Bottleneck Warning Badge -->
 		{#if bottlenecks.length > 0}
 			<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-semibold">
-				<AlertTriangle class="w-4 h-4 text-neutral-400 shrink-0" />
+				<TriangleAlert class="w-4 h-4 text-neutral-400 shrink-0" />
 				<span>{bottlenecks.length} Bottleneck{bottlenecks.length > 1 ? 's' : ''} Detected</span>
 			</div>
 		{/if}

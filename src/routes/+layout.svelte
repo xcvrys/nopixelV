@@ -22,7 +22,7 @@
 </svelte:head>
 
 <div
-	class="min-h-screen bg-black text-neutral-100 relative antialiased overflow-hidden"
+	class="relative min-h-[100dvh] overflow-hidden bg-black text-neutral-100 antialiased"
 >
 	{#if !isHome}
 		<Sidebar currentPath={page.url.pathname} />
@@ -32,7 +32,7 @@
 			Not affiliated with Rockstar Games, Take-Two Interactive, or NoPixel
 		</div>
 	{/if}
-	<main class="w-full h-screen overflow-hidden">
+	<main class="w-full min-h-[100dvh] overflow-hidden">
 		{@render children()}
 	</main>
 </div>

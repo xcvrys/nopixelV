@@ -1,47 +1,119 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { Volume2, Volume1, VolumeX } from "lucide-svelte";
-	import { soundEngine } from "$lib/engine/audio";
+	import Button from "$lib/components/ui/Button.svelte";
+	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
+	import { audioStore } from "$lib/stores/audio.svelte";
 
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
 	let isHovered = $state(false);
+	let hasMouse = $state(false);
 
+	onMount(() => {
+		const pointerQuery = window.matchMedia("(pointer: fine)");
+		hasMouse = pointerQuery.matches;
+		const handlePointerChange = (event: MediaQueryListEvent) => {
+			hasMouse = event.matches;
+		};
+		pointerQuery.addEventListener("change", handlePointerChange);
+		return () =>
+			pointerQuery.removeEventListener("change", handlePointerChange);
+	});
 	const isLockpickActive = $derived(currentPath === "/minigames/lockpick");
+	let isMobileMenuOpen = $state(false);
+
+	function closeMobileMenu() {
+		isMobileMenuOpen = false;
+	}
 
 	function handleToggleMute() {
-		if (soundEngine.muted) {
-			soundEngine.setMuted(false);
-			if (soundEngine.volume === 0) {
-				soundEngine.setVolume(0.5);
+		if (audioStore.muted) {
+			audioStore.setMuted(false);
+			if (audioStore.volume === 0) {
+				audioStore.setVolume(0.5);
 			}
-			soundEngine.playRatchetClick();
+			audioStore.playRatchetClick();
 		} else {
-			soundEngine.setMuted(true);
+			audioStore.setMuted(true);
 		}
 	}
 
 	function handleVolumeInput(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
 		const val = parseFloat(target.value);
-		if (soundEngine.muted && val > 0) {
-			soundEngine.setMuted(false);
+		if (audioStore.muted && val > 0) {
+			audioStore.setMuted(false);
 		}
-		soundEngine.setVolume(val);
+		audioStore.setVolume(val);
 	}
 
 	function handleVolumeChange() {
-		if (!soundEngine.muted && soundEngine.volume > 0) {
-			soundEngine.playRatchetClick();
+		if (!audioStore.muted && audioStore.volume > 0) {
+			audioStore.playRatchetClick();
 		}
 	}
 </script>
 
+<div class="fixed right-3 top-4 z-50 md:hidden">
+	<Button
+		variant={isMobileMenuOpen ? "primary" : "quiet"}
+		ariaLabel="Toggle navigation menu"
+		ariaExpanded={isMobileMenuOpen}
+		ariaControls="mobile-navigation"
+		onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+		class="px-3.5 py-2"
+	>
+		Menu
+	</Button>
+
+	{#if isMobileMenuOpen}
+		<nav
+			id="mobile-navigation"
+			aria-label="Mobile navigation"
+			class="absolute right-0 top-11 w-52 border border-neutral-700 bg-neutral-950 p-4 shadow-[0_0_30px_rgba(0,0,0,0.9)]"
+		>
+			<div
+				class="mb-3 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+			>
+				Minigames
+			</div>
+			<div class="flex flex-col items-start gap-1.5">
+				<a
+					href="/minigames/lockpick"
+					aria-current={isLockpickActive ? "page" : undefined}
+					onclick={closeMobileMenu}
+					class="inline-flex items-center px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
+						? 'bg-white text-black'
+						: 'text-white hover:bg-white hover:text-black'}"
+				>
+					LOCKPICK
+				</a>
+				<ComingSoon
+					label="STORE SAFE"
+					badge="SOON"
+					class="px-3.5 py-1 text-lg"
+				/>
+			</div>
+
+			<div
+				class="mb-3 mt-6 border-b border-neutral-800 pb-2 text-xs font-black italic uppercase tracking-wider text-neutral-500"
+			>
+				Resources
+			</div>
+			<ComingSoon label="FACTORY" badge="SOON" class="px-3.5 py-1 text-lg" />
+		</nav>
+	{/if}
+</div>
+
+<!-- Desktop sidebar -->
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-8 md:left-12 lg:left-14 top-1/2 -translate-y-1/2 z-50 select-none transition-opacity duration-200 flex flex-col gap-10 md:gap-14 {isHovered
+	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {!hasMouse ||
+	isHovered
 		? 'opacity-100'
-		: 'opacity-20 hover:opacity-100'}"
+		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
 >
 	<!-- Section 1: MINIGAMES -->
 	<div>
@@ -53,23 +125,18 @@
 		<div class="flex flex-col items-start gap-1.5">
 			<a
 				href="/minigames/lockpick"
-				class="inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors {isLockpickActive
+				aria-current={isLockpickActive ? "page" : undefined}
+				class="inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
 					? 'bg-white text-black'
 					: 'bg-transparent text-white hover:bg-white hover:text-black'}"
 			>
 				LOCKPICK
 			</a>
-			<div
-				class="inline-flex items-center gap-2 px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase text-neutral-600 select-none cursor-not-allowed"
-				title="Coming Soon"
-			>
-				<span>STORE SAFE</span>
-				<span
-					class="text-[9px] md:text-[10px] font-bold italic tracking-wider px-1.5 py-0.5 bg-neutral-900 text-neutral-400 uppercase leading-none"
-				>
-					SOON
-				</span>
-			</div>
+			<ComingSoon
+				label="STORE SAFE"
+				badge="SOON"
+				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
+			/>
 		</div>
 	</div>
 
@@ -81,24 +148,17 @@
 			RESOURCES
 		</h2>
 		<div class="flex flex-col items-start gap-1.5">
-			<div
-				class="inline-flex items-center gap-2 px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase text-neutral-600 select-none cursor-not-allowed"
-				title="Coming Soon"
-			>
-				<span>FACTORY</span>
-				<span
-					class="text-[9px] md:text-[10px] font-bold italic tracking-wider px-1.5 py-0.5 bg-neutral-900 text-neutral-400 uppercase leading-none"
-				>
-					SOON
-				</span>
-			</div>
+			<ComingSoon
+				label="FACTORY"
+				badge="SOON"
+				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
+			/>
 		</div>
 	</div>
 </aside>
-
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
 <div
-	class="fixed bottom-8 md:bottom-9 left-8 md:left-12 lg:left-14 z-40 select-none transition-opacity duration-200 flex flex-col gap-1 {isHovered
+	class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
 		? 'opacity-100'
 		: 'opacity-30 hover:opacity-100'}"
 >
@@ -109,39 +169,38 @@
 			VOL
 		</span>
 		<span
-			class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {soundEngine.muted
+			class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
 				? 'text-neutral-600 line-through'
 				: 'text-neutral-300'}"
 		>
-			{soundEngine.muted ? "MUTED" : `${Math.round(soundEngine.volume * 100)}%`}
+			{audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
 		</span>
 	</div>
 
 	<div class="flex items-center gap-2">
-		<button
+		<Button
+			variant="icon"
 			type="button"
 			onclick={handleToggleMute}
-			title={soundEngine.muted ? "Unmute audio" : "Mute audio"}
-			aria-label={soundEngine.muted ? "Unmute audio" : "Mute audio"}
-			class="inline-flex items-center justify-center w-5 h-5 rounded-none border border-neutral-800 outline-none transition-colors cursor-pointer {soundEngine.muted
-				? 'bg-neutral-900 text-neutral-600 hover:bg-neutral-800 hover:text-white'
-				: 'bg-white text-black hover:bg-neutral-200'}"
+			title={audioStore.muted ? "Unmute audio" : "Mute audio"}
+			ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
+			class="h-5 w-5 px-0"
 		>
-			{#if soundEngine.muted || soundEngine.volume === 0}
+			{#if audioStore.muted || audioStore.volume === 0}
 				<VolumeX class="w-3 h-3" />
-			{:else if soundEngine.volume < 0.5}
+			{:else if audioStore.volume < 0.5}
 				<Volume1 class="w-3 h-3" />
 			{:else}
 				<Volume2 class="w-3 h-3" />
 			{/if}
-		</button>
+		</Button>
 
 		<input
 			type="range"
 			min="0"
 			max="1"
 			step="0.05"
-			value={soundEngine.muted ? 0 : soundEngine.volume}
+			value={audioStore.muted ? 0 : audioStore.volume}
 			oninput={handleVolumeInput}
 			onchange={handleVolumeChange}
 			aria-label="Master volume"

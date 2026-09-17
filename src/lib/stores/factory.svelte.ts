@@ -12,13 +12,19 @@ import {
 } from '../engine/calculator';
 import { getRecipe } from '../data/recipes';
 import { getMachine } from '../data/machines';
-import {
-	saveWorkflow,
-	getWorkflow,
-	listWorkflows,
-	deleteWorkflow,
-	type SavedWorkflow
-} from '../db/storage';
+import { deleteValue, getValue, setValue } from '../db/storage';
+
+export interface SavedWorkflow {
+	id: string;
+	name: string;
+	description?: string;
+	createdAt: number;
+	updatedAt: number;
+	nodes: unknown[];
+	edges: unknown[];
+}
+
+const WORKFLOW_STORAGE_KEY = 'nopixelv_workflows_v1';
 
 export interface MachineNodeData {
 	machineType: string;
@@ -244,8 +250,9 @@ export class FactoryStore {
 	public async saveWorkflowToDb(name?: string): Promise<string> {
 		const wfName = name || this.activeWorkflowName || 'Untitled Workflow';
 		const id = this.activeWorkflowId || `wf-${Date.now().toString(36)}`;
+		const workflows = await this.readWorkflowMap();
 
-		const record: SavedWorkflow = {
+		workflows[id] = {
 			id,
 			name: wfName,
 			createdAt: Date.now(),
@@ -254,14 +261,14 @@ export class FactoryStore {
 			edges: this.edges
 		};
 
-		await saveWorkflow(record);
+		await setValue(WORKFLOW_STORAGE_KEY, workflows);
 		this.activeWorkflowId = id;
 		this.activeWorkflowName = wfName;
 		return id;
 	}
 
 	public async loadWorkflowFromDb(id: string): Promise<boolean> {
-		const record = await getWorkflow(id);
+		const record = (await this.readWorkflowMap())[id];
 		if (!record) return false;
 
 		this.nodes = record.nodes as SvelteFlowNode[];
@@ -272,15 +279,29 @@ export class FactoryStore {
 	}
 
 	public async listSavedWorkflows(): Promise<SavedWorkflow[]> {
-		return listWorkflows();
+		return Object.values(await this.readWorkflowMap()).sort(
+			(a, b) => b.updatedAt - a.updatedAt,
+		);
 	}
 
 	public async deleteSavedWorkflow(id: string): Promise<void> {
-		await deleteWorkflow(id);
+		const workflows = await this.readWorkflowMap();
+		delete workflows[id];
+		await setValue(WORKFLOW_STORAGE_KEY, workflows);
 		if (this.activeWorkflowId === id) {
 			this.activeWorkflowId = null;
 		}
 	}
+
+	public async clearSavedWorkflows(): Promise<void> {
+		await deleteValue(WORKFLOW_STORAGE_KEY);
+		this.activeWorkflowId = null;
+	}
+
+	private async readWorkflowMap(): Promise<Record<string, SavedWorkflow>> {
+		return (await getValue<Record<string, SavedWorkflow>>(WORKFLOW_STORAGE_KEY)) ?? {};
+	}
+
 }
 
 export const factoryStore = new FactoryStore();

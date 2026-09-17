@@ -1,18 +1,15 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { SafeDialLogic } from '$lib/engine/safedial';
-	import { soundEngine } from '$lib/engine/audio';
+	import { audioStore } from '$lib/stores/audio.svelte';
 	import {
 		Lock,
 		RotateCcw,
-		Volume2,
-		VolumeX,
 		Eye,
 		EyeOff,
-		CheckCircle2,
+		CircleCheckBig,
 		Trophy,
-		Sparkles,
-		Sliders,
+		SlidersHorizontal,
 		Radio
 	} from 'lucide-svelte';
 
@@ -49,10 +46,10 @@
 
 	function handleRotationResult(res: { numberChanged: boolean; hitSweetSpot: boolean }) {
 		if (res.numberChanged) {
-			soundEngine.playRatchetClick();
+			audioStore.playRatchetClick();
 		}
 		if (res.hitSweetSpot) {
-			soundEngine.playNotchThud();
+			audioStore.playNotchThud();
 		}
 		syncState();
 	}
@@ -77,9 +74,9 @@
 		syncState();
 
 		if (res.success) {
-			soundEngine.playSuccessChime();
+			audioStore.playSuccessChime();
 		} else {
-			soundEngine.playFailBuzz();
+			audioStore.playFailBuzz();
 			failedAttemptShake = true;
 			setTimeout(() => (failedAttemptShake = false), 400);
 		}
@@ -220,7 +217,7 @@
 					<span class="text-[10px] uppercase font-semibold tracking-wider">Stage {i + 1}</span>
 					<div class="flex items-center gap-1 mt-0.5">
 						{#if i < currentStage}
-							<CheckCircle2 class="w-3.5 h-3.5 text-white" />
+							<CircleCheckBig class="w-3.5 h-3.5 text-white" />
 							<span class="font-mono font-bold text-xs">{secretNum}</span>
 						{:else if i === currentStage}
 							<span class="font-mono font-bold text-xs">
@@ -363,7 +360,7 @@
 	<div class="w-full max-w-lg mt-6 bg-neutral-950 border border-neutral-900 rounded-xl p-5">
 		<div class="flex items-center justify-between mb-4">
 			<div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-				<Sliders class="w-3.5 h-3.5 text-neutral-400" />
+				<SlidersHorizontal class="w-3.5 h-3.5 text-neutral-400" />
 				<span>Training Assists & Audio Settings</span>
 			</div>
 			<button

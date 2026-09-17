@@ -7,7 +7,7 @@
 </svelte:head>
 
 <div
-	class="flex h-full min-h-screen items-center justify-center bg-black px-6 text-white"
+	class="flex min-h-[100dvh] items-center justify-center bg-black px-6 text-white"
 >
 	<section class="w-full max-w-xl text-center" aria-labelledby="error-title">
 		<h1
@@ -24,7 +24,7 @@
 		<nav aria-label="Error page navigation" class="mt-10">
 			<a
 				href="/"
-				class="return-link inline-flex h-9 items-center justify-center border border-neutral-800 px-5 pb-0.5 text-sm font-semibold italic uppercase leading-none text-neutral-300 transition-colors"
+				class="return-link inline-flex h-9 items-center justify-center border border-neutral-800 px-5 pb-0.5 text-sm font-semibold italic uppercase leading-none text-neutral-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
 			>
 				Return to Launcher
 			</a>

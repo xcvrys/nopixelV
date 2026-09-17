@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
+	import { Handle, Position } from '@xyflow/svelte';
 	import { factoryStore, type MachineNodeData } from '$lib/stores/factory.svelte';
 	import { getRecipesForMachine, getRecipe } from '$lib/data/recipes';
 	import { getItem } from '$lib/data/items';
@@ -11,10 +11,9 @@
 		PackageCheck,
 		Trash2,
 		Zap,
-		Clock,
 		Gauge,
-		AlertTriangle,
-		CheckCircle2,
+		TriangleAlert,
+		CircleCheckBig,
 		ChevronDown,
 		ChevronUp
 	} from 'lucide-svelte';
@@ -66,11 +65,6 @@
 
 	let MachineIcon = $derived(iconMap[data.machineType] || Cpu);
 
-	let themeColors = $derived({
-		border: 'border-neutral-800',
-		bg: 'bg-neutral-900 text-white border border-neutral-800',
-		badge: 'bg-neutral-900 text-neutral-300'
-	});
 </script>
 
 <div
@@ -196,10 +190,10 @@
 		<!-- Efficiency Badge -->
 		<div class="flex items-center gap-1.5">
 			{#if isBottlenecked}
-				<AlertTriangle class="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+				<TriangleAlert class="w-3.5 h-3.5 text-neutral-400 shrink-0" />
 				<span class="text-neutral-300 font-bold font-mono">{(efficiency * 100).toFixed(0)}% Bottleneck</span>
 			{:else}
-				<CheckCircle2 class="w-3.5 h-3.5 text-white shrink-0" />
+				<CircleCheckBig class="w-3.5 h-3.5 text-white shrink-0" />
 				<span class="text-white font-bold font-mono">100% Flow</span>
 			{/if}
 		</div>
