@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { cn } from "$lib/utils/cn";
+
 	let {
 		label,
 		badge = "COMING SOON",
@@ -11,9 +13,11 @@
 </script>
 
 <div
-	aria-disabled="true"
+	class={cn(
+		"inline-flex cursor-not-allowed select-none items-center justify-center gap-2 border-0 bg-black font-semibold italic uppercase leading-none text-neutral-600",
+		className,
+	)}
 	title="Coming Soon"
-	class={`inline-flex cursor-not-allowed select-none items-center justify-center gap-2 border-0 bg-black font-semibold italic uppercase leading-none text-neutral-600 ${className}`}
 >
 	<span>{label}</span>
 	<span

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
 
+	import { cn } from "$lib/utils/cn";
 	type ButtonVariant = "primary" | "quiet" | "icon" | "danger";
 
 	let {
@@ -41,9 +42,12 @@
 	{disabled}
 	{title}
 	aria-label={ariaLabel}
-	aria-expanded={ariaExpanded}
+	class={cn(
+		"inline-flex items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-3 py-2 text-xs font-semibold italic uppercase leading-none outline-none transition-[background-color,color,border-color,transform] duration-150 active:translate-y-px focus-visible:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40",
+		variants[variant],
+		className,
+	)}
 	aria-controls={ariaControls}
-	class={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-3 py-2 text-xs font-semibold italic uppercase leading-none outline-none transition-[background-color,color,border-color,transform] duration-150 active:translate-y-px focus-visible:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40 ${variants[variant]} ${className}`}
 	{onclick}
 >
 	{@render children()}

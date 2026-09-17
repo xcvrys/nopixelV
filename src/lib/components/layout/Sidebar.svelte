@@ -4,6 +4,7 @@
 	import Button from "$lib/components/ui/Button.svelte";
 	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
 	import { audioStore } from "$lib/stores/audio.svelte";
+	import { cn } from "$lib/utils/cn";
 
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
@@ -110,10 +111,12 @@
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {!hasMouse ||
-	isHovered
-		? 'opacity-100'
-		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
+	class={cn(
+		"fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14",
+		!hasMouse || isHovered
+			? "opacity-100"
+			: "opacity-20 hover:opacity-100 focus-within:opacity-100",
+	)}
 >
 	<!-- Section 1: MINIGAMES -->
 	<div>
@@ -126,9 +129,12 @@
 			<a
 				href="/minigames/lockpick"
 				aria-current={isLockpickActive ? "page" : undefined}
-				class="inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white {isLockpickActive
-					? 'bg-white text-black'
-					: 'bg-transparent text-white hover:bg-white hover:text-black'}"
+				class={cn(
+					"inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+					isLockpickActive
+						? "bg-white text-black"
+						: "bg-transparent text-white hover:bg-white hover:text-black",
+				)}
 			>
 				LOCKPICK
 			</a>
