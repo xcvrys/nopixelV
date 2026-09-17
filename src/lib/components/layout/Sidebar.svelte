@@ -6,36 +6,7 @@
   import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
   import { audioStore } from "$lib/stores/audio.svelte";
   import { cn } from "$lib/utils/cn";
-
-  type NavigationItem = {
-    label: string;
-    href: string;
-    available: boolean;
-  };
-
-  const navigationSections: {
-    label: string;
-    showVolumeControl: boolean;
-    items: NavigationItem[];
-  }[] = [
-    {
-      label: "MINIGAMES",
-      showVolumeControl: true,
-      items: [
-        { label: "LOCKPICK", href: "/minigames/lockpick", available: true },
-        {
-          label: "STORE SAFE",
-          href: "/minigames/store-safe",
-          available: false,
-        },
-      ],
-    },
-    {
-      label: "RESOURCES",
-      showVolumeControl: false,
-      items: [{ label: "MACHINERY", href: "/calculation/machinery", available: true }],
-    },
-  ];
+  import { navigationSections } from "$lib/config/navigation";
 
   let { currentPath = "/" }: { currentPath: string } = $props();
   const showVolumeControl = $derived(
