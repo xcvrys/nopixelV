@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LockpickView from "$lib/components/minigames/LockpickView.svelte";
+	import LockpickView from "$lib/components/minigames/lockpick/LockpickView.svelte";
 </script>
 
 <svelte:head>
