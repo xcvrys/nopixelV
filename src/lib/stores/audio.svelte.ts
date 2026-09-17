@@ -1,8 +1,10 @@
 import { getValue, setValue } from '$lib/db/storage';
 import { AudioEngine } from '$lib/engine/audio';
 
-const VOLUME_KEY = 'np_sound_volume';
-const MUTED_KEY = 'np_sound_muted';
+const VOLUME_KEY = 'sound_volume';
+const MUTED_KEY = 'sound_muted';
+const LEGACY_VOLUME_KEY = 'np_sound_volume';
+const LEGACY_MUTED_KEY = 'np_sound_muted';
 
 export class AudioStore {
 	private readonly engine = new AudioEngine();
@@ -77,14 +79,28 @@ export class AudioStore {
 			return;
 		}
 
+		const [legacyVolume, legacyMuted] = await Promise.all([
+			getValue<number>(LEGACY_VOLUME_KEY),
+			getValue<boolean>(LEGACY_MUTED_KEY)
+		]);
+		if (legacyVolume !== undefined || legacyMuted !== undefined) {
+			if (legacyVolume !== undefined) this.volume = Math.max(0, Math.min(1, legacyVolume));
+			if (legacyMuted !== undefined) this.muted = legacyMuted;
+			this.persist();
+			return;
+		}
+
 		if (typeof window === 'undefined' || !window.localStorage) return;
 		try {
-			const legacyVolumeValue = window.localStorage.getItem(VOLUME_KEY);
-			const legacyVolume = legacyVolumeValue === null ? NaN : Number(legacyVolumeValue);
-			const legacyMuted = window.localStorage.getItem(MUTED_KEY);
-			if (Number.isFinite(legacyVolume)) this.volume = Math.max(0, Math.min(1, legacyVolume));
-			if (legacyMuted !== null) this.muted = legacyMuted === 'true';
-			this.persist();
+			const legacyVolumeValue = window.localStorage.getItem(LEGACY_VOLUME_KEY);
+			const legacyVolumeValueAsNumber =
+				legacyVolumeValue === null ? NaN : Number(legacyVolumeValue);
+			const legacyMutedValue = window.localStorage.getItem(LEGACY_MUTED_KEY);
+			if (Number.isFinite(legacyVolumeValueAsNumber)) {
+				this.volume = Math.max(0, Math.min(1, legacyVolumeValueAsNumber));
+			}
+			if (legacyMutedValue !== null) this.muted = legacyMutedValue === 'true';
+			if (legacyVolumeValue !== null || legacyMutedValue !== null) this.persist();
 		} catch {
 			// Ignore storage access issues in restricted environments.
 		}

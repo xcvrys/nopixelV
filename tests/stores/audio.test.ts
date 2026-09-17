@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { deleteValue, getValue } from '../../src/lib/db/storage';
 import { AudioStore } from '../../src/lib/stores/audio.svelte';
 
-const VOLUME_KEY = 'np_sound_volume';
-const MUTED_KEY = 'np_sound_muted';
+const VOLUME_KEY = 'sound_volume';
+const MUTED_KEY = 'sound_muted';
 
 describe('AudioStore', () => {
 	beforeEach(async () => {
