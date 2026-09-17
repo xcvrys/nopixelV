@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { SafeDialLogic } from '$lib/engine/safedial';
-	import { soundEngine } from '$lib/engine/audio';
+	import { audioStore } from '$lib/stores/audio.svelte';
 	import {
 		Lock,
 		RotateCcw,
@@ -46,10 +46,10 @@
 
 	function handleRotationResult(res: { numberChanged: boolean; hitSweetSpot: boolean }) {
 		if (res.numberChanged) {
-			soundEngine.playRatchetClick();
+			audioStore.playRatchetClick();
 		}
 		if (res.hitSweetSpot) {
-			soundEngine.playNotchThud();
+			audioStore.playNotchThud();
 		}
 		syncState();
 	}
@@ -74,9 +74,9 @@
 		syncState();
 
 		if (res.success) {
-			soundEngine.playSuccessChime();
+			audioStore.playSuccessChime();
 		} else {
-			soundEngine.playFailBuzz();
+			audioStore.playFailBuzz();
 			failedAttemptShake = true;
 			setTimeout(() => (failedAttemptShake = false), 400);
 		}

@@ -1,4 +1,4 @@
-import { soundEngine } from '$lib/engine/audio';
+import { audioStore } from '$lib/stores/audio.svelte';
 import { getValue, setValue } from '$lib/db/storage';
 import {
 	LockpickLogic,
@@ -61,17 +61,17 @@ export class LockpickStore {
 	}
 
 	public tap(): void {
-		soundEngine.playLockpickClick();
+		audioStore.playLockpickClick();
 		this.flashKeycap();
 
 		const result = this.engine.tap();
 		this.syncState();
 
 		if (result.runWon) {
-			soundEngine.playSuccessChime();
+			audioStore.playSuccessChime();
 			this.scheduleWinReset();
 		} else if (result.stageCompleted) {
-			soundEngine.playSuccessChime();
+			audioStore.playSuccessChime();
 			this.scheduleStageAdvance();
 		}
 	}
@@ -200,7 +200,7 @@ export class LockpickStore {
 
 	private handleVisualFailure(): void {
 		this.isFailedShaking = true;
-		soundEngine.playFailBuzz();
+		audioStore.playFailBuzz();
 
 		clearTimeout(this.failResetTimer);
 		this.failResetTimer = window.setTimeout(() => {

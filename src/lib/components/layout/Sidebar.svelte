@@ -2,7 +2,7 @@
 	import { Volume2, Volume1, VolumeX } from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
 	import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
-	import { soundEngine } from "$lib/engine/audio";
+	import { audioStore } from "$lib/stores/audio.svelte";
 
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
@@ -11,29 +11,29 @@
 	const isLockpickActive = $derived(currentPath === "/minigames/lockpick");
 
 	function handleToggleMute() {
-		if (soundEngine.muted) {
-			soundEngine.setMuted(false);
-			if (soundEngine.volume === 0) {
-				soundEngine.setVolume(0.5);
+		if (audioStore.muted) {
+			audioStore.setMuted(false);
+			if (audioStore.volume === 0) {
+				audioStore.setVolume(0.5);
 			}
-			soundEngine.playRatchetClick();
+			audioStore.playRatchetClick();
 		} else {
-			soundEngine.setMuted(true);
+			audioStore.setMuted(true);
 		}
 	}
 
 	function handleVolumeInput(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
 		const val = parseFloat(target.value);
-		if (soundEngine.muted && val > 0) {
-			soundEngine.setMuted(false);
+		if (audioStore.muted && val > 0) {
+			audioStore.setMuted(false);
 		}
-		soundEngine.setVolume(val);
+		audioStore.setVolume(val);
 	}
 
 	function handleVolumeChange() {
-		if (!soundEngine.muted && soundEngine.volume > 0) {
-			soundEngine.playRatchetClick();
+		if (!audioStore.muted && audioStore.volume > 0) {
+			audioStore.playRatchetClick();
 		}
 	}
 </script>
@@ -100,11 +100,11 @@
 			VOL
 		</span>
 		<span
-			class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {soundEngine.muted
+			class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
 				? 'text-neutral-600 line-through'
 				: 'text-neutral-300'}"
 		>
-			{soundEngine.muted ? "MUTED" : `${Math.round(soundEngine.volume * 100)}%`}
+			{audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
 		</span>
 	</div>
 
@@ -113,13 +113,13 @@
 			variant="icon"
 			type="button"
 			onclick={handleToggleMute}
-			title={soundEngine.muted ? "Unmute audio" : "Mute audio"}
-			ariaLabel={soundEngine.muted ? "Unmute audio" : "Mute audio"}
+			title={audioStore.muted ? "Unmute audio" : "Mute audio"}
+			ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
 			class="h-5 w-5 px-0"
 		>
-			{#if soundEngine.muted || soundEngine.volume === 0}
+			{#if audioStore.muted || audioStore.volume === 0}
 				<VolumeX class="w-3 h-3" />
-			{:else if soundEngine.volume < 0.5}
+			{:else if audioStore.volume < 0.5}
 				<Volume1 class="w-3 h-3" />
 			{:else}
 				<Volume2 class="w-3 h-3" />
@@ -131,7 +131,7 @@
 			min="0"
 			max="1"
 			step="0.05"
-			value={soundEngine.muted ? 0 : soundEngine.volume}
+			value={audioStore.muted ? 0 : audioStore.volume}
 			oninput={handleVolumeInput}
 			onchange={handleVolumeChange}
 			aria-label="Master volume"

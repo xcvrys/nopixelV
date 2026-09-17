@@ -3,50 +3,12 @@
  * Generates clicks, safe dial ratchet ticks, sweet-spot notch thuds, and outcome chimes
  * entirely in real-time with zero external sound files.
  *
- * Reactive Svelte 5 runes ($state) allow direct 2-way UI binding and reactive observation.
  */
 
-const STORAGE_KEY_VOLUME = 'np_sound_volume';
-const STORAGE_KEY_MUTED = 'np_sound_muted';
-
-export class SoundEngine {
+export class AudioEngine {
  private ctx: AudioContext | null = null;
- public muted: boolean = $state(false);
- public volume: number = $state(0.6);
-
- constructor() {
-  if (typeof window !== 'undefined' && window.localStorage) {
-   try {
-    const savedVol = window.localStorage.getItem(STORAGE_KEY_VOLUME);
-    if (savedVol !== null) {
-     const parsed = parseFloat(savedVol);
-     if (!isNaN(parsed) && parsed >= 0 && parsed <= 1) {
-      this.volume = parsed;
-     }
-    }
-    const savedMuted = window.localStorage.getItem(STORAGE_KEY_MUTED);
-    if (savedMuted !== null) {
-     this.muted = savedMuted === 'true';
-    }
-   } catch {
-    // Ignore storage access issues in restricted environments
-   }
-  }
- }
-
- private persist(): void {
-  if (typeof window !== 'undefined' && window.localStorage) {
-   try {
-    window.localStorage.setItem(STORAGE_KEY_VOLUME, this.volume.toString());
-    window.localStorage.setItem(STORAGE_KEY_MUTED, this.muted.toString());
-   } catch {
-    // Ignore storage access issues
-   }
-  }
- }
 
  private getContext(): AudioContext | null {
-  if (this.muted) return null;
   if (typeof window === 'undefined') return null;
 
   if (!this.ctx) {
@@ -68,34 +30,10 @@ export class SoundEngine {
   return this.ctx;
  }
 
- public isMuted(): boolean {
-  return this.muted;
- }
-
- public setMuted(muted: boolean): void {
-  this.muted = muted;
-  this.persist();
- }
-
- public toggleMute(): boolean {
-  this.muted = !this.muted;
-  this.persist();
-  return this.muted;
- }
-
- public setVolume(volume: number): void {
-  this.volume = Math.max(0, Math.min(1, volume));
-  this.persist();
- }
-
- public getVolume(): number {
-  return this.volume;
- }
-
  /**
   * Subtle mechanical ratchet tick for rotating safe dial numbers.
   */
- public playRatchetClick(): void {
+ public playRatchetClick(volume = 1): void {
   const ctx = this.getContext();
   if (!ctx) return;
 
@@ -117,7 +55,7 @@ export class SoundEngine {
   filter.Q.setValueAtTime(4.0, now);
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(this.volume * 0.4, now);
+  gain.gain.setValueAtTime(volume * 0.4, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
 
   noise.connect(filter);
@@ -131,7 +69,7 @@ export class SoundEngine {
  /**
   * Distinct mechanical "notch thud" when combination dial lands on or crosses the sweet-spot.
   */
- public playNotchThud(): void {
+ public playNotchThud(volume = 1): void {
   const ctx = this.getContext();
   if (!ctx) return;
 
@@ -144,7 +82,7 @@ export class SoundEngine {
   osc.frequency.exponentialRampToValueAtTime(50, now + 0.06);
 
   const oscGain = ctx.createGain();
-  oscGain.gain.setValueAtTime(this.volume * 0.9, now);
+  oscGain.gain.setValueAtTime(volume * 0.9, now);
   oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
   osc.connect(oscGain);
@@ -160,7 +98,7 @@ export class SoundEngine {
   clickOsc.frequency.exponentialRampToValueAtTime(180, now + 0.025);
 
   const clickGain = ctx.createGain();
-  clickGain.gain.setValueAtTime(this.volume * 0.6, now);
+  clickGain.gain.setValueAtTime(volume * 0.6, now);
   clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
 
   clickOsc.connect(clickGain);
@@ -173,7 +111,7 @@ export class SoundEngine {
  /**
   * Lockpick tumbler tap click (higher metallic ping).
   */
- public playLockpickClick(): void {
+ public playLockpickClick(volume = 1): void {
   const ctx = this.getContext();
   if (!ctx) return;
 
@@ -189,7 +127,7 @@ export class SoundEngine {
   filter.Q.setValueAtTime(6, now);
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(this.volume * 0.5, now);
+  gain.gain.setValueAtTime(volume * 0.5, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
 
   osc.connect(filter);
@@ -203,7 +141,7 @@ export class SoundEngine {
  /**
   * Success harmonic chime.
   */
- public playSuccessChime(): void {
+ public playSuccessChime(volume = 1): void {
   const ctx = this.getContext();
   if (!ctx) return;
 
@@ -217,7 +155,7 @@ export class SoundEngine {
    osc.frequency.setValueAtTime(freq, noteTime);
 
    const gain = ctx.createGain();
-   gain.gain.setValueAtTime(this.volume * 0.4, noteTime);
+   gain.gain.setValueAtTime(volume * 0.4, noteTime);
    gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
 
    osc.connect(gain);
@@ -231,7 +169,7 @@ export class SoundEngine {
  /**
   * Failure buzzer sound.
   */
- public playFailBuzz(): void {
+ public playFailBuzz(volume = 1): void {
   const ctx = this.getContext();
   if (!ctx) return;
 
@@ -242,7 +180,7 @@ export class SoundEngine {
   osc.frequency.linearRampToValueAtTime(80, now + 0.25);
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(this.volume * 0.5, now);
+  gain.gain.setValueAtTime(volume * 0.5, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
 
   osc.connect(gain);
@@ -253,5 +191,3 @@ export class SoundEngine {
  }
 }
 
-// Global singleton instance for easy import across components
-export const soundEngine = new SoundEngine();
