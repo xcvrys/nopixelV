@@ -1,3 +1,4 @@
-# allow crawling everything by default
+# Allow crawling public routes.
 User-agent: *
 Disallow:
+Sitemap: https://nopixelv.xcvrys.workers.dev/sitemap.xml

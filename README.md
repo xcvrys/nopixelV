@@ -84,8 +84,8 @@ Configured for automatic deployment on **Cloudflare Workers**:
 - **Build command**: `bun run build`
 - **Build output directory**: `build`
 - **Deploy command**: `npx wrangler deploy`
-- Static assets are served from `build`; unmatched paths use the SPA `index.html`.
-- Asset caching (`max-age=31536000, immutable`) and security headers configured in `static/_headers`.
+- Static assets are served from `build`; unmatched paths use the branded `404.html`.
+- Sitemap: `https://nopixelv.xcvrys.workers.dev/sitemap.xml`.
 
 ## Legal Disclaimer
 
