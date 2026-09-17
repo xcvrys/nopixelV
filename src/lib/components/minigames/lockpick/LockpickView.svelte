@@ -54,7 +54,7 @@
   <!-- Lockpick Circular Container -->
   <!-- Touch-enabled on coarse-pointer devices; keyboard mode stays E-only -->
   <div
-    class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center select-none transition-transform duration-75 {lockpick.inputMode ===
+    class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center select-none touch-manipulation transition-transform duration-75 {lockpick.inputMode ===
     'touch'
       ? 'pointer-events-auto cursor-pointer'
       : 'pointer-events-none cursor-default'} {lockpick.isFailedShaking ? 'animate-shake' : ''}"
