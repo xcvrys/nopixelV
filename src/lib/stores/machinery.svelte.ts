@@ -1,13 +1,13 @@
 /**
- * Reactive Factory State Store using Svelte 5 Runes ($state, $derived).
+ * Reactive Machinery State Store using Svelte 5 Runes ($state, $derived).
  * Manages draggable machine nodes, conveyor edges, live throughput calculations,
  * and persistence to IndexedDB workflows.
  */
 
 import {
 	evaluateProductionNetwork,
-	type FactoryNode,
-	type FactoryEdge,
+	type MachineryNode,
+	type MachineryEdge,
 	type NetworkCalculationResult
 } from '../engine/calculator';
 import { getRecipe } from '../data/recipes';
@@ -93,16 +93,16 @@ function createDefaultDemoEdges(): SvelteFlowEdge[] {
 	];
 }
 
-export class FactoryStore {
+export class MachineryStore {
 	public nodes = $state<SvelteFlowNode[]>(createDefaultDemoNodes());
 	public edges = $state<SvelteFlowEdge[]>(createDefaultDemoEdges());
 	public activeWorkflowId = $state<string | null>(null);
-	public activeWorkflowName = $state<string>('Default Factory');
+	public activeWorkflowName = $state<string>('Default Machinery');
 	private nextId = 10;
 
 	// Automatically recalculated whenever nodes or edges mutate
 	public calculationResult = $derived.by<NetworkCalculationResult>(() => {
-		const calcNodes: FactoryNode[] = this.nodes.map((n) => {
+		const calcNodes: MachineryNode[] = this.nodes.map((n) => {
 			const recipe = n.data.recipeId ? getRecipe(n.data.recipeId) || null : null;
 			return {
 				id: n.id,
@@ -115,7 +115,7 @@ export class FactoryStore {
 			};
 		});
 
-		const calcEdges: FactoryEdge[] = this.edges.map((e) => ({
+		const calcEdges: MachineryEdge[] = this.edges.map((e) => ({
 			id: e.id,
 			sourceNodeId: e.source,
 			sourceHandle: e.sourceHandle || '',
@@ -304,4 +304,4 @@ export class FactoryStore {
 
 }
 
-export const factoryStore = new FactoryStore();
+export const machineryStore = new MachineryStore();

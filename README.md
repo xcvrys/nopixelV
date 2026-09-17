@@ -17,7 +17,7 @@ Practice trainer for the NoPixel V lockpick spam minigame.
 ### Coming Soon
 
 - **Store Safe**: Combination dial audio cracker trainer.
-- **Factory**: Production layout and throughput calculator.
+- **Machinery**: Production layout and throughput calculator.
 
 ## Tech Stack
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import StatsSummary from '$lib/components/factory/StatsSummary.svelte';
-	import FactoryCanvas from '$lib/components/factory/FactoryCanvas.svelte';
+	import StatsSummary from '$lib/components/machinery/StatsSummary.svelte';
+	import MachineryCanvas from '$lib/components/machinery/MachineryCanvas.svelte';
 </script>
 
 <div class="flex-1 flex flex-col h-screen overflow-hidden">
 	<StatsSummary />
-	<FactoryCanvas />
+	<MachineryCanvas />
 </div>

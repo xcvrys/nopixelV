@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { factoryStore } from '$lib/stores/factory.svelte';
+	import { machineryStore } from '$lib/stores/machinery.svelte';
 	import { getItem } from '$lib/data/items';
 	import { STARTER_MACHINES } from '$lib/data/machines';
-	import type { SavedWorkflow } from '$lib/stores/factory.svelte';
+	import type { SavedWorkflow } from '$lib/stores/machinery.svelte';
 	import {
 		Zap,
 		ArrowDownRight,
@@ -18,8 +18,8 @@
 		X
 	} from 'lucide-svelte';
 
-	let summary = $derived(factoryStore.calculationResult.summary);
-	let bottlenecks = $derived(factoryStore.calculationResult.bottlenecks);
+	let summary = $derived(machineryStore.calculationResult.summary);
+	let bottlenecks = $derived(machineryStore.calculationResult.bottlenecks);
 
 	let showAddMenu = $state(false);
 	let showWorkflowModal = $state(false);
@@ -29,7 +29,7 @@
 	let fileInput = $state<HTMLInputElement | null>(null);
 
 	function handleAddMachine(type: string) {
-		factoryStore.addMachine(type, {
+		machineryStore.addMachine(type, {
 			x: 200 + Math.random() * 80,
 			y: 150 + Math.random() * 80
 		});
@@ -37,29 +37,29 @@
 	}
 
 	async function openWorkflowModal() {
-		savedWorkflows = await factoryStore.listSavedWorkflows();
-		newWorkflowName = factoryStore.activeWorkflowName || '';
+		savedWorkflows = await machineryStore.listSavedWorkflows();
+		newWorkflowName = machineryStore.activeWorkflowName || '';
 		showWorkflowModal = true;
 	}
 
 	async function handleSaveWorkflow() {
 		if (!newWorkflowName.trim()) return;
-		await factoryStore.saveWorkflowToDb(newWorkflowName.trim());
-		savedWorkflows = await factoryStore.listSavedWorkflows();
+		await machineryStore.saveWorkflowToDb(newWorkflowName.trim());
+		savedWorkflows = await machineryStore.listSavedWorkflows();
 	}
 
 	async function handleLoadWorkflow(id: string) {
-		await factoryStore.loadWorkflowFromDb(id);
+		await machineryStore.loadWorkflowFromDb(id);
 		showWorkflowModal = false;
 	}
 
 	async function handleDeleteWorkflow(id: string) {
-		await factoryStore.deleteSavedWorkflow(id);
-		savedWorkflows = await factoryStore.listSavedWorkflows();
+		await machineryStore.deleteSavedWorkflow(id);
+		savedWorkflows = await machineryStore.listSavedWorkflows();
 	}
 
 	function handleExportBlueprint() {
-		const json = factoryStore.exportBlueprintJson();
+		const json = machineryStore.exportBlueprintJson();
 		const blob = new Blob([json], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -78,7 +78,7 @@
 		const reader = new FileReader();
 		reader.onload = (event) => {
 			const content = event.target?.result as string;
-			const success = factoryStore.importBlueprintJson(content);
+			const success = machineryStore.importBlueprintJson(content);
 			if (!success) {
 				importError = 'Invalid blueprint JSON format.';
 			} else {
@@ -193,16 +193,16 @@
 
 		<!-- Reset Demo -->
 		<button
-			onclick={() => factoryStore.resetDemoLayout()}
+			onclick={() => machineryStore.resetDemoLayout()}
 			class="p-2 rounded-lg bg-neutral-950 text-neutral-400 hover:text-white hover:bg-neutral-900 border border-neutral-800 transition-colors"
-			title="Reset to demo factory layout"
+			title="Reset to demo machinery layout"
 		>
 			<RotateCcw class="w-4 h-4" />
 		</button>
 
 		<!-- Clear Canvas -->
 		<button
-			onclick={() => factoryStore.clearCanvas()}
+			onclick={() => machineryStore.clearCanvas()}
 			class="p-2 rounded-lg bg-neutral-950 text-neutral-400 hover:text-white hover:bg-neutral-900 border border-neutral-800 transition-colors"
 			title="Clear all machines and belts"
 		>
@@ -237,7 +237,7 @@
 			<!-- Save Current Workflow Form -->
 			<div class="mb-6 p-4 rounded-xl bg-neutral-950 border border-neutral-900">
 				<label for="save-workflow-name-input" class="text-xs font-semibold text-neutral-300 block mb-2">
-					Save Current Factory Workflow
+					Save Current Machinery Workflow
 				</label>
 				<div class="flex gap-2">
 					<input

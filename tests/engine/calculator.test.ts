@@ -3,8 +3,8 @@ import {
 	calculateMachineRates,
 	evaluateProductionNetwork,
 	type Recipe,
-	type FactoryNode,
-	type FactoryEdge
+	type MachineryNode,
+	type MachineryEdge
 } from '../../src/lib/engine/calculator';
 
 describe('Calculator Engine', () => {
@@ -68,7 +68,7 @@ describe('Calculator Engine', () => {
 		it('evaluates a balanced 1:1 conveyor chain', () => {
 			// Furnace produces 20 ingots/min
 			// Processor requires 20 ingots/min
-			const nodes: FactoryNode[] = [
+			const nodes: MachineryNode[] = [
 				{
 					id: 'm1',
 					type: 'furnace',
@@ -85,7 +85,7 @@ describe('Calculator Engine', () => {
 				}
 			];
 
-			const edges: FactoryEdge[] = [
+			const edges: MachineryEdge[] = [
 				{
 					id: 'e1',
 					sourceNodeId: 'm1',
@@ -113,7 +113,7 @@ describe('Calculator Engine', () => {
 		it('detects bottleneck and scales downstream outputs when undersupplied', () => {
 			// Furnace runs at 50% clock speed -> produces only 10 ingots/min
 			// Processor needs 20 ingots/min -> efficiency should be 50% (0.5)
-			const nodes: FactoryNode[] = [
+			const nodes: MachineryNode[] = [
 				{
 					id: 'm1',
 					type: 'furnace',
@@ -130,7 +130,7 @@ describe('Calculator Engine', () => {
 				}
 			];
 
-			const edges: FactoryEdge[] = [
+			const edges: MachineryEdge[] = [
 				{
 					id: 'e1',
 					sourceNodeId: 'm1',

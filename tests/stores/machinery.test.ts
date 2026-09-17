@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getRecipe } from '../../src/lib/data/recipes';
-import { FactoryStore } from '../../src/lib/stores/factory.svelte';
+import { MachineryStore } from '../../src/lib/stores/machinery.svelte';
 
-describe('FactoryStore', () => {
-	let store: FactoryStore;
+describe('MachineryStore', () => {
+	let store: MachineryStore;
 
 	beforeEach(async () => {
-		store = new FactoryStore();
+		store = new MachineryStore();
 		await store.clearSavedWorkflows();
 	});
 
@@ -15,7 +15,7 @@ describe('FactoryStore', () => {
 		store.addMachine('furnace', { x: 0, y: 0 });
 
 		const id = await store.saveWorkflowToDb('Iron Smelting Line');
-		const loadedStore = new FactoryStore();
+		const loadedStore = new MachineryStore();
 
 		expect(await loadedStore.loadWorkflowFromDb(id)).toBe(true);
 		expect(loadedStore.activeWorkflowName).toBe('Iron Smelting Line');

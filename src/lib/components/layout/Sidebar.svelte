@@ -101,7 +101,7 @@
 			>
 				Resources
 			</div>
-			<ComingSoon label="FACTORY" badge="SOON" class="px-3.5 py-1 text-lg" />
+			<ComingSoon label="MACHINERY" badge="SOON" class="px-3.5 py-1 text-lg" />
 		</nav>
 	{/if}
 </div>
@@ -149,7 +149,7 @@
 		</h2>
 		<div class="flex flex-col items-start gap-1.5">
 			<ComingSoon
-				label="FACTORY"
+				label="MACHINERY"
 				badge="SOON"
 				class="px-3 md:px-3.5 py-1 text-base md:text-lg"
 			/>

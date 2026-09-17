@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Handle, Position } from '@xyflow/svelte';
-	import { factoryStore, type MachineNodeData } from '$lib/stores/factory.svelte';
+	import { machineryStore, type MachineNodeData } from '$lib/stores/machinery.svelte';
 	import { getRecipesForMachine, getRecipe } from '$lib/data/recipes';
 	import { getItem } from '$lib/data/items';
 	import {
@@ -24,35 +24,35 @@
 
 	let availableRecipes = $derived(getRecipesForMachine(data.machineType));
 	let currentRecipe = $derived(data.recipeId ? getRecipe(data.recipeId) : null);
-	let stats = $derived(factoryStore.calculationResult.machineStats[id]);
+	let stats = $derived(machineryStore.calculationResult.machineStats[id]);
 	let efficiency = $derived(stats ? stats.efficiency : 1);
 	let isBottlenecked = $derived(efficiency < 0.99 && (stats?.rates.inputs.length ?? 0) > 0);
 
 	function handleRecipeChange(e: Event) {
 		const select = e.target as HTMLSelectElement;
-		factoryStore.updateNodeData(id, { recipeId: select.value || null });
+		machineryStore.updateNodeData(id, { recipeId: select.value || null });
 	}
 
 	function handleClockSpeedChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const val = Number(input.value);
-		factoryStore.updateNodeData(id, { clockSpeed: val });
+		machineryStore.updateNodeData(id, { clockSpeed: val });
 	}
 
 	function handleDurationChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const val = input.value === '' ? undefined : Number(input.value);
-		factoryStore.updateNodeData(id, { customDurationOverride: val });
+		machineryStore.updateNodeData(id, { customDurationOverride: val });
 	}
 
 	function handlePowerChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const val = input.value === '' ? undefined : Number(input.value);
-		factoryStore.updateNodeData(id, { powerCostOverride: val });
+		machineryStore.updateNodeData(id, { powerCostOverride: val });
 	}
 
 	function handleDelete() {
-		factoryStore.removeNode(id);
+		machineryStore.removeNode(id);
 	}
 
 	const iconMap: Record<string, typeof Flame> = {

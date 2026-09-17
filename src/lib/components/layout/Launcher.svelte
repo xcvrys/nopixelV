@@ -55,7 +55,7 @@
 				RESOURCES
 			</h2>
 			<div class="flex flex-col items-center gap-1.5">
-				<ComingSoon label="FACTORY" class="h-8 px-5 text-sm md:text-base" />
+				<ComingSoon label="MACHINERY" class="h-8 px-5 text-sm md:text-base" />
 			</div>
 		</div>
 	</div>

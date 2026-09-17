@@ -9,7 +9,7 @@
 		type Edge
 	} from '@xyflow/svelte';
 	import MachineNode from './MachineNode.svelte';
-	import { factoryStore } from '$lib/stores/factory.svelte';
+	import { machineryStore } from '$lib/stores/machinery.svelte';
 
 	const nodeTypes = {
 		machine: MachineNode
@@ -17,7 +17,7 @@
 
 	function handleConnect(connection: Connection) {
 		if (connection.source && connection.target && connection.sourceHandle && connection.targetHandle) {
-			factoryStore.connectEdge(
+			machineryStore.connectEdge(
 				connection.source,
 				connection.sourceHandle,
 				connection.target,
@@ -29,12 +29,12 @@
 	function handleDelete(params: { nodes: { id: string }[]; edges: Edge[] }) {
 		if (params.nodes) {
 			for (const node of params.nodes) {
-				factoryStore.removeNode(node.id);
+				machineryStore.removeNode(node.id);
 			}
 		}
 		if (params.edges) {
 			for (const edge of params.edges) {
-				factoryStore.removeEdge(edge.id);
+				machineryStore.removeEdge(edge.id);
 			}
 		}
 	}
@@ -42,8 +42,8 @@
 
 <div class="flex-1 w-full h-[calc(100vh-4.5rem)] relative bg-black">
 	<SvelteFlow
-		bind:nodes={factoryStore.nodes}
-		bind:edges={factoryStore.edges}
+		bind:nodes={machineryStore.nodes}
+		bind:edges={machineryStore.edges}
 		{nodeTypes}
 		onconnect={handleConnect}
 		ondelete={handleDelete}

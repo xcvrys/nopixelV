@@ -19,7 +19,7 @@ export interface Recipe {
 	outputs: RecipeItem[];
 }
 
-export interface FactoryNode {
+export interface MachineryNode {
 	id: string;
 	type: string;
 	name: string;
@@ -29,7 +29,7 @@ export interface FactoryNode {
 	powerCostOverride?: number;
 }
 
-export interface FactoryEdge {
+export interface MachineryEdge {
 	id: string;
 	sourceNodeId: string;
 	sourceHandle: string; // item ID output
@@ -127,10 +127,10 @@ export function calculateMachineRates(
  * - Aggregates raw inputs, net final outputs, and global power
  */
 export function evaluateProductionNetwork(
-	nodes: FactoryNode[],
-	edges: FactoryEdge[]
+	nodes: MachineryNode[],
+	edges: MachineryEdge[]
 ): NetworkCalculationResult {
-	const nodeMap = new Map<string, FactoryNode>();
+	const nodeMap = new Map<string, MachineryNode>();
 	const theoreticalRates: Record<string, MachineRateResult> = {};
 	const machineStats: Record<string, MachineStats> = {};
 	const bottlenecks: BottleneckWarning[] = [];
@@ -158,9 +158,9 @@ export function evaluateProductionNetwork(
 
 	// Step 2: Build graph dependencies and conveyor edge mappings
 	// Target handle -> edges feeding into it
-	const incomingEdges = new Map<string, FactoryEdge[]>(); // key: `${targetNodeId}:${targetHandle}`
+	const incomingEdges = new Map<string, MachineryEdge[]>(); // key: `${targetNodeId}:${targetHandle}`
 	// Source handle -> edges taking from it
-	const outgoingEdges = new Map<string, FactoryEdge[]>(); // key: `${sourceNodeId}:${sourceHandle}`
+	const outgoingEdges = new Map<string, MachineryEdge[]>(); // key: `${sourceNodeId}:${sourceHandle}`
 
 	for (const edge of edges) {
 		const targetKey = `${edge.targetNodeId}:${edge.targetHandle}`;
