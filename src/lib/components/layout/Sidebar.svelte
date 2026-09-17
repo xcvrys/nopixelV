@@ -8,13 +8,13 @@
 	let { currentPath = "/" }: { currentPath: string } = $props();
 
 	let isHovered = $state(false);
-	let hasCursor = $state(false);
+	let hasMouse = $state(false);
 
 	onMount(() => {
 		const pointerQuery = window.matchMedia("(pointer: fine)");
-		hasCursor = pointerQuery.matches;
+		hasMouse = pointerQuery.matches;
 		const handlePointerChange = (event: MediaQueryListEvent) => {
-			hasCursor = event.matches;
+			hasMouse = event.matches;
 		};
 		pointerQuery.addEventListener("change", handlePointerChange);
 		return () =>
@@ -110,7 +110,7 @@
 <aside
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
-	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {hasCursor ||
+	class="fixed left-3 top-4 z-50 hidden select-none flex-col gap-6 transition-opacity duration-200 sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:gap-10 md:flex md:gap-14 {!hasMouse ||
 	isHovered
 		? 'opacity-100'
 		: 'opacity-20 hover:opacity-100 focus-within:opacity-100'}"
