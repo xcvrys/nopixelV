@@ -8,16 +8,11 @@ Web-based practice trainers and utility tools for GTA RP (NoPixel V mechanics).
 
 Practice trainer for the NoPixel V lockpick spam minigame.
 
-- **Controls**: Keyboard only (`E` to tap). Mouse clicks on the lock are disabled to match in-game mechanics.
+- **Controls**: On computers, press `E` to tap; on touch devices, tap the lock. Mouse clicks remain disabled on computer layouts to match in-game mechanics.
 - **Game Modes**:
   - **3-Progressive**: Standard 3-stage heist lock (Easy &rarr; Medium &rarr; Hard). Completing each stage grants a brief pause before the next lock activates.
   - **Maxing**: Endless mode where decay rate and tap resistance increase every level. Tracks and saves your personal best streak and completion time to IndexedDB.
   - **Single**: Practice against a fixed difficulty (`easy`, `medium`, `hard`) or custom physics.
-- **Physics & Rules**:
-  - 3.0-second countdown grace period before your first tap.
-  - Fails if the timer runs out or if progress decays to 0% after tapping begins.
-  - Procedural sound effects synthesized in real-time via Web Audio API (no external sound files required).
-  - Built-in tuning drawer (active in dev mode) for live adjustment of decay rate and tap gain.
 
 ### Coming Soon
 
@@ -86,6 +81,11 @@ Configured for automatic deployment on **Cloudflare Workers**:
 - **Deploy command**: `npx wrangler deploy`
 - Static assets are served from `build`; unmatched paths use the branded `404.html`.
 - Sitemap: `https://nopixelv.xcvrys.workers.dev/sitemap.xml`.
+
+## Feedback
+
+- [Report a bug](https://github.com/xcvrys/nopixelV/issues/new?template=bug_report.md)
+- [Request a feature](https://github.com/xcvrys/nopixelV/issues/new?template=feature_request.md)
 
 ## Legal Disclaimer
 

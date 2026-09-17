@@ -3,7 +3,7 @@ name: Bug report
 about: Report a reproducible problem
 title: "[Bug]: "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## Describe the bug
@@ -27,14 +27,8 @@ assignees: ''
 ## Environment
 
 - Device:
-- OS:
-- Browser and version:
-- Screen size:
+- Browser:
 - Page or minigame:
-
-## Screenshots or logs
-
-<!-- Add screenshots, console errors, or other useful evidence. -->
 
 ## Additional context
 
