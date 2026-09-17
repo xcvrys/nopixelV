@@ -1,5 +1,6 @@
 import { audioStore } from '$lib/stores/audio.svelte';
 import { getValue, setValue } from '$lib/db/storage';
+import { detectInputMode, type InputMode } from '$lib/input/device';
 import {
 	LockpickLogic,
 	STAGE_TIMEOUT,
@@ -33,9 +34,11 @@ export class LockpickStore {
 	private winResetTimer: number | undefined;
 	private lastTick = 0;
 	private isStarted = false;
+	private keyboardInputRegistered = false;
 	private persistedStats: LockpickStats | null = null;
 
 	public readonly stageTimeout = STAGE_TIMEOUT;
+	public inputMode = $state<InputMode>('keyboard');
 	public snapshot = $state<LockpickSnapshot>(this.engine.snapshot);
 	public isKeyPressed = $state(false);
 	public isFailedShaking = $state(false);
@@ -43,7 +46,11 @@ export class LockpickStore {
 	public async start(): Promise<void> {
 		if (this.isStarted) return;
 		this.isStarted = true;
-		window.addEventListener('keydown', this.handleKeyDown);
+		this.inputMode = detectInputMode();
+		if (this.inputMode === 'keyboard') {
+			window.addEventListener('keydown', this.handleKeyDown);
+			this.keyboardInputRegistered = true;
+		}
 
 		await this.restorePersistedState();
 		if (!this.isStarted) return;
@@ -54,9 +61,11 @@ export class LockpickStore {
 
 	public stop(): void {
 		this.isStarted = false;
-		window.removeEventListener('keydown', this.handleKeyDown);
+		if (this.keyboardInputRegistered) {
+			window.removeEventListener('keydown', this.handleKeyDown);
+			this.keyboardInputRegistered = false;
+		}
 		if (this.animationFrame !== null) cancelAnimationFrame(this.animationFrame);
-		this.animationFrame = null;
 		this.clearTimers();
 	}
 

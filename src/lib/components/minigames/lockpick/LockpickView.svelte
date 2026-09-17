@@ -31,6 +31,16 @@
 		const hue = Math.round(ratio * 32);
 		return `hsl(${hue}, 95%, 55%)`;
 	});
+	function handleSurfaceKeydown(event: KeyboardEvent) {
+		if (
+			lockpick.inputMode !== "touch" ||
+			(event.key !== "Enter" && event.key !== " ")
+		) {
+			return;
+		}
+		event.preventDefault();
+		lockpick.tap();
+	}
 </script>
 
 <div
@@ -50,11 +60,19 @@
 				lockpick.setSingleDifficulty(difficulty)}
 		/>
 	</div>
-	<!-- Lockpick Circular Container (Non-clickable, keyboard E only) -->
+	<!-- Lockpick Circular Container -->
+	<!-- Touch-enabled on coarse-pointer devices; keyboard mode stays E-only -->
 	<div
-		class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center select-none pointer-events-none transition-transform duration-75 {lockpick.isFailedShaking
+		class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center select-none transition-transform duration-75 {lockpick.inputMode ===
+		'touch'
+			? 'pointer-events-auto cursor-pointer'
+			: 'pointer-events-none cursor-default'} {lockpick.isFailedShaking
 			? 'animate-shake'
 			: ''}"
+		role="button"
+		tabindex={lockpick.inputMode === "touch" ? 0 : -1}
+		onclick={() => lockpick.inputMode === "touch" && lockpick.tap()}
+		onkeydown={handleSurfaceKeydown}
 	>
 		<!-- SVG Circular Track and Progress Arc -->
 		<svg
@@ -113,9 +131,9 @@
 			{:else if lockpick.snapshot.status === "won"}
 				<Check class="w-6 h-6 md:w-7 md:h-7 stroke-[3]" />
 			{:else}
-				<span class="leading-none select-none text-2xl md:text-3xl font-black"
-					>E</span
-				>
+				<span class="leading-none select-none text-2xl md:text-3xl font-black">
+					{lockpick.inputMode === "touch" ? "TAP" : "E"}
+				</span>
 			{/if}
 		</div>
 	</div>
@@ -135,7 +153,7 @@
 			<span
 				class="text-xs md:text-sm font-bold italic tracking-wider text-neutral-500 uppercase"
 			>
-				PRESS E TO START
+				{lockpick.inputMode === "touch" ? "TAP TO START" : "PRESS E TO START"}
 			</span>
 		{:else if lockpick.snapshot.status === "failed"}
 			<span
