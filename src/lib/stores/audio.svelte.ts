@@ -1,4 +1,5 @@
 import { getValue, setValue } from '$lib/db/storage';
+import { detectInputMode } from '$lib/input/device';
 import { AudioEngine } from '$lib/engine/audio';
 
 const VOLUME_KEY = 'sound_volume';
@@ -9,7 +10,7 @@ const LEGACY_MUTED_KEY = 'np_sound_muted';
 export class AudioStore {
 	private readonly engine = new AudioEngine();
 
-	public volume = $state(0.6);
+	public volume = $state(detectInputMode() === 'touch' ? 1 : 0.6);
 	public muted = $state(false);
 	public readonly ready: Promise<void>;
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteValue, getValue } from '../../src/lib/db/storage';
 import { AudioStore } from '../../src/lib/stores/audio.svelte';
 
@@ -25,5 +25,16 @@ describe('AudioStore', () => {
 		expect(store.muted).toBe(true);
 		expect(await getValue(VOLUME_KEY)).toBe(1);
 		expect(await getValue(MUTED_KEY)).toBe(true);
+	});
+
+	it('defaults to full volume on coarse-pointer devices', async () => {
+		vi.stubGlobal('window', {
+			matchMedia: vi.fn(() => ({ matches: true }))
+		});
+
+		const store = new AudioStore();
+		await store.ready;
+
+		expect(store.volume).toBe(1);
 	});
 });
