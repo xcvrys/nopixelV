@@ -13,9 +13,14 @@
     available: boolean;
   };
 
-  const navigationSections: { label: string; items: NavigationItem[] }[] = [
+  const navigationSections: {
+    label: string;
+    showVolumeControl: boolean;
+    items: NavigationItem[];
+  }[] = [
     {
       label: "MINIGAMES",
+      showVolumeControl: true,
       items: [
         { label: "LOCKPICK", href: "/minigames/lockpick", available: true },
         {
@@ -27,11 +32,16 @@
     },
     {
       label: "RESOURCES",
-      items: [{ label: "MACHINERY", href: "/calculator", available: false }],
+      showVolumeControl: false,
+      items: [{ label: "MACHINERY", href: "/calculation/machinery", available: true }],
     },
   ];
 
   let { currentPath = "/" }: { currentPath: string } = $props();
+  const showVolumeControl = $derived(
+    navigationSections.find((section) => section.items.some((item) => item.href === currentPath))
+      ?.showVolumeControl ?? true,
+  );
 
   let isHovered = $state(false);
   let hasMouse = $state(false);
@@ -182,57 +192,59 @@
   {/each}
 </aside>
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
-<div
-  class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
-    ? 'opacity-100'
-    : 'opacity-30 hover:opacity-100'}"
->
-  <div class="flex items-center gap-2">
-    <span
-      class="text-[9px] md:text-[10px] font-mono font-bold tracking-wider text-neutral-500 uppercase"
-    >
-      VOL
-    </span>
-    <span
-      class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
-        ? 'text-neutral-600 line-through'
-        : 'text-neutral-300'}"
-    >
-      {audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
-    </span>
-  </div>
+{#if showVolumeControl}
+  <div
+    class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
+      ? 'opacity-100'
+      : 'opacity-30 hover:opacity-100'}"
+  >
+    <div class="flex items-center gap-2">
+      <span
+        class="text-[9px] md:text-[10px] font-mono font-bold tracking-wider text-neutral-500 uppercase"
+      >
+        VOL
+      </span>
+      <span
+        class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
+          ? 'text-neutral-600 line-through'
+          : 'text-neutral-300'}"
+      >
+        {audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
+      </span>
+    </div>
 
-  <div class="flex items-center gap-2">
-    <Button
-      variant="icon"
-      type="button"
-      onclick={handleToggleMute}
-      title={audioStore.muted ? "Unmute audio" : "Mute audio"}
-      ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
-      class="h-5 w-5 px-0"
-    >
-      {#if audioStore.muted || audioStore.volume === 0}
-        <VolumeX class="w-3 h-3" />
-      {:else if audioStore.volume < 0.5}
-        <Volume1 class="w-3 h-3" />
-      {:else}
-        <Volume2 class="w-3 h-3" />
-      {/if}
-    </Button>
+    <div class="flex items-center gap-2">
+      <Button
+        variant="icon"
+        type="button"
+        onclick={handleToggleMute}
+        title={audioStore.muted ? "Unmute audio" : "Mute audio"}
+        ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
+        class="h-5 w-5 px-0"
+      >
+        {#if audioStore.muted || audioStore.volume === 0}
+          <VolumeX class="w-3 h-3" />
+        {:else if audioStore.volume < 0.5}
+          <Volume1 class="w-3 h-3" />
+        {:else}
+          <Volume2 class="w-3 h-3" />
+        {/if}
+      </Button>
 
-    <input
-      type="range"
-      min="0"
-      max="1"
-      step="0.05"
-      value={audioStore.muted ? 0 : audioStore.volume}
-      oninput={handleVolumeInput}
-      onchange={handleVolumeChange}
-      aria-label="Master volume"
-      class="sharp-range w-24 md:w-28 h-1 outline-none cursor-pointer"
-    />
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
+        value={audioStore.muted ? 0 : audioStore.volume}
+        oninput={handleVolumeInput}
+        onchange={handleVolumeChange}
+        aria-label="Master volume"
+        class="sharp-range w-24 md:w-28 h-1 outline-none cursor-pointer"
+      />
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   .sharp-range {
