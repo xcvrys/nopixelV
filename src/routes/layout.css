@@ -1,92 +1,92 @@
-@import '@fontsource/barlow-condensed/300.css';
-@import '@fontsource/barlow-condensed/400.css';
-@import '@fontsource/barlow-condensed/500.css';
-@import '@fontsource/barlow-condensed/600.css';
-@import '@fontsource/barlow-condensed/700.css';
-@import '@fontsource/barlow-condensed/800.css';
-@import '@fontsource/barlow-condensed/900.css';
-@import '@fontsource/barlow-condensed/400-italic.css';
-@import '@fontsource/barlow-condensed/500-italic.css';
-@import '@fontsource/barlow-condensed/600-italic.css';
-@import '@fontsource/barlow-condensed/700-italic.css';
-@import '@fontsource/barlow-condensed/800-italic.css';
-@import '@fontsource/barlow-condensed/900-italic.css';
-@import 'tailwindcss';
-@import '@xyflow/svelte/dist/style.css';
+@import "@fontsource/barlow-condensed/300.css";
+@import "@fontsource/barlow-condensed/400.css";
+@import "@fontsource/barlow-condensed/500.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/barlow-condensed/800.css";
+@import "@fontsource/barlow-condensed/900.css";
+@import "@fontsource/barlow-condensed/400-italic.css";
+@import "@fontsource/barlow-condensed/500-italic.css";
+@import "@fontsource/barlow-condensed/600-italic.css";
+@import "@fontsource/barlow-condensed/700-italic.css";
+@import "@fontsource/barlow-condensed/800-italic.css";
+@import "@fontsource/barlow-condensed/900-italic.css";
+@import "tailwindcss";
+@import "@xyflow/svelte/dist/style.css";
 
 @theme {
-	--font-sans: 'Barlow Condensed', sans-serif;
-	--font-mono: 'Barlow Condensed', monospace;
+  --font-sans: "Barlow Condensed", sans-serif;
+  --font-mono: "Barlow Condensed", monospace;
 }
 
 :root {
-	color-scheme: dark;
-	font-family: 'Barlow Condensed', sans-serif;
+  color-scheme: dark;
+  font-family: "Barlow Condensed", sans-serif;
 }
 
 *,
 ::before,
 ::after {
-	font-family: inherit;
+  font-family: inherit;
 }
 
 body {
-	margin: 0;
-	padding: 0;
-	background-color: #000000;
-	color: #ededed;
-	font-family: 'Barlow Condensed', sans-serif;
-	min-height: 100vh;
-	overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  color: #ededed;
+  font-family: "Barlow Condensed", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 ::selection {
-	background: #333333;
-	color: #ffffff;
+  background: #333333;
+  color: #ffffff;
 }
 
 /* Vercel-style minimal scrollbars */
 ::-webkit-scrollbar {
-	width: 5px;
-	height: 5px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-	background: #000000;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-	background: #222222;
-	border-radius: 2px;
+  background: #222222;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #333333;
+  background: #333333;
 }
 
 /* SvelteFlow dark monochrome overrides */
 .svelte-flow {
-	background-color: #000000 !important;
+  background-color: #000000 !important;
 }
 .svelte-flow__controls {
-	background: #0a0a0a !important;
-	border: 1px solid #222222 !important;
-	box-shadow: none !important;
-	border-radius: 8px !important;
+  background: #0a0a0a !important;
+  border: 1px solid #222222 !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
 }
 .svelte-flow__controls button {
-	background: #0a0a0a !important;
-	border-bottom: 1px solid #222222 !important;
-	color: #888888 !important;
-	fill: #888888 !important;
+  background: #0a0a0a !important;
+  border-bottom: 1px solid #222222 !important;
+  color: #888888 !important;
+  fill: #888888 !important;
 }
 .svelte-flow__controls button:hover {
-	background: #171717 !important;
-	color: #ffffff !important;
-	fill: #ffffff !important;
+  background: #171717 !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
 }
 .svelte-flow__minimap {
-	background: #050505 !important;
-	border: 1px solid #222222 !important;
-	border-radius: 8px !important;
+  background: #050505 !important;
+  border: 1px solid #222222 !important;
+  border-radius: 8px !important;
 }
 .svelte-flow__edge-path {
-	stroke: #444444 !important;
+  stroke: #444444 !important;
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SafeDialView from '$lib/components/minigames/SafeDialView.svelte';
+  import SafeDialView from "$lib/components/minigames/SafeDialView.svelte";
 </script>
 
 <SafeDialView />

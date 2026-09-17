@@ -3,4 +3,4 @@
  * Re-exports modular types, constants, and logic from ./lockpick.
  */
 
-export * from './lockpick/index';
+export * from "./lockpick/index";
