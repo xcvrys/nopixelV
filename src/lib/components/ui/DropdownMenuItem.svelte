@@ -32,6 +32,7 @@
 <Button
   variant="quiet"
   {disabled}
+  onclick={activate}
   class={cn(
     "w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide",
     tone === "danger"
