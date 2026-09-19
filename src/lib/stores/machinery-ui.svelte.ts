@@ -1,9 +1,4 @@
-export type ActiveConnection = {
-  nodeId: string;
-  handleId: string;
-  handleType: "source" | "target";
-};
-
+import type { ActiveConnection } from "$lib/engine/machinery";
 export class MachineryUiStore {
   public openActionsNodeId = $state<string | null>(null);
   public activeConnection = $state<ActiveConnection | null>(null);

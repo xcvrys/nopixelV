@@ -2,6 +2,11 @@
   import { Handle, Position } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import type { RecipeDefinition } from "$lib/data/recipes";
+  import {
+    getHandleConnectionState,
+    isHandleOccupied,
+    type HandleType,
+  } from "$lib/engine/machinery";
   import type { MachineStats } from "$lib/engine/calculator";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
@@ -21,48 +26,21 @@
   let edges = $derived(machineryStore.edges);
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
-  function getHandleState(type: "source" | "target", handleId: string): string {
-    const connection = activeConnection;
-    if (!connection) return "";
-
-    const isStart =
-      connection.nodeId === id &&
-      connection.handleId === handleId &&
-      connection.handleType === type;
-    const isCompatible =
-      connection.nodeId !== id &&
-      (connection.handleType === "source"
-        ? type === "target" &&
-          machineryStore.canConnect({
-            source: connection.nodeId,
-            sourceHandle: connection.handleId,
-            target: id,
-            targetHandle: handleId,
-          })
-        : type === "source" &&
-          machineryStore.canConnect({
-            source: id,
-            sourceHandle: handleId,
-            target: connection.nodeId,
-            targetHandle: connection.handleId,
-          }));
-
+  function getHandleState(type: HandleType, handleId: string): string {
+    const state = getHandleConnectionState(edges, activeConnection, {
+      nodeId: id,
+      handleId,
+      handleType: type,
+    });
     return cn(
-      "connection-in-progress",
-      isStart && "connection-start",
-      isCompatible && "connection-compatible",
+      state.inProgress && "connection-in-progress",
+      state.isStart && "connection-start",
+      state.isCompatible && "connection-compatible",
     );
   }
 
-  function isHandleAvailable(type: "source" | "target", handleId: string): boolean {
-    return (
-      connectable &&
-      !edges.some((edge) =>
-        type === "source"
-          ? edge.source === id && edge.sourceHandle === handleId
-          : edge.target === id && edge.targetHandle === handleId,
-      )
-    );
+  function isHandleAvailable(type: HandleType, handleId: string): boolean {
+    return connectable && !isHandleOccupied(edges, id, type, handleId);
   }
 </script>
 

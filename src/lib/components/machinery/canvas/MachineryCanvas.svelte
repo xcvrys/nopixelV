@@ -7,6 +7,7 @@
     type Edge,
   } from "@xyflow/svelte";
   import type { OnConnectStart } from "@xyflow/system";
+  import { toConnectionInput } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import MachineryBackground from "./MachineryBackground.svelte";
@@ -14,37 +15,13 @@
   import { machineryNodeTypes } from "../nodes/registry";
 
   function isValidConnection(connection: Connection | Edge): boolean {
-    if (
-      !connection.source ||
-      !connection.target ||
-      !connection.sourceHandle ||
-      !connection.targetHandle
-    ) {
-      return false;
-    }
-    return machineryStore.canConnect({
-      source: connection.source,
-      sourceHandle: connection.sourceHandle,
-      target: connection.target,
-      targetHandle: connection.targetHandle,
-    });
+    const input = toConnectionInput(connection);
+    return input !== null && machineryStore.canConnect(input);
   }
 
   function handleConnect(connection: Connection): void {
-    if (
-      !connection.source ||
-      !connection.target ||
-      !connection.sourceHandle ||
-      !connection.targetHandle
-    ) {
-      return;
-    }
-    machineryStore.connect({
-      source: connection.source,
-      sourceHandle: connection.sourceHandle,
-      target: connection.target,
-      targetHandle: connection.targetHandle,
-    });
+    const input = toConnectionInput(connection);
+    if (input) machineryStore.connect(input);
   }
 
   function handleConnectStart(
