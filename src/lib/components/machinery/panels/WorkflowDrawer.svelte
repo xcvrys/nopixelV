@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Drawer } from "vaul-svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   import { Database, Download, Upload, X } from "lucide-svelte";
   import { machineryStore, MAX_WORKFLOW_NAME_LENGTH } from "$lib/stores/machinery.svelte";
   import { cn } from "$lib/utils/cn";
@@ -63,15 +64,14 @@
   }
 </script>
 
-<button
-  type="button"
+<Button
   onclick={openDrawer}
   title="Switch or manage workflows"
-  class="inline-flex items-center gap-2 border-0 bg-neutral-950 px-3.5 py-1 text-base font-bold italic uppercase text-white hover:bg-white hover:text-black"
+  class="rounded-none border-0 bg-neutral-950 px-3.5 py-1 text-base font-bold italic uppercase text-white hover:bg-white hover:text-black"
 >
   <Database class="h-3.5 w-3.5" />
   <span>{machineryStore.activeWorkflowName}</span>
-</button>
+</Button>
 
 <Drawer.Root
   bind:open
@@ -117,15 +117,15 @@
 
         <div class="mb-3 flex items-center justify-between">
           <h3 class="text-xs font-bold uppercase tracking-widest text-white">Switch workflow</h3>
-          <button
-            type="button"
+          <Button
             onclick={async () => {
               await machineryStore.newWorkflow();
               open = false;
             }}
-            class="border border-neutral-700 px-3 py-1.5 text-xs font-bold italic uppercase text-white hover:bg-white hover:text-black"
-            >New</button
+            class="border-neutral-700 text-white hover:bg-white hover:text-black"
           >
+            New
+          </Button>
         </div>
         {#if workflows.length > 0}
           <div class="space-y-1">
@@ -133,31 +133,31 @@
               {@const selected = workflow.id === machineryStore.activeWorkflowId}
               <div
                 class={cn(
-                  "flex items-center justify-between border bg-neutral-950 p-3",
+                  "relative flex min-h-14 items-center justify-end border bg-neutral-950 p-3",
                   selected ? "border-white" : "border-neutral-900 hover:border-neutral-700",
                 )}
               >
-                <button
-                  type="button"
-                  class="min-w-0 flex-1 text-left"
+                <Button
                   onclick={async () => {
                     await machineryStore.loadWorkflow(workflow.id);
                     open = false;
                   }}
-                  ><div class="truncate text-sm font-bold uppercase text-white">
-                    {workflow.name}
-                  </div></button
+                  class="absolute inset-0 z-0 h-full w-full justify-start px-3 pr-24 text-left hover:bg-neutral-900"
                 >
-                <button
-                  type="button"
+                  <span class="truncate">{workflow.name}</span>
+                </Button>
+                <Button
+                  variant="quiet"
                   onclick={() => deleteWorkflow(workflow.id)}
                   class={cn(
-                    "ml-3 border-0 px-3 py-1.5 text-xs font-bold italic uppercase",
+                    "relative z-10 ml-auto border-0 px-3 py-1.5",
                     confirmDeleteId === workflow.id
-                      ? "bg-red-500 text-black"
-                      : "text-white hover:bg-red-500 hover:text-black",
-                  )}>{confirmDeleteId === workflow.id ? "Confirm" : "Delete"}</button
+                      ? "bg-red-500 text-black hover:bg-red-500"
+                      : "bg-black text-white hover:bg-red-500 hover:text-black",
+                  )}
                 >
+                  {confirmDeleteId === workflow.id ? "Confirm" : "Delete"}
+                </Button>
               </div>
             {/each}
           </div>
@@ -172,18 +172,22 @@
 
       <div class="pt-5">
         <div class="flex items-center gap-2">
-          <button
-            type="button"
+          <Button
+            variant="quiet"
             onclick={exportBlueprint}
-            class="inline-flex items-center gap-1.5 border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-900 hover:text-white"
-            ><Download class="h-3.5 w-3.5" />Export JSON</button
+            class="hover:!bg-white hover:!text-black"
           >
-          <button
-            type="button"
+            <Download class="h-3.5 w-3.5" />
+            Export JSON
+          </Button>
+          <Button
+            variant="quiet"
             onclick={() => fileInput?.click()}
-            class="inline-flex items-center gap-1.5 border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-900 hover:text-white"
-            ><Upload class="h-3.5 w-3.5" />Import JSON</button
+            class="hover:!bg-white hover:!text-black"
           >
+            <Upload class="h-3.5 w-3.5" />
+            Import JSON
+          </Button>
           <input
             type="file"
             accept=".json"

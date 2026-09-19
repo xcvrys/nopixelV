@@ -82,42 +82,42 @@
       <div
         class="nodrag nowheel absolute right-0 top-full z-10 mt-1 min-w-32 border border-neutral-800 bg-black p-0"
       >
-        <button
-          type="button"
+        <Button
+          variant="quiet"
           disabled={!interactive}
           onclick={(event) => {
             event.stopPropagation();
             void startNameEditing();
           }}
-          class="flex w-full items-center gap-2 px-2.5 py-2 text-left text-xs font-semibold italic uppercase tracking-wide text-neutral-300 hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-neutral-300 hover:bg-white hover:text-black"
         >
           <Pencil class="h-3 w-3" />
           Rename
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="quiet"
           disabled={!interactive}
           onclick={(event) => {
             event.stopPropagation();
             toggleImage();
           }}
-          class="flex w-full items-center gap-2 px-2.5 py-2 text-left text-xs font-semibold italic uppercase tracking-wide text-neutral-300 hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-neutral-300 hover:bg-white hover:text-black"
         >
           {#if showImage}<EyeOff class="h-3 w-3" />Hide image{:else}<Eye class="h-3 w-3" />Show
             image{/if}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="quiet"
           disabled={!interactive}
           onclick={(event) => {
             event.stopPropagation();
             machineryStore.removeNode(id);
           }}
-          class="flex w-full items-center gap-2 px-2.5 py-2 text-left text-xs font-semibold italic uppercase tracking-wide text-red-400 hover:bg-red-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-red-400 hover:bg-red-500 hover:text-black"
         >
           <Trash2 class="h-3 w-3" />
           Delete
-        </button>
+        </Button>
       </div>
     {/if}
   </div>

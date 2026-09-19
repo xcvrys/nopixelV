@@ -34,14 +34,13 @@
   {#if showMenu}
     <div class="absolute right-0 z-50 mt-2 w-52 border border-neutral-800 bg-black p-1 shadow-2xl">
       {#each STARTER_MACHINES as machine (machine.type)}
-        <button
-          type="button"
+        <Button
           onclick={() => addMachine(machine.type)}
-          class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-900 hover:text-white"
+          class="w-full justify-start px-3 py-2 text-left text-xs font-medium not-italic text-neutral-300 hover:bg-white hover:text-black"
         >
           <span class="h-1.5 w-1.5 bg-neutral-400"></span>
           <span>{machine.name}</span>
-        </button>
+        </Button>
       {/each}
     </div>
   {/if}
