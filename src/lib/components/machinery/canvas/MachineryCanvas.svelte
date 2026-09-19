@@ -52,56 +52,15 @@
     params: Parameters<OnConnectStart>[1],
   ): void {
     if (!params.handleType || !params.nodeId || !params.handleId) return;
-
-    const startsFromSource = params.handleType === "source";
-    const startNodeId = params.nodeId;
-    const startHandleId = params.handleId;
-
-    document.querySelectorAll<HTMLElement>(".svelte-flow__handle").forEach((handle) => {
-      const nodeId = handle.dataset.nodeid ?? "";
-      const handleId = handle.dataset.handleid ?? "";
-      const isActiveHandle =
-        nodeId === startNodeId &&
-        handleId === startHandleId &&
-        handle.classList.contains(startsFromSource ? "source" : "target");
-      let isCompatibleHandle = false;
-
-      if (nodeId !== startNodeId && nodeId && handleId) {
-        isCompatibleHandle = startsFromSource
-          ? handle.classList.contains("target") &&
-            machineryStore.canConnect({
-              source: startNodeId,
-              sourceHandle: startHandleId,
-              target: nodeId,
-              targetHandle: handleId,
-            })
-          : handle.classList.contains("source") &&
-            machineryStore.canConnect({
-              source: nodeId,
-              sourceHandle: handleId,
-              target: startNodeId,
-              targetHandle: startHandleId,
-            });
-      }
-
-      handle.classList.toggle("connection-start", isActiveHandle);
-      handle.classList.toggle("connection-compatible", isCompatibleHandle);
-      handle.classList.add("connection-in-progress");
+    machineryUiStore.startConnection({
+      nodeId: params.nodeId,
+      handleId: params.handleId,
+      handleType: params.handleType,
     });
   }
 
   function handleConnectEnd(): void {
-    document
-      .querySelectorAll<HTMLElement>(
-        ".svelte-flow__handle.connection-start, .svelte-flow__handle.connection-compatible, .svelte-flow__handle.connection-in-progress",
-      )
-      .forEach((handle) => {
-        handle.classList.remove(
-          "connection-start",
-          "connection-compatible",
-          "connection-in-progress",
-        );
-      });
+    machineryUiStore.endConnection();
   }
 
   function handleDelete(params: { nodes: { id: string }[]; edges: Edge[] }): void {

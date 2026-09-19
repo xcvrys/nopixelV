@@ -2,8 +2,10 @@
   import { Handle, Position } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import type { RecipeDefinition } from "$lib/data/recipes";
-  import { machineryStore } from "$lib/stores/machinery.svelte";
   import type { MachineStats } from "$lib/engine/calculator";
+  import { machineryStore } from "$lib/stores/machinery.svelte";
+  import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
+  import { cn } from "$lib/utils/cn";
 
   let {
     id,
@@ -17,6 +19,40 @@
     connectable: boolean;
   } = $props();
   let edges = $derived(machineryStore.edges);
+  let activeConnection = $derived(machineryUiStore.activeConnection);
+
+  function getHandleState(type: "source" | "target", handleId: string): string {
+    const connection = activeConnection;
+    if (!connection) return "";
+
+    const isStart =
+      connection.nodeId === id &&
+      connection.handleId === handleId &&
+      connection.handleType === type;
+    const isCompatible =
+      connection.nodeId !== id &&
+      (connection.handleType === "source"
+        ? type === "target" &&
+          machineryStore.canConnect({
+            source: connection.nodeId,
+            sourceHandle: connection.handleId,
+            target: id,
+            targetHandle: handleId,
+          })
+        : type === "source" &&
+          machineryStore.canConnect({
+            source: id,
+            sourceHandle: handleId,
+            target: connection.nodeId,
+            targetHandle: connection.handleId,
+          }));
+
+    return cn(
+      "connection-in-progress",
+      isStart && "connection-start",
+      isCompatible && "connection-compatible",
+    );
+  }
 
   function isHandleAvailable(type: "source" | "target", handleId: string): boolean {
     return (
@@ -43,7 +79,10 @@
             position={Position.Left}
             id={input.itemId}
             isConnectable={isHandleAvailable("target", input.itemId)}
-            class="!box-border !-left-6 !h-2 !w-2 !rounded-none !border-0 !bg-white"
+            class={cn(
+              "!box-border !-left-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+              getHandleState("target", input.itemId),
+            )}
           />
           <div class="min-w-0">
             <div class="truncate text-[11px] font-semibold text-white">
@@ -80,7 +119,10 @@
             position={Position.Right}
             id={output.itemId}
             isConnectable={isHandleAvailable("source", output.itemId)}
-            class="!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white"
+            class={cn(
+              "!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+              getHandleState("source", output.itemId),
+            )}
           />
         </div>
       {/each}

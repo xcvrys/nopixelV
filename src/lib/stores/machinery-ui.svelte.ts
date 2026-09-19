@@ -1,8 +1,22 @@
+export type ActiveConnection = {
+  nodeId: string;
+  handleId: string;
+  handleType: "source" | "target";
+};
+
 export class MachineryUiStore {
   public openActionsNodeId = $state<string | null>(null);
+  public activeConnection = $state<ActiveConnection | null>(null);
 
   public toggleActions(nodeId: string): void {
     this.openActionsNodeId = this.openActionsNodeId === nodeId ? null : nodeId;
+  }
+  public startConnection(connection: ActiveConnection): void {
+    this.activeConnection = connection;
+  }
+
+  public endConnection(): void {
+    this.activeConnection = null;
   }
 
   public closeActions(): void {
