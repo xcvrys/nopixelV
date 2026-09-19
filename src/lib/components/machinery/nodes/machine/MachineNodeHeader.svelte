@@ -1,9 +1,10 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import Button from "$lib/components/ui/Button.svelte";
+  import DropdownMenu from "$lib/components/ui/DropdownMenu.svelte";
+  import DropdownMenuItem from "$lib/components/ui/DropdownMenuItem.svelte";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
-  import { EllipsisVertical, Eye, EyeOff, Pencil, Trash2 } from "lucide-svelte";
+  import { Eye, EyeOff, Pencil, Trash2 } from "lucide-svelte";
   import type { MachineNodeData } from "$lib/engine/machinery";
 
   let {
@@ -63,62 +64,26 @@
   </div>
 
   <div class="nodrag nowheel relative flex items-center gap-1">
-    <Button
-      variant="icon"
-      onclick={(event) => {
-        event.stopPropagation();
-        machineryUiStore.toggleActions(id);
-      }}
-      disabled={!interactive}
-      class="nodrag !h-7 !w-7 !bg-neutral-950 !p-1 hover:!bg-white hover:!text-black"
-      title="Element actions"
-      ariaLabel="Element actions"
-      ariaExpanded={machineryUiStore.isActionsOpen(id)}
-    >
-      <EllipsisVertical class="h-3.5 w-3.5" />
-    </Button>
-
-    {#if machineryUiStore.isActionsOpen(id)}
-      <div
-        class="nodrag nowheel absolute right-0 top-full z-10 mt-1 min-w-32 border border-neutral-800 bg-black p-0"
+    <DropdownMenu label="Element actions" disabled={!interactive}>
+      <DropdownMenuItem disabled={!interactive} onclick={startNameEditing}>
+        <Pencil class="h-3 w-3" />
+        Rename
+      </DropdownMenuItem>
+      <DropdownMenuItem disabled={!interactive} onclick={toggleImage}>
+        {#if showImage}
+          <EyeOff class="h-3 w-3" />Hide image
+        {:else}
+          <Eye class="h-3 w-3" />Show image
+        {/if}
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        tone="danger"
+        disabled={!interactive}
+        onclick={() => machineryStore.removeNode(id)}
       >
-        <Button
-          variant="quiet"
-          disabled={!interactive}
-          onclick={(event) => {
-            event.stopPropagation();
-            void startNameEditing();
-          }}
-          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-neutral-300 hover:bg-white hover:text-black"
-        >
-          <Pencil class="h-3 w-3" />
-          Rename
-        </Button>
-        <Button
-          variant="quiet"
-          disabled={!interactive}
-          onclick={(event) => {
-            event.stopPropagation();
-            toggleImage();
-          }}
-          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-neutral-300 hover:bg-white hover:text-black"
-        >
-          {#if showImage}<EyeOff class="h-3 w-3" />Hide image{:else}<Eye class="h-3 w-3" />Show
-            image{/if}
-        </Button>
-        <Button
-          variant="quiet"
-          disabled={!interactive}
-          onclick={(event) => {
-            event.stopPropagation();
-            machineryStore.removeNode(id);
-          }}
-          class="w-full justify-start px-2.5 py-2 text-left text-xs font-semibold not-italic tracking-wide text-red-400 hover:bg-red-500 hover:text-black"
-        >
-          <Trash2 class="h-3 w-3" />
-          Delete
-        </Button>
-      </div>
-    {/if}
+        <Trash2 class="h-3 w-3" />
+        Delete
+      </DropdownMenuItem>
+    </DropdownMenu>
   </div>
 </div>

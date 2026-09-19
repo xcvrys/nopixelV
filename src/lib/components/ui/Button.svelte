@@ -15,6 +15,7 @@
     ariaExpanded,
     ariaPressed,
     ariaControls,
+    role,
     class: className = "",
     onclick,
   }: {
@@ -27,6 +28,7 @@
     ariaExpanded?: boolean;
     ariaPressed?: boolean;
     ariaControls?: string;
+    role?: string;
     class?: string;
     onclick?: (event: MouseEvent) => void;
   } = $props();
@@ -40,6 +42,7 @@
 </script>
 
 <button
+  {role}
   {type}
   {disabled}
   {title}
