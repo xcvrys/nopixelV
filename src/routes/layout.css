@@ -138,16 +138,12 @@ body {
     background-color 160ms ease,
     border-color 160ms ease;
 }
-.svelte-flow__handle.connection-in-progress:not(.connection-compatible),
+.svelte-flow__handle.connection-in-progress:not(.connection-compatible):not(.connection-start),
 .svelte-flow__handle.connectingto:not(.valid) {
   opacity: 0.35 !important;
   background: color-mix(in srgb, var(--color-white) 35%, transparent) !important;
   border-color: color-mix(in srgb, var(--color-white) 35%, transparent) !important;
   box-shadow: none !important;
-}
-.svelte-flow__handle.connectingfrom {
-  background: var(--color-white) !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-white) 30%, transparent) !important;
 }
 .svelte-flow__handle.connection-compatible {
   background: var(--color-white) !important;

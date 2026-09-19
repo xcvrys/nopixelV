@@ -19,6 +19,7 @@
 
   const flowStore = useStore();
   const updateNodeInternals = useUpdateNodeInternals();
+  let nodeElement: HTMLDivElement | undefined = $state();
   let showImage = $derived(data.showImage !== false);
   let interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
@@ -35,6 +36,13 @@
     void tick().then(() => updateNodeInternals([nodeId]));
   });
 
+  $effect(() => {
+    if (!nodeElement) return;
+    const observer = new ResizeObserver(() => updateNodeInternals([id]));
+    observer.observe(nodeElement);
+    return () => observer.disconnect();
+  });
+
   function handleRecipeChange(event: Event): void {
     const select = event.currentTarget as HTMLSelectElement;
     machineryStore.updateNodeData(id, { recipeId: select.value || null });
@@ -42,6 +50,7 @@
 </script>
 
 <div
+  bind:this={nodeElement}
   class={cn(
     "w-72 border-2 border-[#262626] bg-neutral-950 transition-colors duration-150",
     selected ? "border-white" : "",

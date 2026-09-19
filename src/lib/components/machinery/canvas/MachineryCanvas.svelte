@@ -51,27 +51,41 @@
     _event: Parameters<OnConnectStart>[0],
     params: Parameters<OnConnectStart>[1],
   ): void {
-    if (params.handleType !== "source" || !params.nodeId || !params.handleId) return;
-    const sourceNodeId = params.nodeId;
-    const sourceHandleId = params.handleId;
+    if (!params.handleType || !params.nodeId || !params.handleId) return;
+
+    const startsFromSource = params.handleType === "source";
+    const startNodeId = params.nodeId;
+    const startHandleId = params.handleId;
+
     document.querySelectorAll<HTMLElement>(".svelte-flow__handle").forEach((handle) => {
-      const isActiveSource =
-        handle.classList.contains("source") &&
-        handle.dataset.nodeid === sourceNodeId &&
-        handle.dataset.handleid === sourceHandleId;
-      const targetNodeId = handle.dataset.nodeid ?? "";
-      const targetHandleId = handle.dataset.handleid ?? "";
-      let isCompatibleTarget = false;
-      if (handle.classList.contains("target") && targetNodeId && targetHandleId) {
-        isCompatibleTarget = machineryStore.canConnect({
-          source: sourceNodeId,
-          sourceHandle: sourceHandleId,
-          target: targetNodeId,
-          targetHandle: targetHandleId,
-        });
+      const nodeId = handle.dataset.nodeid ?? "";
+      const handleId = handle.dataset.handleid ?? "";
+      const isActiveHandle =
+        nodeId === startNodeId &&
+        handleId === startHandleId &&
+        handle.classList.contains(startsFromSource ? "source" : "target");
+      let isCompatibleHandle = false;
+
+      if (nodeId !== startNodeId && nodeId && handleId) {
+        isCompatibleHandle = startsFromSource
+          ? handle.classList.contains("target") &&
+            machineryStore.canConnect({
+              source: startNodeId,
+              sourceHandle: startHandleId,
+              target: nodeId,
+              targetHandle: handleId,
+            })
+          : handle.classList.contains("source") &&
+            machineryStore.canConnect({
+              source: nodeId,
+              sourceHandle: handleId,
+              target: startNodeId,
+              targetHandle: startHandleId,
+            });
       }
 
-      handle.classList.toggle("connection-compatible", isActiveSource || isCompatibleTarget);
+      handle.classList.toggle("connection-start", isActiveHandle);
+      handle.classList.toggle("connection-compatible", isCompatibleHandle);
       handle.classList.add("connection-in-progress");
     });
   }
@@ -79,10 +93,14 @@
   function handleConnectEnd(): void {
     document
       .querySelectorAll<HTMLElement>(
-        ".svelte-flow__handle.connection-compatible, .svelte-flow__handle.connection-in-progress",
+        ".svelte-flow__handle.connection-start, .svelte-flow__handle.connection-compatible, .svelte-flow__handle.connection-in-progress",
       )
       .forEach((handle) => {
-        handle.classList.remove("connection-compatible", "connection-in-progress");
+        handle.classList.remove(
+          "connection-start",
+          "connection-compatible",
+          "connection-in-progress",
+        );
       });
   }
 

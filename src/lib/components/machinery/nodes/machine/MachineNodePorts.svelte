@@ -43,7 +43,7 @@
             position={Position.Left}
             id={input.itemId}
             isConnectable={isHandleAvailable("target", input.itemId)}
-            class="!box-border !-left-6 !h-3 !w-3 !rounded-none !border-2 !border-slate-950 !bg-white"
+            class="!box-border !-left-6 !h-2 !w-2 !rounded-none !border-0 !bg-white"
           />
           <div class="min-w-0">
             <div class="truncate text-[11px] font-semibold text-white">
@@ -80,7 +80,7 @@
             position={Position.Right}
             id={output.itemId}
             isConnectable={isHandleAvailable("source", output.itemId)}
-            class="!box-border !-right-6 !h-3 !w-3 !rounded-none !border-2 !border-slate-950 !bg-white"
+            class="!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white"
           />
         </div>
       {/each}
