@@ -82,21 +82,39 @@ body {
   background-color: var(--color-background) !important;
 }
 .svelte-flow__controls {
-  background: var(--color-surface) !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  background: var(--color-surface-deep) !important;
   border: 1px solid var(--color-border) !important;
   box-shadow: none !important;
-  border-radius: 8px !important;
+  border-radius: 0 !important;
 }
 .svelte-flow__controls button {
-  background: var(--color-surface) !important;
+  width: 30px !important;
+  height: 30px !important;
+  margin: 0 !important;
+  border: 0 !important;
   border-bottom: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  background: var(--color-surface-deep) !important;
   color: var(--color-muted) !important;
   fill: var(--color-muted) !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    fill 150ms ease !important;
 }
-.svelte-flow__controls button:hover {
-  background: var(--color-surface-raised) !important;
-  color: var(--color-white) !important;
-  fill: var(--color-white) !important;
+.svelte-flow__controls button:last-child {
+  border-bottom: 0 !important;
+}
+.svelte-flow__controls button:hover:not(:disabled) {
+  background: var(--color-white) !important;
+  color: var(--color-black) !important;
+  fill: var(--color-black) !important;
+}
+.svelte-flow__controls button:disabled {
+  color: var(--color-border) !important;
+  fill: var(--color-border) !important;
 }
 .svelte-flow__minimap {
   background: var(--color-surface-deep) !important;
@@ -104,5 +122,42 @@ body {
   border-radius: 8px !important;
 }
 .svelte-flow__edge-path {
-  stroke: var(--color-muted-dark) !important;
+  stroke: var(--color-white) !important;
+}
+.svelte-flow__edge.selected .svelte-flow__edge-path {
+  stroke: var(--color-white) !important;
+  stroke-width: 3px !important;
+}
+.svelte-flow__handle.valid {
+  background: var(--color-white) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-white) 30%, transparent) !important;
+}
+.svelte-flow__handle.connection-in-progress {
+  transition:
+    opacity 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+.svelte-flow__handle.connection-in-progress:not(.connection-compatible),
+.svelte-flow__handle.connectingto:not(.valid) {
+  opacity: 0.35 !important;
+  background: color-mix(in srgb, var(--color-white) 35%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-white) 35%, transparent) !important;
+  box-shadow: none !important;
+}
+.svelte-flow__handle.connectingfrom {
+  background: var(--color-white) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-white) 30%, transparent) !important;
+}
+.svelte-flow__handle.connection-compatible {
+  background: var(--color-white) !important;
+  border-color: var(--color-white) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-white) 35%, transparent) !important;
+  opacity: 1 !important;
+}
+
+.svelte-flow__nodesselection-rect,
+.svelte-flow__selection {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+  border: 1px dashed var(--color-accent) !important;
 }

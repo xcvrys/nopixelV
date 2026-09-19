@@ -19,8 +19,8 @@ describe("Calculator Engine", () => {
   };
 
   describe("calculateMachineRates", () => {
-    it("computes correct cycles and rates at 100% clock speed", () => {
-      const res = calculateMachineRates(mockSmeltIron, 100);
+    it("computes correct cycles and rates at the recipe duration", () => {
+      const res = calculateMachineRates(mockSmeltIron);
       // 60 / 3 = 20 cycles per minute
       expect(res.cyclesPerMinute).toBeCloseTo(20, 2);
       expect(res.effectiveDuration).toBeCloseTo(3, 2);
@@ -32,25 +32,20 @@ describe("Calculator Engine", () => {
       expect(res.powerPerMinute).toBeCloseTo(40, 2);
     });
 
-    it("computes correct rates with 150% clock speed (boost)", () => {
-      const res = calculateMachineRates(mockSmeltIron, 150);
-      // 3s / 1.5 = 2s duration
-      // 60 / 2 = 30 cycles per min
-      expect(res.effectiveDuration).toBeCloseTo(2, 2);
-      expect(res.cyclesPerMinute).toBeCloseTo(30, 2);
-      expect(res.inputs[0].amountPerMin).toBeCloseTo(60, 2);
-      expect(res.outputs[0].amountPerMin).toBeCloseTo(30, 2);
-      expect(res.powerPerMinute).toBeCloseTo(60, 2);
-    });
-
     it("allows custom duration and power cost overrides", () => {
-      const res = calculateMachineRates(mockSmeltIron, 100, 5, 10);
+      const res = calculateMachineRates(mockSmeltIron, 5, 10);
       // duration = 5s => 12 cycles/min
       expect(res.effectiveDuration).toBe(5);
       expect(res.cyclesPerMinute).toBe(12);
       expect(res.inputs[0].amountPerMin).toBe(24);
       expect(res.outputs[0].amountPerMin).toBe(12);
       expect(res.powerPerMinute).toBe(120);
+    });
+
+    it("falls back to safe values for invalid overrides", () => {
+      const res = calculateMachineRates(mockSmeltIron, Number.NaN, -10);
+      expect(res.effectiveDuration).toBe(3);
+      expect(res.powerPerMinute).toBe(40);
     });
   });
 
@@ -74,14 +69,12 @@ describe("Calculator Engine", () => {
           type: "furnace",
           name: "Smelter",
           recipe: mockSmeltIron,
-          clockSpeed: 100,
         },
         {
           id: "m2",
           type: "processor",
           name: "Plate Crafter",
           recipe: mockMakePlates,
-          clockSpeed: 100,
         },
       ];
 
@@ -111,22 +104,21 @@ describe("Calculator Engine", () => {
     });
 
     it("detects bottleneck and scales downstream outputs when undersupplied", () => {
-      // Furnace runs at 50% clock speed -> produces only 10 ingots/min
-      // Processor needs 20 ingots/min -> efficiency should be 50% (0.5)
+      // Furnace duration override produces only 10 ingots/min.
+      // Processor needs 20 ingots/min -> efficiency should be 50% (0.5).
       const nodes: MachineryNode[] = [
         {
           id: "m1",
           type: "furnace",
-          name: "Underclocked Smelter",
+          name: "Slowed Smelter",
           recipe: mockSmeltIron,
-          clockSpeed: 50, // produces 10 ingots/min
+          customDurationOverride: 6,
         },
         {
           id: "m2",
           type: "processor",
           name: "Plate Crafter",
           recipe: mockMakePlates,
-          clockSpeed: 100, // needs 20 ingots/min
         },
       ];
 

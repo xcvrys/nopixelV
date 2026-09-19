@@ -24,7 +24,6 @@ export interface MachineryNode {
   type: string;
   name: string;
   recipe: Recipe | null;
-  clockSpeed: number; // e.g. 100 for 100%
   customDurationOverride?: number;
   powerCostOverride?: number;
 }
@@ -87,15 +86,15 @@ export interface NetworkCalculationResult {
  */
 export function calculateMachineRates(
   recipe: Recipe,
-  clockSpeed: number = 100,
   durationOverride?: number,
   powerCostOverride?: number,
 ): MachineRateResult {
-  const speedFactor = clockSpeed > 0 ? clockSpeed / 100 : 1;
-  const baseDuration = durationOverride ?? (recipe.duration > 0 ? recipe.duration : 1);
-  const effectiveDuration =
-    durationOverride !== undefined ? durationOverride : baseDuration / speedFactor;
-  const safeDuration = Math.max(0.001, effectiveDuration);
+  const validDuration =
+    durationOverride !== undefined && Number.isFinite(durationOverride) && durationOverride >= 0
+      ? durationOverride
+      : recipe.duration;
+  const effectiveDuration = Math.max(0.001, validDuration);
+  const safeDuration = effectiveDuration;
   const cyclesPerMinute = 60 / safeDuration;
 
   const inputs = recipe.inputs.map((inp) => ({
@@ -108,7 +107,10 @@ export function calculateMachineRates(
     amountPerMin: out.amount * cyclesPerMinute,
   }));
 
-  const unitPower = powerCostOverride ?? recipe.powerCost;
+  const unitPower =
+    powerCostOverride !== undefined && Number.isFinite(powerCostOverride) && powerCostOverride >= 0
+      ? powerCostOverride
+      : recipe.powerCost;
   const powerPerMinute = unitPower * cyclesPerMinute;
 
   return {
@@ -142,7 +144,6 @@ export function evaluateProductionNetwork(
     if (node.recipe) {
       theoreticalRates[node.id] = calculateMachineRates(
         node.recipe,
-        node.clockSpeed,
         node.customDurationOverride,
         node.powerCostOverride,
       );

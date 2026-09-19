@@ -10,7 +10,10 @@ export const STARTER_RECIPES: RecipeDefinition[] = [
     duration: 3,
     powerCost: 2,
     inputs: [{ itemId: "scrap_metal", amount: 2 }],
-    outputs: [{ itemId: "iron_ingot", amount: 1 }],
+    outputs: [
+      { itemId: "iron_ingot", amount: 1 },
+      { itemId: "copper_ingot", amount: 1 },
+    ],
   },
   {
     id: "smelt_copper_scrap",
@@ -45,7 +48,10 @@ export const STARTER_RECIPES: RecipeDefinition[] = [
     machineType: "processor",
     duration: 4,
     powerCost: 4,
-    inputs: [{ itemId: "iron_ingot", amount: 2 }],
+    inputs: [
+      { itemId: "iron_ingot", amount: 2 },
+      { itemId: "copper_wire", amount: 1 },
+    ],
     outputs: [{ itemId: "iron_plate", amount: 1 }],
   },
   {

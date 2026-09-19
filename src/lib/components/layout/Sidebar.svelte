@@ -243,6 +243,7 @@
     border-radius: 0;
     border: none;
   }
+
   @keyframes mobile-drawer-enter {
     from {
       transform: translate3d(0, 100%, 0);
@@ -252,7 +253,9 @@
     }
   }
 
-  :global([data-vaul-drawer][data-vaul-drawer-visible="true"]) {
-    animation: mobile-drawer-enter 500ms cubic-bezier(0.32, 0.72, 0, 1);
+  @media (max-width: 767px) {
+    :global(#mobile-navigation[data-vaul-drawer][data-vaul-drawer-visible="true"]) {
+      animation: mobile-drawer-enter 500ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
   }
 </style>
