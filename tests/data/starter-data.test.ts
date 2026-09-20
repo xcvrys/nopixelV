@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { STARTER_ITEMS, getItem } from "../../src/lib/data/items";
+import { REPOSITORY_ITEMS, getItem } from "../../src/lib/data/items";
 import { STARTER_RECIPES, getRecipesForMachine } from "../../src/lib/data/recipes";
 import { getMachine } from "../../src/lib/data/machines";
 
 describe("Starter Data Catalog", () => {
-  it("defines items with valid IDs and categories", () => {
-    expect(STARTER_ITEMS.length).toBeGreaterThanOrEqual(6);
-    for (const item of STARTER_ITEMS) {
+  it("defines items with valid IDs and names", () => {
+    expect(REPOSITORY_ITEMS.length).toBeGreaterThanOrEqual(6);
+    for (const item of REPOSITORY_ITEMS) {
       expect(item.id).toBeTruthy();
       expect(item.name).toBeTruthy();
-      expect(["raw", "processed", "component"]).toContain(item.category);
+      expect(item.imageUrl === undefined || typeof item.imageUrl === "string").toBe(true);
     }
   });
 
@@ -17,11 +17,10 @@ describe("Starter Data Catalog", () => {
     const scrap = getItem("scrap_metal");
     expect(scrap).toBeDefined();
     expect(scrap?.name).toBe("Scrap Metal");
-    expect(scrap?.category).toBe("raw");
   });
 
   it("ensures all recipe inputs and outputs reference valid items", () => {
-    const itemIds = new Set(STARTER_ITEMS.map((i) => i.id));
+    const itemIds = new Set(REPOSITORY_ITEMS.map((i) => i.id));
 
     for (const recipe of STARTER_RECIPES) {
       expect(recipe.duration).toBeGreaterThan(0);
