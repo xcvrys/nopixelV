@@ -31,7 +31,7 @@
       disabled={!interactive}
       onchange={onRecipeChange}
       onpointerdown={(event) => event.stopPropagation()}
-      class="nodrag nowheel w-full border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-200 focus:border-neutral-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+      class="nodrag nowheel w-full border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs text-neutral-200 focus:border-neutral-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
     >
       {#each recipes as recipe (recipe.id)}
         <option value={recipe.id}>{recipe.name} ({recipe.duration}s)</option>

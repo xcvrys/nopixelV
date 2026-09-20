@@ -80,7 +80,7 @@
     bind:nodes={machineryStore.nodes}
     edges={machineryStore.edges}
     nodeTypes={machineryNodeTypes}
-    proOptions={{ hideAttribution: true }}
+    onlyRenderVisibleElements
     defaultEdgeOptions={{ type: "step" }}
     connectionLineType={ConnectionLineType.Step}
     {isValidConnection}

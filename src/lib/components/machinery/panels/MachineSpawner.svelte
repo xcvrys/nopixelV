@@ -70,15 +70,24 @@
                     title={machine.name}
                     class="group h-28 w-full min-w-0 flex-col items-stretch justify-start gap-1 border-0 bg-neutral-950 p-2 text-left normal-case hover:bg-white hover:text-black"
                   >
-                    <img
-                      alt=""
-                      src={machine.imageUrl}
-                      class="h-[4.5rem] w-[4.5rem] self-center bg-neutral-900 object-contain"
-                      width="72"
-                      height="72"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    {#if machine.imageUrl}
+                      <img
+                        alt=""
+                        src={machine.imageUrl}
+                        class="h-[4.5rem] w-[4.5rem] self-center object-contain"
+                        width="72"
+                        height="72"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    {:else}
+                      <span
+                        aria-hidden="true"
+                        class="flex h-[4.5rem] w-[4.5rem] self-center items-center justify-center bg-transparent text-4xl font-semibold text-neutral-500"
+                      >
+                        ?
+                      </span>
+                    {/if}
                     <span class="flex min-w-0 justify-center text-center">
                       <span
                         class="h-10 overflow-hidden text-base font-bold uppercase leading-tight"

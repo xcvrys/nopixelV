@@ -11,22 +11,23 @@ export interface MachineDefinition {
   type: string;
   name: string;
   category: MachineCategory;
-  imageUrl: string;
+  imageUrl: string | null;
   price: number;
   defaultDuration: number;
   defaultPowerCost: number;
 }
 
-const machineImage = (type: string): string =>
-  `https://picsum.photos/seed/nopixel-machine-${type}/640/640`;
+const localMachineImage = (filename: string): string => `/images/machines/${filename}.webp`;
+
+const placeholderMachineImage = (): null => null;
 
 export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "furnace",
     type: "furnace",
-    name: "Smelting Furnace",
+    name: "Furnace",
     category: "production",
-    imageUrl: machineImage("furnace"),
+    imageUrl: localMachineImage("furnace"),
     price: 120000,
     defaultDuration: 3,
     defaultPowerCost: 2,
@@ -34,9 +35,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "processor",
     type: "processor",
-    name: "Processing Assembler",
+    name: "Assembly Machine",
     category: "production",
-    imageUrl: machineImage("processor"),
+    imageUrl: localMachineImage("assembly-machine"),
     price: 180000,
     defaultDuration: 4,
     defaultPowerCost: 4,
@@ -44,9 +45,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "splitter",
     type: "splitter",
-    name: "Conveyor Splitter",
-    category: "logistics",
-    imageUrl: machineImage("splitter"),
+    name: "Saw Machine",
+    category: "production",
+    imageUrl: localMachineImage("saw-machine"),
     price: 8000,
     defaultDuration: 0,
     defaultPowerCost: 0,
@@ -54,9 +55,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "merger",
     type: "merger",
-    name: "Conveyor Merger",
-    category: "logistics",
-    imageUrl: machineImage("merger"),
+    name: "Die Casting Machine",
+    category: "production",
+    imageUrl: localMachineImage("die-casting-machine"),
     price: 80000,
     defaultDuration: 0,
     defaultPowerCost: 0,
@@ -64,9 +65,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "storage",
     type: "storage",
-    name: "Depot & Storage Container",
+    name: "Small Storage",
     category: "logistics",
-    imageUrl: machineImage("storage"),
+    imageUrl: localMachineImage("small-storage"),
     price: 60000,
     defaultDuration: 0,
     defaultPowerCost: 0,
@@ -74,9 +75,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "refinery",
     type: "refinery",
-    name: "Chemical Refinery",
-    category: "production",
-    imageUrl: machineImage("refinery"),
+    name: "Large Storage",
+    category: "logistics",
+    imageUrl: localMachineImage("large-storage"),
     price: 240000,
     defaultDuration: 6,
     defaultPowerCost: 8,
@@ -84,9 +85,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "press",
     type: "press",
-    name: "Hydraulic Press",
-    category: "production",
-    imageUrl: machineImage("press"),
+    name: "Medium Storage",
+    category: "logistics",
+    imageUrl: localMachineImage("medium-storage"),
     price: 95000,
     defaultDuration: 5,
     defaultPowerCost: 5,
@@ -94,9 +95,9 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "extruder",
     type: "extruder",
-    name: "Wire Extruder",
+    name: "Tumbler Machine",
     category: "production",
-    imageUrl: machineImage("extruder"),
+    imageUrl: localMachineImage("tumbler-machine"),
     price: 135000,
     defaultDuration: 4,
     defaultPowerCost: 6,
@@ -104,29 +105,19 @@ export const STARTER_MACHINES: MachineDefinition[] = [
   {
     id: "fabricator",
     type: "fabricator",
-    name: "Parts Fabricator",
+    name: "Generator",
     category: "production",
-    imageUrl: machineImage("fabricator"),
+    imageUrl: localMachineImage("generator"),
     price: 210000,
     defaultDuration: 7,
     defaultPowerCost: 9,
-  },
-  {
-    id: "crusher",
-    type: "crusher",
-    name: "Ore Crusher",
-    category: "production",
-    imageUrl: machineImage("crusher"),
-    price: 75000,
-    defaultDuration: 3,
-    defaultPowerCost: 4,
   },
   {
     id: "loader",
     type: "loader",
     name: "Belt Loader",
     category: "logistics",
-    imageUrl: machineImage("loader"),
+    imageUrl: placeholderMachineImage(),
     price: 45000,
     defaultDuration: 0,
     defaultPowerCost: 1,
@@ -136,7 +127,7 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "unloader",
     name: "Belt Unloader",
     category: "logistics",
-    imageUrl: machineImage("unloader"),
+    imageUrl: placeholderMachineImage(),
     price: 45000,
     defaultDuration: 0,
     defaultPowerCost: 1,
@@ -146,7 +137,7 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "buffer",
     name: "Material Buffer",
     category: "logistics",
-    imageUrl: machineImage("buffer"),
+    imageUrl: placeholderMachineImage(),
     price: 70000,
     defaultDuration: 0,
     defaultPowerCost: 1,
@@ -156,7 +147,7 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "sorter",
     name: "Item Sorter",
     category: "logistics",
-    imageUrl: machineImage("sorter"),
+    imageUrl: placeholderMachineImage(),
     price: 85000,
     defaultDuration: 0,
     defaultPowerCost: 2,
@@ -166,7 +157,7 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "tank",
     name: "Fluid Storage Tank",
     category: "logistics",
-    imageUrl: machineImage("tank"),
+    imageUrl: placeholderMachineImage(),
     price: 110000,
     defaultDuration: 0,
     defaultPowerCost: 1,
@@ -176,7 +167,7 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "controller",
     name: "Flow Controller",
     category: "logistics",
-    imageUrl: machineImage("controller"),
+    imageUrl: placeholderMachineImage(),
     price: 125000,
     defaultDuration: 0,
     defaultPowerCost: 3,

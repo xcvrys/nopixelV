@@ -54,13 +54,13 @@
 <div
   bind:this={nodeElement}
   class={cn(
-    "w-72 border-2 border-[#262626] bg-neutral-950 transition-colors duration-150",
+    "w-72 border-2 border-neutral-800 bg-neutral-950 transition-colors duration-150",
     selected ? "border-white" : "",
   )}
 >
   <MachineNodeHeader {id} {data} {interactive} />
   {#if showImage}
-    <MachineNodeImage name={data.name} imageUrl={machine?.imageUrl ?? ""} />
+    <MachineNodeImage name={data.name} imageUrl={machine?.imageUrl ?? null} />
   {/if}
   <MachineNodeRecipe {id} {data} {recipes} {interactive} onRecipeChange={handleRecipeChange} />
   <MachineNodePorts {id} {recipe} {stats} {connectable} />

@@ -11,7 +11,7 @@
 </script>
 
 <div
-  class="flex items-center justify-between border-t border-neutral-800 bg-black px-3.5 py-2.5 text-xs"
+  class="flex items-center justify-between border-t border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs"
 >
   <div class="flex items-center gap-1.5">
     {#if !hasRecipe}

@@ -49,7 +49,7 @@ describe("Starter Data Catalog", () => {
   it("defines valid machine categories and sockets", () => {
     const furnace = getMachine("furnace");
     expect(furnace).toBeDefined();
-    expect(furnace?.name).toBe("Smelting Furnace");
+    expect(furnace?.name).toBe("Furnace");
     expect(furnace?.type).toBe("furnace");
 
     const processor = getMachine("processor");
