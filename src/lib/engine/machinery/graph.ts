@@ -146,6 +146,48 @@ export function isMachineryEdge(value: unknown): value is MachineryEdge {
   );
 }
 
+export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): MachineryEdge[] {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const sourceHandles = new Set<string>();
+  const targetHandles = new Set<string>();
+  const edgeIds = new Set<string>();
+  const validEdges: MachineryEdge[] = [];
+
+  for (const edge of edges) {
+    const sourceRecipe = nodeById.get(edge.source)?.data.recipeId;
+    const targetRecipe = nodeById.get(edge.target)?.data.recipeId;
+    const sourceHandlesForRecipe = sourceRecipe ? getMachineOutputIds(sourceRecipe) : [];
+    const targetHandlesForRecipe = targetRecipe ? getMachineInputIds(targetRecipe) : [];
+    const sourceKey = `${edge.source}:${edge.sourceHandle ?? ""}`;
+    const targetKey = `${edge.target}:${edge.targetHandle ?? ""}`;
+
+    if (
+      !edge.id ||
+      edgeIds.has(edge.id) ||
+      edge.source === edge.target ||
+      !nodeById.has(edge.source) ||
+      !nodeById.has(edge.target) ||
+      !edge.sourceHandle ||
+      !edge.targetHandle ||
+      edge.sourceHandle !== edge.targetHandle ||
+      !sourceHandlesForRecipe.includes(edge.sourceHandle) ||
+      !targetHandlesForRecipe.includes(edge.targetHandle) ||
+      sourceHandles.has(sourceKey) ||
+      targetHandles.has(targetKey) ||
+      hasPath([...validEdges, edge], edge.target, edge.source)
+    ) {
+      continue;
+    }
+
+    validEdges.push(edge);
+    edgeIds.add(edge.id);
+    sourceHandles.add(sourceKey);
+    targetHandles.add(targetKey);
+  }
+
+  return validEdges;
+}
+
 export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEdge[]): boolean {
   const nodeIds = new Set<string>();
   const sourceHandles = new Set<string>();

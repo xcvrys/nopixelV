@@ -1,13 +1,24 @@
+export const MACHINE_CATEGORIES = {
+  production: "Production",
+  logistics: "Logistics",
+} as const satisfies Record<string, string>;
+
+export type MachineCategory = keyof typeof MACHINE_CATEGORIES;
+export const MACHINE_CATEGORY_ORDER: MachineCategory[] = ["production", "logistics"];
+
 export interface MachineDefinition {
   id: string;
   type: string;
   name: string;
-  category: "production" | "logistics";
-  iconName: string;
+  category: MachineCategory;
+  imageUrl: string;
+  price: number;
   defaultDuration: number;
   defaultPowerCost: number;
-  description: string;
 }
+
+const machineImage = (type: string): string =>
+  `https://picsum.photos/seed/nopixel-machine-${type}/640/640`;
 
 export const STARTER_MACHINES: MachineDefinition[] = [
   {
@@ -15,59 +26,165 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     type: "furnace",
     name: "Smelting Furnace",
     category: "production",
-    iconName: "Flame",
+    imageUrl: machineImage("furnace"),
+    price: 120000,
     defaultDuration: 3,
     defaultPowerCost: 2,
-    description:
-      "High-temperature industrial furnace used for smelting scrap metal and crude ores into refined ingots.",
   },
   {
     id: "processor",
     type: "processor",
     name: "Processing Assembler",
     category: "production",
-    iconName: "Cpu",
+    imageUrl: machineImage("processor"),
+    price: 180000,
     defaultDuration: 4,
     defaultPowerCost: 4,
-    description:
-      "Precision machining table for pressing plates, extruding wiring, and assembling high-tech components.",
   },
   {
     id: "splitter",
     type: "splitter",
     name: "Conveyor Splitter",
     category: "logistics",
-    iconName: "GitFork",
+    imageUrl: machineImage("splitter"),
+    price: 8000,
     defaultDuration: 0,
     defaultPowerCost: 0,
-    description:
-      "Splits incoming conveyor item streams evenly across multiple outbound conveyor lines.",
   },
   {
     id: "merger",
     type: "merger",
     name: "Conveyor Merger",
     category: "logistics",
-    iconName: "GitMerge",
+    imageUrl: machineImage("merger"),
+    price: 80000,
     defaultDuration: 0,
     defaultPowerCost: 0,
-    description:
-      "Combines multiple incoming conveyor item streams into a single outbound conveyor line.",
   },
   {
     id: "storage",
     type: "storage",
     name: "Depot & Storage Container",
     category: "logistics",
-    iconName: "PackageCheck",
+    imageUrl: machineImage("storage"),
+    price: 60000,
     defaultDuration: 0,
     defaultPowerCost: 0,
-    description: "Secure storage depot for accumulating finished products or buffering materials.",
+  },
+  {
+    id: "refinery",
+    type: "refinery",
+    name: "Chemical Refinery",
+    category: "production",
+    imageUrl: machineImage("refinery"),
+    price: 240000,
+    defaultDuration: 6,
+    defaultPowerCost: 8,
+  },
+  {
+    id: "press",
+    type: "press",
+    name: "Hydraulic Press",
+    category: "production",
+    imageUrl: machineImage("press"),
+    price: 95000,
+    defaultDuration: 5,
+    defaultPowerCost: 5,
+  },
+  {
+    id: "extruder",
+    type: "extruder",
+    name: "Wire Extruder",
+    category: "production",
+    imageUrl: machineImage("extruder"),
+    price: 135000,
+    defaultDuration: 4,
+    defaultPowerCost: 6,
+  },
+  {
+    id: "fabricator",
+    type: "fabricator",
+    name: "Parts Fabricator",
+    category: "production",
+    imageUrl: machineImage("fabricator"),
+    price: 210000,
+    defaultDuration: 7,
+    defaultPowerCost: 9,
+  },
+  {
+    id: "crusher",
+    type: "crusher",
+    name: "Ore Crusher",
+    category: "production",
+    imageUrl: machineImage("crusher"),
+    price: 75000,
+    defaultDuration: 3,
+    defaultPowerCost: 4,
+  },
+  {
+    id: "loader",
+    type: "loader",
+    name: "Belt Loader",
+    category: "logistics",
+    imageUrl: machineImage("loader"),
+    price: 45000,
+    defaultDuration: 0,
+    defaultPowerCost: 1,
+  },
+  {
+    id: "unloader",
+    type: "unloader",
+    name: "Belt Unloader",
+    category: "logistics",
+    imageUrl: machineImage("unloader"),
+    price: 45000,
+    defaultDuration: 0,
+    defaultPowerCost: 1,
+  },
+  {
+    id: "buffer",
+    type: "buffer",
+    name: "Material Buffer",
+    category: "logistics",
+    imageUrl: machineImage("buffer"),
+    price: 70000,
+    defaultDuration: 0,
+    defaultPowerCost: 1,
+  },
+  {
+    id: "sorter",
+    type: "sorter",
+    name: "Item Sorter",
+    category: "logistics",
+    imageUrl: machineImage("sorter"),
+    price: 85000,
+    defaultDuration: 0,
+    defaultPowerCost: 2,
+  },
+  {
+    id: "tank",
+    type: "tank",
+    name: "Fluid Storage Tank",
+    category: "logistics",
+    imageUrl: machineImage("tank"),
+    price: 110000,
+    defaultDuration: 0,
+    defaultPowerCost: 1,
+  },
+  {
+    id: "controller",
+    type: "controller",
+    name: "Flow Controller",
+    category: "logistics",
+    imageUrl: machineImage("controller"),
+    price: 125000,
+    defaultDuration: 0,
+    defaultPowerCost: 3,
   },
 ];
 
 const MACHINES_BY_TYPE: Record<string, MachineDefinition> = Object.fromEntries(
-  STARTER_MACHINES.map((m) => [m.type, m]),
+  STARTER_MACHINES.map((machine) => [machine.type, machine]),
 );
 
 export function getMachine(type: string): MachineDefinition | undefined {

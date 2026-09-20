@@ -124,6 +124,22 @@ describe("MachineryStore", () => {
     expect(store.nodes[0].data.customDurationOverride).toBe(2);
     expect(store.calculationResult.summary.totalPowerDraw).toBeCloseTo(60, 1);
   });
+  it("removes recipe-incompatible edges when a recipe changes", () => {
+    const furnaceId = store.addMachine("furnace");
+    const processorId = store.addMachine("processor");
+
+    store.connect({
+      source: furnaceId,
+      sourceHandle: "iron_ingot",
+      target: processorId,
+      targetHandle: "iron_ingot",
+    });
+    expect(store.edges).toHaveLength(1);
+
+    store.updateNodeData(furnaceId, { recipeId: "smelt_copper_scrap" });
+
+    expect(store.edges).toEqual([]);
+  });
 
   it("allows one matching item connection per input", () => {
     store.connect({
@@ -147,6 +163,29 @@ describe("MachineryStore", () => {
 
     expect(store.edges).toHaveLength(1);
     expect(store.edges[0]).toMatchObject({ source: "source-a", target: "target-a" });
+  });
+  it("persists connected edges with the active workflow", async () => {
+    const furnaceId = store.addMachine("furnace");
+    const processorId = store.addMachine("processor");
+
+    store.connect({
+      source: furnaceId,
+      sourceHandle: "iron_ingot",
+      target: processorId,
+      targetHandle: "iron_ingot",
+    });
+    await store.flushPersistence();
+
+    const restoredStore = new MachineryStore();
+    await restoredStore.initialize();
+
+    expect(restoredStore.edges).toHaveLength(1);
+    expect(restoredStore.edges[0]).toMatchObject({
+      source: furnaceId,
+      sourceHandle: "iron_ingot",
+      target: processorId,
+      targetHandle: "iron_ingot",
+    });
   });
 
   it("reports connection validity before creating an edge", () => {

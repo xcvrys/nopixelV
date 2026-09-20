@@ -1,13 +1,14 @@
 import {
   calculateMachinery,
+  canConnect,
   connectEdge,
   createMachineNode,
   exportBlueprint,
   importBlueprint,
   removeEdge,
   removeNode,
+  sanitizeEdges,
   updateNodeData,
-  canConnect,
   type ConnectionInput,
   type MachineNodeData,
   type MachineryEdge,
@@ -75,6 +76,7 @@ export class MachineryStore {
 
   public updateNodeData(id: string, updates: Partial<MachineNodeData>): void {
     this.nodes = updateNodeData(this.nodes, id, updates);
+    this.edges = sanitizeEdges(this.nodes, this.edges);
     this.markChanged();
   }
 

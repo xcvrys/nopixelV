@@ -16,8 +16,11 @@
     ariaPressed,
     ariaControls,
     role,
+    draggable = false,
     class: className = "",
     onclick,
+    ondragstart,
+    ondragend,
   }: {
     children: Snippet;
     variant?: ButtonVariant;
@@ -29,8 +32,11 @@
     ariaPressed?: boolean;
     ariaControls?: string;
     role?: string;
+    draggable?: boolean;
     class?: string;
     onclick?: (event: MouseEvent) => void;
+    ondragstart?: (event: DragEvent) => void;
+    ondragend?: (event: DragEvent) => void;
   } = $props();
 
   const variants: Record<ButtonVariant, string> = {
@@ -45,10 +51,13 @@
   {role}
   {type}
   {disabled}
+  {draggable}
+  {ondragstart}
+  {ondragend}
   {title}
   aria-label={ariaLabel}
   class={cn(
-    "inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-3 py-2 text-xs font-semibold italic uppercase leading-none outline-none transition-[background-color,color,border-color,transform] duration-150 active:translate-y-px focus-visible:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40",
+    "inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap border border-transparent px-3 py-2 text-xs font-semibold italic uppercase leading-none outline-none transition-[background-color,color,border-color] duration-150 focus-visible:border-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40",
     variants[variant],
     className,
   )}

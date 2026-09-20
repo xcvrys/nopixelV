@@ -5,6 +5,7 @@
     SvelteFlow,
     type Connection,
     type Edge,
+    useSvelteFlow,
   } from "@xyflow/svelte";
   import type { OnConnectStart } from "@xyflow/system";
   import { toConnectionInput } from "$lib/engine/machinery";
@@ -13,6 +14,27 @@
   import MachineryBackground from "./MachineryBackground.svelte";
   import MachineryControls from "./MachineryControls.svelte";
   import { machineryNodeTypes } from "../nodes/registry";
+  const { screenToFlowPosition } = useSvelteFlow();
+  const MACHINE_DRAG_TYPE = "application/x-machinery-type";
+
+  function handleDragOver(event: DragEvent): void {
+    if (event.dataTransfer?.types.includes(MACHINE_DRAG_TYPE)) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    }
+  }
+
+  function handleDrop(event: DragEvent): void {
+    const machineType = event.dataTransfer?.getData(MACHINE_DRAG_TYPE);
+    if (!machineType) return;
+
+    event.preventDefault();
+    const position = screenToFlowPosition(
+      { x: event.clientX, y: event.clientY },
+      { snapToGrid: false },
+    );
+    machineryStore.addMachine(machineType, position);
+  }
 
   function isValidConnection(connection: Connection | Edge): boolean {
     const input = toConnectionInput(connection);
@@ -48,10 +70,15 @@
 
 <svelte:window onclick={() => machineryUiStore.closeActions()} />
 
-<div class="relative h-full w-full bg-black">
+<div
+  role="application"
+  class="relative h-full w-full bg-black"
+  ondragover={handleDragOver}
+  ondrop={handleDrop}
+>
   <SvelteFlow
     bind:nodes={machineryStore.nodes}
-    bind:edges={machineryStore.edges}
+    edges={machineryStore.edges}
     nodeTypes={machineryNodeTypes}
     proOptions={{ hideAttribution: true }}
     defaultEdgeOptions={{ type: "step" }}

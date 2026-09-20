@@ -5,6 +5,7 @@ import {
   createMachineNode,
   removeNode,
   updateNodeData,
+  sanitizeEdges,
   type MachineryEdge,
   type MachineryNode,
 } from "../../src/lib/engine/machinery";
@@ -44,6 +45,13 @@ describe("machinery graph", () => {
     const nodes = updateNodeData([source, target], "source", { name: "Updated" });
     expect(nodes[0].data.name).toBe("Updated");
     expect(nodes[1]).toEqual(target);
+  });
+  it("removes edges that no longer match active recipe handles", () => {
+    const changedSource = {
+      ...source,
+      data: { ...source.data, recipeId: "smelt_copper_scrap" },
+    };
+    expect(sanitizeEdges([changedSource, target], [edge])).toEqual([]);
   });
 
   it("removes incident edges with a node", () => {

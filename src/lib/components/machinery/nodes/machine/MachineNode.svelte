@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import { useStore, useUpdateNodeInternals } from "@xyflow/svelte";
   import { getRecipesForMachine, getRecipe } from "$lib/data/recipes";
+  import { getMachine } from "$lib/data/machines";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import type { MachineNodeData } from "$lib/engine/machinery";
   import { cn } from "$lib/utils/cn";
@@ -27,6 +28,7 @@
   let connectable = $derived(flowStore.nodesConnectable);
   let recipes = $derived(getRecipesForMachine(data.machineType));
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
+  let machine = $derived(getMachine(data.machineType));
   let stats = $derived(machineryStore.calculationResult.machineStats[id]);
 
   $effect(() => {
@@ -57,7 +59,9 @@
   )}
 >
   <MachineNodeHeader {id} {data} {interactive} />
-  {#if showImage}<MachineNodeImage name={data.name} />{/if}
+  {#if showImage}
+    <MachineNodeImage name={data.name} imageUrl={machine?.imageUrl ?? ""} />
+  {/if}
   <MachineNodeRecipe {id} {data} {recipes} {interactive} onRecipeChange={handleRecipeChange} />
   <MachineNodePorts {id} {recipe} {stats} {connectable} />
   <MachineNodeStatus {stats} />
