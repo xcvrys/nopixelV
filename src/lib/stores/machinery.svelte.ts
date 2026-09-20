@@ -3,6 +3,7 @@ import {
   canConnect,
   connectEdge,
   createMachineNode,
+  createTextNode,
   exportBlueprint,
   importBlueprint,
   removeEdge,
@@ -67,6 +68,20 @@ export class MachineryStore {
     return node.id;
   }
 
+  public addTextNode(text = "Text", position?: Position): string {
+    const node = createTextNode(text, position);
+    this.nodes = [...this.nodes, node];
+    this.markChanged();
+    return node.id;
+  }
+
+  public updateTextNode(id: string, text: string): void {
+    this.nodes = this.nodes.map((node) =>
+      node.id === id && node.type === "text" ? { ...node, data: { text } } : node,
+    );
+    this.markChanged();
+  }
+
   public removeNode(id: string): void {
     const graph = removeNode(this.nodes, this.edges, id);
     this.nodes = graph.nodes;
@@ -105,10 +120,9 @@ export class MachineryStore {
   }
 
   public setAllImagesVisible(showImage: boolean): void {
-    this.nodes = this.nodes.map((node) => ({
-      ...node,
-      data: { ...node.data, showImage },
-    }));
+    this.nodes = this.nodes.map((node) =>
+      node.type === "machine" ? { ...node, data: { ...node.data, showImage } } : node,
+    );
     this.markChanged();
   }
 

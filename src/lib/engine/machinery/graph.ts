@@ -7,6 +7,7 @@ import type {
   MachineryNode,
   MachineNodeData,
   Position,
+  TextNode,
 } from "./types";
 
 function isOptionalString(value: unknown): value is string | null | undefined {
@@ -59,6 +60,14 @@ export function createMachineNode(
     },
   };
 }
+export function createTextNode(text: string, position: Position = { x: 200, y: 200 }): TextNode {
+  return {
+    id: `text-${crypto.randomUUID()}`,
+    type: "text",
+    position: { ...position },
+    data: { text },
+  };
+}
 
 export function updateNodeData(
   nodes: MachineryNode[],
@@ -66,7 +75,9 @@ export function updateNodeData(
   updates: Partial<MachineNodeData>,
 ): MachineryNode[] {
   return nodes.map((node) =>
-    node.id === id ? { ...node, data: { ...node.data, ...updates } } : node,
+    node.id === id && node.type === "machine"
+      ? { ...node, data: { ...node.data, ...updates } }
+      : node,
   );
 }
 
@@ -127,11 +138,13 @@ export function removeEdge(edges: MachineryEdge[], id: string): MachineryEdge[] 
 export function isMachineryNode(value: unknown): value is MachineryNode {
   if (typeof value !== "object" || value === null) return false;
   if (!("id" in value) || typeof value.id !== "string") return false;
-  if (!("type" in value) || value.type !== "machine") return false;
   if (!("position" in value) || !isPosition(value.position)) return false;
-  if (!("data" in value) || !isMachineNodeData(value.data)) return false;
+  if (!("type" in value) || (value.type !== "machine" && value.type !== "text")) return false;
+  if (!("data" in value) || typeof value.data !== "object" || value.data === null) return false;
 
-  return true;
+  return value.type === "machine"
+    ? isMachineNodeData(value.data)
+    : "text" in value.data && typeof value.data.text === "string";
 }
 
 export function isMachineryEdge(value: unknown): value is MachineryEdge {
@@ -154,10 +167,22 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
   const validEdges: MachineryEdge[] = [];
 
   for (const edge of edges) {
-    const sourceRecipe = nodeById.get(edge.source)?.data.recipeId;
-    const targetRecipe = nodeById.get(edge.target)?.data.recipeId;
-    const sourceHandlesForRecipe = sourceRecipe ? getMachineOutputIds(sourceRecipe) : [];
-    const targetHandlesForRecipe = targetRecipe ? getMachineInputIds(targetRecipe) : [];
+    const sourceNode = nodeById.get(edge.source);
+    const targetNode = nodeById.get(edge.target);
+    if (
+      !sourceNode ||
+      !targetNode ||
+      sourceNode.type !== "machine" ||
+      targetNode.type !== "machine"
+    ) {
+      continue;
+    }
+    const sourceHandlesForRecipe = sourceNode.data.recipeId
+      ? getMachineOutputIds(sourceNode.data.recipeId)
+      : [];
+    const targetHandlesForRecipe = targetNode.data.recipeId
+      ? getMachineInputIds(targetNode.data.recipeId)
+      : [];
     const sourceKey = `${edge.source}:${edge.sourceHandle ?? ""}`;
     const targetKey = `${edge.target}:${edge.targetHandle ?? ""}`;
 
@@ -165,8 +190,6 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
       !edge.id ||
       edgeIds.has(edge.id) ||
       edge.source === edge.target ||
-      !nodeById.has(edge.source) ||
-      !nodeById.has(edge.target) ||
       !edge.sourceHandle ||
       !edge.targetHandle ||
       edge.sourceHandle !== edge.targetHandle ||
@@ -194,9 +217,14 @@ export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEd
   const targetHandles = new Set<string>();
 
   for (const node of nodes) {
-    if (nodeIds.has(node.id) || !node.id || !getMachine(node.data.machineType)) return false;
+    if (nodeIds.has(node.id) || !node.id) return false;
     nodeIds.add(node.id);
+    if (node.type === "text") {
+      if (!node.data.text.trim()) return false;
+      continue;
+    }
 
+    if (!getMachine(node.data.machineType)) return false;
     const recipes = getRecipesForMachine(node.data.machineType);
     if (
       (node.data.recipeId !== null &&
@@ -211,15 +239,19 @@ export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEd
       return false;
     }
   }
-
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const edgeIds = new Set<string>();
   for (const edge of edges) {
+    const sourceNode = nodeById.get(edge.source);
+    const targetNode = nodeById.get(edge.target);
     if (
       !edge.id ||
       edgeIds.has(edge.id) ||
       edge.source === edge.target ||
-      !nodeById.has(edge.source) ||
+      !sourceNode ||
+      !targetNode ||
+      sourceNode.type !== "machine" ||
+      targetNode.type !== "machine" ||
       !edge.sourceHandle ||
       !edge.targetHandle ||
       edge.sourceHandle !== edge.targetHandle
@@ -227,10 +259,8 @@ export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEd
       return false;
     }
 
-    const sourceRecipe = nodeById.get(edge.source)?.data.recipeId;
-    const targetRecipe = nodeById.get(edge.target)?.data.recipeId;
-    const source = sourceRecipe ? getMachineOutputIds(sourceRecipe) : [];
-    const target = targetRecipe ? getMachineInputIds(targetRecipe) : [];
+    const source = sourceNode.data.recipeId ? getMachineOutputIds(sourceNode.data.recipeId) : [];
+    const target = targetNode.data.recipeId ? getMachineInputIds(targetNode.data.recipeId) : [];
     if (!source.includes(edge.sourceHandle) || !target.includes(edge.targetHandle)) return false;
 
     const sourceKey = `${edge.source}:${edge.sourceHandle}`;

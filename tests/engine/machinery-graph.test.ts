@@ -3,20 +3,21 @@ import {
   canConnect,
   connectEdge,
   createMachineNode,
+  createTextNode,
   removeNode,
   updateNodeData,
   sanitizeEdges,
+  type MachineNode,
   type MachineryEdge,
-  type MachineryNode,
 } from "../../src/lib/engine/machinery";
 
-const source: MachineryNode = {
+const source: MachineNode = {
   id: "source",
   type: "machine",
   position: { x: 0, y: 0 },
   data: { machineType: "furnace", name: "Source", recipeId: "smelt_iron_scrap" },
 };
-const target: MachineryNode = {
+const target: MachineNode = {
   id: "target",
   type: "machine",
   position: { x: 200, y: 0 },
@@ -71,5 +72,15 @@ describe("machinery graph", () => {
   it("does not add invalid connections", () => {
     const edges = [edge];
     expect(connectEdge(edges, { ...connection, source: "other" })).toBe(edges);
+  });
+
+  it("creates a text node with editable content", () => {
+    const node = createTextNode("Production notes", { x: 40, y: 80 });
+
+    expect(node).toMatchObject({
+      type: "text",
+      position: { x: 40, y: 80 },
+      data: { text: "Production notes" },
+    });
   });
 });

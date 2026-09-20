@@ -18,12 +18,25 @@ export type MachineNodeData = {
   powerCostOverride?: number;
 };
 
-export type MachineryNode = {
+export type TextNodeData = {
+  text: string;
+} & Partial<MachineNodeData>;
+
+export type MachineNode = {
   id: string;
   type: "machine";
   position: Position;
   data: MachineNodeData;
 };
+
+export type TextNode = {
+  id: string;
+  type: "text";
+  position: Position;
+  data: TextNodeData;
+};
+
+export type MachineryNode = MachineNode | TextNode;
 
 export type MachineryEdge = {
   id: string;

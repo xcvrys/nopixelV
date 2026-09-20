@@ -4,8 +4,10 @@
   import { machineryStore } from "$lib/stores/machinery.svelte";
 
   let allImagesVisible = $derived(
-    machineryStore.nodes.length > 0 &&
-      machineryStore.nodes.every((node) => node.data.showImage !== false),
+    machineryStore.nodes.some((node) => node.type === "machine") &&
+      machineryStore.nodes
+        .filter((node) => node.type === "machine")
+        .every((node) => node.data.showImage !== false),
   );
 
   function toggleAllImages() {

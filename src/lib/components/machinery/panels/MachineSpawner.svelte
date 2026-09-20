@@ -17,6 +17,18 @@
     showMenu = false;
   }
 
+  function addTextNode(): void {
+    const center = screenToFlowPosition(
+      { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+      { snapToGrid: false },
+    );
+    machineryStore.addTextNode("Text", {
+      x: center.x - 128,
+      y: center.y - 48,
+    });
+    showMenu = false;
+  }
+
   function closeOnOutsidePointerdown(event: PointerEvent): void {
     const target = event.target;
     if (target instanceof Element && !target.closest("[data-machine-spawner]")) {
@@ -44,6 +56,13 @@
   >
     <span class="text-lg leading-none">+</span>
     <span>Spawn Machine</span>
+  </Button>
+  <Button
+    variant="quiet"
+    onclick={addTextNode}
+    class="rounded-none border-0 bg-neutral-950 px-3.5 py-1 text-base font-bold italic uppercase text-white hover:bg-white hover:text-black"
+  >
+    <span>+ Text</span>
   </Button>
 
   {#if showMenu}
