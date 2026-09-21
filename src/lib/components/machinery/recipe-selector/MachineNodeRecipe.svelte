@@ -150,20 +150,13 @@
                     onpointerdown={(event) => event.stopPropagation()}
                     class="group grid h-48 grid-rows-[8rem_1fr] cursor-pointer overflow-hidden border border-neutral-800 bg-neutral-950 text-left transition-colors hover:border-neutral-500 hover:bg-white focus:outline-none aria-[current=true]:border-white"
                   >
-                    <div
-                      class="grid h-auto min-h-0 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 px-2 py-3"
-                    >
-                      <div class="min-w-0">
-                        <span
-                          class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 group-hover:text-black"
-                        >
-                          Inputs
-                        </span>
-                        <div class="mt-1 flex flex-wrap gap-1">
+                    {#if recipe.machineType === "fabricator"}
+                      <div class="flex h-full min-h-0 w-full items-center justify-center px-3 py-3">
+                        <div class="flex flex-wrap items-center justify-center gap-2">
                           {#each recipe.inputs as item (item.itemId)}
                             {@const definition = getItem(item.itemId)}
                             <div
-                              class="group/item relative h-11 w-11 shrink-0"
+                              class="group/item relative h-12 w-12 shrink-0"
                               role="img"
                               aria-label={`${item.amount} ${definition?.name ?? item.itemId}`}
                               title={`${item.amount} ${definition?.name ?? item.itemId}`}
@@ -196,55 +189,103 @@
                           {/each}
                         </div>
                       </div>
-
-                      <ChevronRight
-                        class="h-7 w-7 self-center text-neutral-200 group-hover:text-black"
-                      />
-
-                      <div class="min-w-0 text-right">
-                        <span
-                          class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 group-hover:text-black"
-                        >
-                          Outputs
-                        </span>
-                        <div class="mt-1 flex flex-wrap justify-end gap-1">
-                          {#each recipe.outputs as item (item.itemId)}
-                            {@const definition = getItem(item.itemId)}
-                            <div
-                              class="group/item relative h-11 w-11 shrink-0"
-                              role="img"
-                              aria-label={`${item.amount} ${definition?.name ?? item.itemId}`}
-                              title={`${item.amount} ${definition?.name ?? item.itemId}`}
-                            >
-                              {#if definition?.imageUrl}
-                                <img
-                                  src={definition.imageUrl}
-                                  alt={definition.name}
-                                  class="h-full w-full object-contain"
-                                  loading="lazy"
-                                />
-                              {:else}
+                    {:else}
+                      <div
+                        class="grid h-auto min-h-0 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 px-2 py-3"
+                      >
+                        <div class="min-w-0">
+                          <span
+                            class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 group-hover:text-black"
+                          >
+                            Inputs
+                          </span>
+                          <div class="mt-1 flex flex-wrap gap-1">
+                            {#each recipe.inputs as item (item.itemId)}
+                              {@const definition = getItem(item.itemId)}
+                              <div
+                                class="group/item relative h-11 w-11 shrink-0"
+                                role="img"
+                                aria-label={`${item.amount} ${definition?.name ?? item.itemId}`}
+                                title={`${item.amount} ${definition?.name ?? item.itemId}`}
+                              >
+                                {#if definition?.imageUrl}
+                                  <img
+                                    src={definition.imageUrl}
+                                    alt={definition.name}
+                                    class="h-full w-full object-contain"
+                                    loading="lazy"
+                                  />
+                                {:else}
+                                  <span
+                                    class="flex h-full w-full items-center justify-center px-0.5 text-center text-[9px] font-semibold uppercase leading-[0.9] text-neutral-500 group-hover:text-black"
+                                  >
+                                    {definition?.name ?? item.itemId}
+                                  </span>
+                                {/if}
                                 <span
-                                  class="flex h-full w-full items-center justify-center px-0.5 text-center text-[9px] font-semibold uppercase leading-[0.9] text-neutral-500 group-hover:text-black"
+                                  class="pointer-events-none absolute inset-0 z-10 hidden items-center justify-center bg-black px-1 text-center text-[9px] font-semibold uppercase leading-tight text-white group-hover/item:flex group-focus/item:flex"
                                 >
                                   {definition?.name ?? item.itemId}
                                 </span>
-                              {/if}
-                              <span
-                                class="pointer-events-none absolute inset-0 z-10 hidden items-center justify-center bg-black px-1 text-center text-[9px] font-semibold uppercase leading-tight text-white group-hover/item:flex group-focus/item:flex"
+                                <span
+                                  class="absolute bottom-0 left-0 bg-transparent px-0.5 py-0 text-lg font-bold text-white group-hover:bg-black group-hover:text-white"
+                                >
+                                  −{item.amount}
+                                </span>
+                              </div>
+                            {/each}
+                          </div>
+                        </div>
+
+                        <ChevronRight
+                          class="h-7 w-7 self-center text-neutral-200 group-hover:text-black"
+                        />
+
+                        <div class="min-w-0 text-right">
+                          <span
+                            class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 group-hover:text-black"
+                          >
+                            Outputs
+                          </span>
+                          <div class="mt-1 flex flex-wrap justify-end gap-1">
+                            {#each recipe.outputs as item (item.itemId)}
+                              {@const definition = getItem(item.itemId)}
+                              <div
+                                class="group/item relative h-11 w-11 shrink-0"
+                                role="img"
+                                aria-label={`${item.amount} ${definition?.name ?? item.itemId}`}
+                                title={`${item.amount} ${definition?.name ?? item.itemId}`}
                               >
-                                {definition?.name ?? item.itemId}
-                              </span>
-                              <span
-                                class="absolute bottom-0 right-0 bg-transparent px-1 py-0 text-lg font-bold text-white group-hover:bg-black group-hover:text-white"
-                              >
-                                +{item.amount}
-                              </span>
-                            </div>
-                          {/each}
+                                {#if definition?.imageUrl}
+                                  <img
+                                    src={definition.imageUrl}
+                                    alt={definition.name}
+                                    class="h-full w-full object-contain"
+                                    loading="lazy"
+                                  />
+                                {:else}
+                                  <span
+                                    class="flex h-full w-full items-center justify-center px-0.5 text-center text-[9px] font-semibold uppercase leading-[0.9] text-neutral-500 group-hover:text-black"
+                                  >
+                                    {definition?.name ?? item.itemId}
+                                  </span>
+                                {/if}
+                                <span
+                                  class="pointer-events-none absolute inset-0 z-10 hidden items-center justify-center bg-black px-1 text-center text-[9px] font-semibold uppercase leading-tight text-white group-hover/item:flex group-focus/item:flex"
+                                >
+                                  {definition?.name ?? item.itemId}
+                                </span>
+                                <span
+                                  class="absolute bottom-0 right-0 bg-transparent px-1 py-0 text-lg font-bold text-white group-hover:bg-black group-hover:text-white"
+                                >
+                                  +{item.amount}
+                                </span>
+                              </div>
+                            {/each}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    {/if}
 
                     <div class="flex h-full flex-col justify-end px-3 pb-3">
                       <div class="flex items-start justify-between gap-2">
@@ -261,7 +302,9 @@
                           {getMachine(recipe.machineType)?.name ?? recipe.machineType}
                         </span>
                         <span class="shrink-0 font-mono">{recipe.duration}s</span>
-                        <span class="shrink-0 font-mono">{recipe.powerCost} kW</span>
+                        {#if recipe.machineType !== "fabricator"}
+                          <span class="shrink-0 font-mono">{recipe.powerCost} kW</span>
+                        {/if}
                       </div>
                     </div>
                   </button>

@@ -41,7 +41,8 @@ function isEnergyNodeData(value: unknown): value is EnergyNodeData {
     "energyType" in value &&
     value.energyType === "generator" &&
     "name" in value &&
-    typeof value.name === "string"
+    typeof value.name === "string" &&
+    (!("recipeId" in value) || isOptionalString(value.recipeId))
   );
 }
 
@@ -81,6 +82,7 @@ export function createEnergyNode(
     data: {
       energyType: "generator",
       name: `${getMachine("fabricator")?.name ?? "Generator"} #${index + 1}`,
+      recipeId: getRecipesForMachine("fabricator")[0]?.id ?? null,
       showImage: true,
     },
   };
@@ -204,8 +206,11 @@ export function isMachineryEdge(value: unknown): value is MachineryEdge {
 }
 
 function getNodeHandleIds(node: MachineryNode, side: "source" | "target"): string[] {
-  if (node.type === "energy") return side === "source" ? ["energy"] : [];
   if (node.type === "text") return [];
+  if (node.type === "energy") {
+    if (side === "source") return ["energy"];
+    return node.data.recipeId ? getMachineInputIds(node.data.recipeId) : [];
+  }
   const itemHandles = node.data.recipeId
     ? side === "source"
       ? getMachineOutputIds(node.data.recipeId)

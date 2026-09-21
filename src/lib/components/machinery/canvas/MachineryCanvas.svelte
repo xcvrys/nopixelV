@@ -17,12 +17,18 @@
   import MachineNodeRecipe from "../recipe-selector/MachineNodeRecipe.svelte";
   import MachineryBackground from "./MachineryBackground.svelte";
   import MachineryControls from "./MachineryControls.svelte";
+  import { cn } from "$lib/utils/cn";
   import { machineryNodeTypes } from "../nodes/registry";
   const { screenToFlowPosition } = useSvelteFlow();
   const MACHINE_DRAG_TYPE = "application/x-machinery-type";
   let compatibleRecipes = $derived.by(() => {
     const pending = machineryUiStore.pendingConnection;
     if (!pending) return [] as RecipeDefinition[];
+    if (pending.connection.handleId === "energy") {
+      return pending.connection.handleType === "target"
+        ? REPOSITORY_RECIPES.filter((recipe) => recipe.machineType === "fabricator")
+        : [];
+    }
     const itemId = pending.connection.handleId;
     return REPOSITORY_RECIPES.filter((recipe) =>
       pending.connection.handleType === "source"
@@ -151,7 +157,7 @@
     onnodedragstop={() => machineryStore.commitNodePositions()}
     fitView
     maxZoom={2}
-    class="bg-black"
+    class={cn("bg-black", !machineryUiStore.powerRequired && "power-dimmed")}
   >
     <MachineryControls />
     <MachineryBackground />

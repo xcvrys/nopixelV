@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { Handle, Position, useStore } from "@xyflow/svelte";
+  import { tick } from "svelte";
+  import { Handle, Position, useStore, useUpdateNodeInternals } from "@xyflow/svelte";
+  import { getItem } from "$lib/data/items";
   import { getMachine } from "$lib/data/machines";
+  import { getRecipe, getRecipesForMachine } from "$lib/data/recipes";
   import {
     getHandleConnectionState,
     isHandleOccupied,
@@ -10,6 +13,7 @@
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import MachineNodeHeader from "../machine/MachineNodeHeader.svelte";
+  import MachineNodeRecipe from "../../recipe-selector/MachineNodeRecipe.svelte";
   import { cn } from "$lib/utils/cn";
 
   let {
@@ -17,9 +21,13 @@
     data,
     selected = false,
   }: { id: string; data: EnergyNodeData; selected?: boolean } = $props();
-
   const flowStore = useStore();
+  const updateNodeInternals = useUpdateNodeInternals();
+  let nodeElement: HTMLDivElement | undefined = $state();
   const machine = $derived(getMachine("fabricator"));
+  let recipes = $derived(getRecipesForMachine("fabricator"));
+  let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
+  const isDimmed = $derived(!machineryUiStore.powerRequired);
   const connectable = $derived(flowStore.nodesConnectable);
   const interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
@@ -42,12 +50,31 @@
   }
 
   const energyAvailable = $derived(connectable && !isHandleOccupied(edges, id, "source", "energy"));
+  $effect(() => {
+    const nodeId = id;
+    void showImage;
+    void recipe;
+    void tick().then(() => updateNodeInternals([nodeId]));
+  });
+
+  $effect(() => {
+    if (!nodeElement) return;
+    const observer = new ResizeObserver(() => updateNodeInternals([id]));
+    observer.observe(nodeElement);
+    return () => observer.disconnect();
+  });
+
+  function handleRecipeChange(recipeId: string | null): void {
+    machineryStore.updateNodeData(id, { recipeId });
+  }
 </script>
 
 <div
+  bind:this={nodeElement}
   class={cn(
-    "w-72 border-2 border-neutral-800 bg-neutral-950 transition-colors duration-150",
+    "w-72 border-2 border-neutral-800 bg-neutral-950 transition-all duration-200",
     selected ? "border-white" : "",
+    isDimmed && "opacity-35 grayscale",
   )}
 >
   <MachineNodeHeader {id} {data} {interactive} />
@@ -58,19 +85,65 @@
       <div class="flex h-28 items-center justify-center text-5xl text-neutral-500">?</div>
     {/if}
   {/if}
-  <div class="relative flex items-center justify-end px-3.5 py-3">
-    <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Energy Output</span>
-    <Handle
-      type="source"
-      position={Position.Right}
-      id="energy"
-      isConnectable={energyAvailable}
-      isConnectableStart={energyAvailable}
-      isConnectableEnd={energyAvailable}
-      class={cn(
-        "!box-border !-right-3 !h-2 !w-2 !rounded-none !border-0 !bg-white",
-        handleState("source", "energy"),
-      )}
-    />
+  <MachineNodeRecipe
+    {id}
+    selectedRecipeId={data.recipeId}
+    {recipes}
+    {interactive}
+    onRecipeChange={handleRecipeChange}
+  />
+  <div class="relative grid grid-cols-2 gap-2 bg-neutral-950 px-3.5 py-3">
+    <div class="space-y-3">
+      {#if recipe && recipe.inputs.length > 0}
+        <div class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+          Fuel / Inputs
+        </div>
+        {#each recipe.inputs as input (input.itemId)}
+          {@const item = getItem(input.itemId)}
+          <div class="relative flex items-center gap-1.5 py-0.5">
+            <Handle
+              type="target"
+              position={Position.Left}
+              id={input.itemId}
+              isConnectable={connectable && !isHandleOccupied(edges, id, "target", input.itemId)}
+              isConnectableStart={connectable &&
+                !isHandleOccupied(edges, id, "target", input.itemId)}
+              isConnectableEnd={connectable && !isHandleOccupied(edges, id, "target", input.itemId)}
+              class={cn(
+                "!-left-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
+                handleState("target", input.itemId),
+              )}
+            />
+            <div class="min-w-0">
+              <div class="truncate text-[11px] font-semibold text-white">
+                {item?.name ?? input.itemId}
+              </div>
+              <div class="text-[10px] tabular-nums text-neutral-400">
+                {input.amount}x
+              </div>
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <div class="text-[10px] italic text-neutral-600">No fuel required</div>
+      {/if}
+    </div>
+    <div class="relative flex flex-col items-end justify-center">
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-white"
+        >Energy Output</span
+      >
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="energy"
+        isConnectable={energyAvailable}
+        isConnectableStart={energyAvailable}
+        isConnectableEnd={energyAvailable}
+        class={cn(
+          "!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+          handleState("source", "energy"),
+        )}
+      />
+    </div>
   </div>
 </div>

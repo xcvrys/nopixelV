@@ -20,7 +20,8 @@ export function createRecipeCatalog(
       const itemText = [...recipe.inputs, ...recipe.outputs]
         .map((item) => `${item.itemId} ${getItem(item.itemId)?.name ?? ""}`)
         .join(" ");
-      return `${recipe.name} ${recipe.id} ${itemText}`.toLowerCase().includes(query);
+      const extraText = recipe.machineType === "fabricator" ? "energy power generator" : "";
+      return `${recipe.name} ${recipe.id} ${itemText} ${extraText}`.toLowerCase().includes(query);
     });
   });
 

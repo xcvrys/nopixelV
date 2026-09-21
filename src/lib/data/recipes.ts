@@ -206,6 +206,36 @@ export const REPOSITORY_RECIPES: RecipeDefinition[] = [
     ],
     outputs: [{ itemId: "reinforced_frame", amount: 1 }],
   },
+  {
+    id: "generator_burn_scrap",
+    name: "Burn Scrap Metal",
+    machineType: "fabricator",
+    duration: 4,
+    powerCost: 0,
+    inputs: [{ itemId: "scrap_metal", amount: 2 }],
+    outputs: [],
+  },
+  {
+    id: "generator_burn_rubber",
+    name: "Burn Rubber",
+    machineType: "fabricator",
+    duration: 6,
+    powerCost: 0,
+    inputs: [{ itemId: "rubber", amount: 1 }],
+    outputs: [],
+  },
+  {
+    id: "generator_biofuel",
+    name: "Biofuel Generation",
+    machineType: "fabricator",
+    duration: 8,
+    powerCost: 0,
+    inputs: [
+      { itemId: "rubber", amount: 2 },
+      { itemId: "scrap_metal", amount: 1 },
+    ],
+    outputs: [],
+  },
 ];
 
 const RECIPES_BY_ID: Record<string, RecipeDefinition> = Object.fromEntries(

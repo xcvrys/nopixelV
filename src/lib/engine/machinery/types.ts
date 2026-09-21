@@ -28,6 +28,7 @@ export type MachineryNodeDataUpdate = Partial<
 export type EnergyNodeData = {
   energyType: "generator";
   name: string;
+  recipeId?: string | null;
   showImage?: boolean;
 };
 
