@@ -1,33 +1,13 @@
-export type MachineCategory = "production" | "logistics" | "energy";
+import type { MachineType } from "./machines/types";
 
+export type {
+  MachineCategory,
+  MachineClass,
+  MachineDefinition,
+  MachineId,
+  MachineType,
+} from "./machines/types";
 export type { ItemDefinition } from "./items/types";
-export type MachineType =
-  | "furnace"
-  | "processor"
-  | "splitter"
-  | "merger"
-  | "storage"
-  | "refinery"
-  | "press"
-  | "extruder"
-  | "fabricator"
-  | "loader"
-  | "unloader"
-  | "buffer"
-  | "sorter"
-  | "tank"
-  | "controller";
-
-export interface MachineDefinition {
-  id: string;
-  type: MachineType;
-  name: string;
-  category: MachineCategory;
-  imageUrl: string | null;
-  price: number;
-  defaultDuration: number;
-  defaultPowerCost: number;
-}
 
 export interface RecipeItem {
   itemId: string;

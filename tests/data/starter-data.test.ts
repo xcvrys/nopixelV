@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { REPOSITORY_ITEMS, getItem } from "../../src/lib/data/items";
 import { REPOSITORY_PIPES, getPipe } from "../../src/lib/data/pipes";
 import { REPOSITORY_RECIPES, getRecipesForMachine } from "../../src/lib/data/recipes";
-import { getMachine } from "../../src/lib/data/machines";
+import { REPOSITORY_MACHINES, getMachine, isMachineType } from "../../src/lib/data/machines";
 
 describe("Repository Data Catalog", () => {
   it("defines items with valid IDs and names", () => {
@@ -75,14 +75,51 @@ describe("Repository Data Catalog", () => {
     expect(furnaceRecipes.every((r) => r.machineType === "furnace")).toBe(true);
   });
 
-  it("defines valid machine categories and sockets", () => {
-    const furnace = getMachine("furnace");
-    expect(furnace).toBeDefined();
-    expect(furnace?.name).toBe("Furnace");
-    expect(furnace?.type).toBe("furnace");
+  it("defines all authoritative machines and their ports", () => {
+    expect(REPOSITORY_MACHINES).toHaveLength(9);
+    expect(REPOSITORY_MACHINES.map((machine) => machine.id)).toEqual([
+      "furnace",
+      "tumbler",
+      "saw",
+      "die_casting",
+      "assembly",
+      "generator",
+      "small_storage",
+      "medium_storage",
+      "large_storage",
+    ]);
 
-    const processor = getMachine("processor");
-    expect(processor).toBeDefined();
-    expect(processor?.type).toBe("processor");
+    for (const machine of REPOSITORY_MACHINES) {
+      expect(machine.name).toBeTruthy();
+      expect(["production", "energy", "logistics"]).toContain(machine.category);
+      expect(machine.imageUrl).toMatch(/^\/images\/machines\/.+\.webp$/);
+      expect(machine.ports.length).toBeGreaterThanOrEqual(2);
+      expect(machine.ports.every((port) => ["solid", "energy"].includes(port.resourceType))).toBe(
+        true,
+      );
+      expect(machine.ports.every((port) => port.id !== "fluid")).toBe(true);
+    }
+
+    expect(getMachine("furnace")?.ports.map((port) => port.id)).toEqual(["in_0", "out_0", "power"]);
+    expect(getMachine("assembly")?.ports.map((port) => port.id)).toEqual([
+      "in_0",
+      "in_1",
+      "out_0",
+      "power",
+    ]);
+    expect(getMachine("generator")?.ports).toEqual([
+      { id: "in_0", direction: "input", resourceType: "solid" },
+      { id: "energy", direction: "output", resourceType: "energy" },
+    ]);
+  });
+
+  it("resolves canonical IDs and legacy machine classes", () => {
+    expect(getMachine("assembly")?.type).toBe("processor");
+    expect(getMachine("processor")?.id).toBe("assembly");
+    expect(getMachine("fabricator")?.id).toBe("generator");
+    expect(getMachine("storage")?.id).toBe("small_storage");
+    expect(isMachineType("large_storage")).toBe(true);
+    expect(isMachineType("refinery")).toBe(true);
+    expect(isMachineType("unknown")).toBe(false);
   });
 });
