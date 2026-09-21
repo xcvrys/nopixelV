@@ -13,9 +13,12 @@ import type { MachineryEdge, MachineryNode } from "$lib/engine/machinery";
 export type WorkflowGraph = {
   nodes: MachineryNode[];
   edges: MachineryEdge[];
+  imagesVisible: boolean;
 };
 
-type WorkflowDraft = Pick<MachineryWorkflowRecord, "id" | "name" | "nodes" | "edges">;
+type WorkflowDraft = Pick<MachineryWorkflowRecord, "id" | "name" | "nodes" | "edges"> & {
+  imagesVisible: boolean;
+};
 type WorkflowCallbacks = {
   getGraph: () => WorkflowGraph;
   getRevision: () => number;
@@ -75,7 +78,13 @@ export class MachineryWorkflowStore {
     }
 
     await this.flushPersistence();
-    this.applyGraph({ id: null, name: UNTITLED_WORKFLOW, nodes: [], edges: [] });
+    this.applyGraph({
+      id: null,
+      name: UNTITLED_WORKFLOW,
+      nodes: [],
+      edges: [],
+      imagesVisible: true,
+    });
     this.markChanged();
   }
 
@@ -113,7 +122,13 @@ export class MachineryWorkflowStore {
       if (remaining[0]) {
         await this.loadWorkflow(remaining[0].id);
       } else {
-        this.applyGraph({ id: null, name: UNTITLED_WORKFLOW, nodes: [], edges: [] });
+        this.applyGraph({
+          id: null,
+          name: UNTITLED_WORKFLOW,
+          nodes: [],
+          edges: [],
+          imagesVisible: true,
+        });
         this.markChanged();
         await this.flushPersistence();
       }
@@ -124,7 +139,13 @@ export class MachineryWorkflowStore {
   public async clearSavedWorkflows(): Promise<void> {
     await this.flushPersistence();
     await clearMachineryDatabase();
-    this.applyGraph({ id: null, name: UNTITLED_WORKFLOW, nodes: [], edges: [] });
+    this.applyGraph({
+      id: null,
+      name: UNTITLED_WORKFLOW,
+      nodes: [],
+      edges: [],
+      imagesVisible: true,
+    });
     this.initializationPromise = null;
     this.persistenceQueue = Promise.resolve();
     this.savedWorkflows = [];
@@ -147,6 +168,7 @@ export class MachineryWorkflowStore {
   private applyWorkflow(workflow: MachineryWorkflowRecord): void {
     this.applyGraph({
       id: workflow.id,
+      imagesVisible: workflow.imagesVisible !== false,
       name: workflow.name.trim().slice(0, 40) || UNTITLED_WORKFLOW,
       nodes: structuredClone(workflow.nodes),
       edges: structuredClone(workflow.edges),
@@ -160,6 +182,7 @@ export class MachineryWorkflowStore {
       id: graph.id ?? "",
       name: graph.name,
       createdAt: Date.now(),
+      imagesVisible: graph.imagesVisible,
       updatedAt: Date.now(),
       nodes: graph.nodes,
       edges: graph.edges,
@@ -188,6 +211,7 @@ export class MachineryWorkflowStore {
     const graph = this.callbacks.getGraph();
     return {
       id: this.activeWorkflowId ?? "",
+      imagesVisible: graph.imagesVisible,
       name: this.activeWorkflowName,
       nodes: structuredClone(graph.nodes),
       edges: structuredClone(graph.edges),

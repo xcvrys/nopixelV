@@ -8,6 +8,7 @@ export const MACHINERY_ACTIVE_WORKFLOW_KEY = "active_workflow";
 export interface MachineryWorkflowRecord {
   id: string;
   name: string;
+  imagesVisible?: boolean;
   createdAt: number;
   updatedAt: number;
   nodes: MachineryNode[];

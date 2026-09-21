@@ -19,6 +19,7 @@ import {
   type Position,
 } from "$lib/engine/machinery";
 import { MachineryWorkflowStore } from "$lib/stores/machinery-workflows.svelte";
+import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
 import type { MachineryWorkflowRecord } from "$lib/db/machinery";
 
 export type SavedWorkflow = MachineryWorkflowRecord;
@@ -28,12 +29,20 @@ export class MachineryStore {
   public nodes = $state.raw<MachineryNode[]>([]);
   public edges = $state.raw<MachineryEdge[]>([]);
   public calculationResult = $derived(calculateMachinery(this.nodes, this.edges));
+  public get imagesVisible(): boolean {
+    return machineryUiStore.imagesVisible;
+  }
 
   private mutationRevision = 0;
   private workflowStore = new MachineryWorkflowStore({
-    getGraph: () => ({ nodes: this.nodes, edges: this.edges }),
+    getGraph: () => ({
+      nodes: this.nodes,
+      edges: this.edges,
+      imagesVisible: machineryUiStore.imagesVisible,
+    }),
     getRevision: () => this.mutationRevision,
     applyWorkflow: (workflow) => {
+      machineryUiStore.setImagesVisible(workflow.imagesVisible !== false);
       this.nodes = workflow.nodes;
       this.edges = workflow.edges;
     },
@@ -124,15 +133,10 @@ export class MachineryStore {
     return exportBlueprint(this.activeWorkflowName, this.nodes, this.edges);
   }
 
-  public setAllImagesVisible(showImage: boolean): void {
-    this.nodes = this.nodes.map((node) => {
-      if (node.type === "machine") return { ...node, data: { ...node.data, showImage } };
-      if (node.type === "energy") return { ...node, data: { ...node.data, showImage } };
-      return node;
-    });
+  public toggleImages(): void {
+    machineryUiStore.toggleImages();
     this.markChanged();
   }
-
   public commitNodePositions(): void {
     this.nodes = this.nodes.map((node) => ({
       ...node,

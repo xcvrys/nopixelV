@@ -4,6 +4,7 @@
   import { getRecipesForMachine, getRecipe } from "$lib/data/recipes";
   import { getMachine } from "$lib/data/machines";
   import { machineryStore } from "$lib/stores/machinery.svelte";
+  import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import type { MachineNodeData } from "$lib/engine/machinery";
   import { cn } from "$lib/utils/cn";
   import MachineNodeHeader from "./MachineNodeHeader.svelte";
@@ -21,7 +22,7 @@
   const flowStore = useStore();
   const updateNodeInternals = useUpdateNodeInternals();
   let nodeElement: HTMLDivElement | undefined = $state();
-  let showImage = $derived(data.showImage !== false);
+  let showImage = $derived(machineryUiStore.imagesVisible && data.showImage !== false);
   let interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
   );
@@ -76,5 +77,5 @@
     onRecipeChange={handleRecipeChange}
   />
   <MachineNodePorts {id} {recipe} {stats} {connectable} />
-  <MachineNodeStatus {stats} />
+  <MachineNodeStatus {stats} {requiresPower} />
 </div>

@@ -3,13 +3,17 @@ import type { ActiveConnection, Position } from "$lib/engine/machinery";
 export class MachineryUiStore {
   public openActionsNodeId = $state<string | null>(null);
   public activeConnection = $state<ActiveConnection | null>(null);
+  public imagesVisible = $state(true);
   public pendingConnection = $state<{
     connection: ActiveConnection;
     position: Position;
   } | null>(null);
+  public toggleImages(): void {
+    this.imagesVisible = !this.imagesVisible;
+  }
 
-  public toggleActions(nodeId: string): void {
-    this.openActionsNodeId = this.openActionsNodeId === nodeId ? null : nodeId;
+  public setImagesVisible(imagesVisible: boolean): void {
+    this.imagesVisible = imagesVisible;
   }
 
   public startConnection(connection: ActiveConnection): void {

@@ -24,6 +24,7 @@
   const interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
   );
+  let showImage = $derived(machineryUiStore.imagesVisible && data.showImage !== false);
   let edges = $derived(machineryStore.edges);
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
@@ -50,7 +51,7 @@
   )}
 >
   <MachineNodeHeader {id} {data} {interactive} />
-  {#if data.showImage !== false}
+  {#if showImage}
     {#if machine?.imageUrl}
       <img src={machine.imageUrl} alt={machine.name} class="h-28 w-full object-contain" />
     {:else}

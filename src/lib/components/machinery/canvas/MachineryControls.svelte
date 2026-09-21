@@ -3,15 +3,10 @@
   import { Image, ImageOff } from "lucide-svelte";
   import { machineryStore } from "$lib/stores/machinery.svelte";
 
-  let allImagesVisible = $derived(
-    machineryStore.nodes.some((node) => node.type === "machine" || node.type === "energy") &&
-      machineryStore.nodes
-        .filter((node) => node.type === "machine" || node.type === "energy")
-        .every((node) => node.data.showImage !== false),
-  );
+  let allImagesVisible = $derived(machineryStore.imagesVisible);
 
-  function toggleAllImages() {
-    machineryStore.setAllImagesVisible(!allImagesVisible);
+  function toggleAllImages(): void {
+    machineryStore.toggleImages();
   }
 </script>
 
@@ -23,9 +18,9 @@
       aria-label={allImagesVisible ? "Hide all images" : "Show all images"}
     >
       {#if allImagesVisible}
-        <Image />
+        <Image class="!fill-none" strokeWidth={2.25} />
       {:else}
-        <ImageOff />
+        <ImageOff class="!fill-none" strokeWidth={2.25} />
       {/if}
     </ControlButton>
   {/snippet}
