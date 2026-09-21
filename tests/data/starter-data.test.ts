@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { REPOSITORY_ITEMS, getItem } from "../../src/lib/data/items";
 import { REPOSITORY_PIPES, getPipe } from "../../src/lib/data/pipes";
-import { REPOSITORY_RECIPES, getRecipesForMachine } from "../../src/lib/data/recipes";
+import {
+  REPOSITORY_RECIPES,
+  getRecipesForMachine,
+  getRecipesForMachineClass,
+} from "../../src/lib/data/recipes";
 import { REPOSITORY_MACHINES, getMachine, isMachineType } from "../../src/lib/data/machines";
 
 describe("Repository Data Catalog", () => {
@@ -51,6 +55,8 @@ describe("Repository Data Catalog", () => {
     const itemIds = new Set(REPOSITORY_ITEMS.map((i) => i.id));
 
     for (const recipe of REPOSITORY_RECIPES) {
+      expect(recipe.allowedMachineClasses.length).toBeGreaterThan(0);
+      expect(recipe.allowedMachineClasses).toContain(recipe.machineType);
       expect(recipe.duration).toBeGreaterThan(0);
       expect(recipe.inputs.length).toBeGreaterThanOrEqual(1);
       expect(recipe.outputs.length).toBeGreaterThanOrEqual(
@@ -69,10 +75,20 @@ describe("Repository Data Catalog", () => {
     }
   });
 
-  it("filters recipes by machine type", () => {
-    const furnaceRecipes = getRecipesForMachine("furnace");
+  it("filters recipes by machine class and legacy machine type", () => {
+    const furnaceRecipes = getRecipesForMachineClass("furnace");
     expect(furnaceRecipes.length).toBeGreaterThanOrEqual(2);
-    expect(furnaceRecipes.every((r) => r.machineType === "furnace")).toBe(true);
+    expect(furnaceRecipes.every((recipe) => recipe.allowedMachineClasses.includes("furnace"))).toBe(
+      true,
+    );
+
+    const assemblyRecipes = getRecipesForMachineClass("assembly");
+    expect(assemblyRecipes.length).toBeGreaterThanOrEqual(2);
+    expect(
+      assemblyRecipes.every((recipe) => recipe.allowedMachineClasses.includes("assembly")),
+    ).toBe(true);
+    expect(getRecipesForMachine("processor")).toEqual(assemblyRecipes);
+    expect(getRecipesForMachine("fabricator")).toEqual(getRecipesForMachineClass("generator"));
   });
 
   it("defines all authoritative machines and their ports", () => {

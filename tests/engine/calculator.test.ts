@@ -11,6 +11,7 @@ describe("Calculator Engine", () => {
   const mockSmeltIron: Recipe = {
     id: "recipe_smelt_iron",
     name: "Smelt Iron Ingot",
+    allowedMachineClasses: ["furnace"],
     machineType: "furnace",
     duration: 3, // 3 seconds per craft
     powerCost: 2, // 2 kW per craft
@@ -53,6 +54,7 @@ describe("Calculator Engine", () => {
     const mockMakePlates: Recipe = {
       id: "recipe_iron_plate",
       name: "Craft Iron Plate",
+      allowedMachineClasses: ["assembly", "processor"],
       machineType: "processor",
       duration: 6, // 10 cycles/min
       powerCost: 5,

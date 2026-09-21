@@ -31,18 +31,17 @@ export type MachineClass =
   | "medium_storage"
   | "refinery"
   | "large_storage";
-
 export type MachineType = MachineId | MachineClass;
 
 export interface MachineDefinition {
-  id: MachineId;
-  machineClass: MachineClass;
+  id: string;
+  machineClass: string;
   name: string;
   category: MachineCategory;
   tier: number;
   ports: Port[];
   basePowerDrawKW: number;
-  imageUrl: string | null;
+  imageUrl?: string | null;
 
   /** Legacy machine type used by recipes, graph nodes, and saved blueprints. */
   type: MachineType;
