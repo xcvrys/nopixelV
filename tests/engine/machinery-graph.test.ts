@@ -73,7 +73,11 @@ describe("machinery graph", () => {
     });
   });
 
-  it("accepts compatible ports and rejects incompatible directions or resources", () => {
+  it("accepts matching handles and rejects mismatches, occupied handles, directions, or resources", () => {
+    expect(canConnect([], connection)).toBe(true);
+    expect(canConnect([], { ...connection, targetHandle: "copper_ingot" })).toBe(false);
+    expect(canConnect([edge], { ...connection, source: "other" })).toBe(false);
+    expect(canConnect([edge], { ...connection, target: "other-target" })).toBe(false);
     expect(canConnect([], { ...connection, sourceHandle: "out_0", targetHandle: "in_0" })).toBe(
       true,
     );
@@ -117,6 +121,9 @@ describe("machinery graph", () => {
       target: "a",
       targetHandle: "in_0",
     });
+    expect(sanitizeEdges(nodes, cycle).map((edge) => edge.id)).toEqual(
+      cycle.map((edge) => edge.id),
+    );
     expect(isValidMachineryGraph(nodes, cycle)).toBe(true);
   });
 
