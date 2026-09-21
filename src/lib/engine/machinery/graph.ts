@@ -13,16 +13,21 @@ import type {
   TextNode,
 } from "./types";
 
+type ResourceType = "solid" | "energy";
+
 function isOptionalString(value: unknown): value is string | null | undefined {
   return value == null || typeof value === "string";
 }
+
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
+
 function isPosition(value: unknown): value is Position {
   if (typeof value !== "object" || value === null) return false;
   return "x" in value && isFiniteNumber(value.x) && "y" in value && isFiniteNumber(value.y);
 }
+
 function isMachineNodeData(value: unknown): value is MachineNodeData {
   if (typeof value !== "object" || value === null) return false;
   return (
@@ -35,6 +40,7 @@ function isMachineNodeData(value: unknown): value is MachineNodeData {
     isOptionalString(value.recipeId)
   );
 }
+
 function isEnergyNodeData(value: unknown): value is EnergyNodeData {
   if (typeof value !== "object" || value === null) return false;
   return (
@@ -117,6 +123,37 @@ export function removeNode(nodes: MachineryNode[], edges: MachineryEdge[], id: s
   };
 }
 
+function getHandleResourceType(handle: string): ResourceType {
+  if (handle === "energy" || handle === "power") return "energy";
+  return "solid";
+}
+
+function isSocketHandle(handle: string): boolean {
+  return handle === "energy" || handle === "power" || /^(?:in|out)_\d+$/.test(handle);
+}
+
+function areConnectionHandlesCompatible(
+  sourceHandle: string,
+  targetHandle: string,
+  resourceType?: ResourceType,
+): boolean {
+  if (sourceHandle === "power" || /^in_\d+$/.test(sourceHandle)) return false;
+  if (targetHandle.startsWith("out_") || targetHandle === "out") return false;
+
+  const sourceResourceType = getHandleResourceType(sourceHandle);
+  const targetResourceType = getHandleResourceType(targetHandle);
+  if (
+    sourceResourceType !== targetResourceType ||
+    (resourceType && (sourceResourceType !== resourceType || targetResourceType !== resourceType))
+  ) {
+    return false;
+  }
+
+  return (
+    isSocketHandle(sourceHandle) || isSocketHandle(targetHandle) || sourceHandle === targetHandle
+  );
+}
+
 export function canConnect(edges: MachineryEdge[], connection: ConnectionInput): boolean {
   const sourceOccupied = edges.some(
     (edge) => edge.source === connection.source && edge.sourceHandle === connection.sourceHandle,
@@ -127,36 +164,30 @@ export function canConnect(edges: MachineryEdge[], connection: ConnectionInput):
 
   return (
     connection.source !== connection.target &&
-    connection.sourceHandle === connection.targetHandle &&
+    areConnectionHandlesCompatible(
+      connection.sourceHandle,
+      connection.targetHandle,
+      connection.resourceType,
+    ) &&
     !sourceOccupied &&
-    !targetOccupied &&
-    !hasPath(edges, connection.target, connection.source)
+    !targetOccupied
   );
-}
-
-function hasPath(edges: MachineryEdge[], start: string, target: string): boolean {
-  const visited = new Set<string>();
-  const pending = [start];
-  while (pending.length > 0) {
-    const current = pending.pop();
-    if (!current || visited.has(current)) continue;
-    if (current === target) return true;
-    visited.add(current);
-    for (const edge of edges) {
-      if (edge.source === current) pending.push(edge.target);
-    }
-  }
-  return false;
 }
 
 const POWER_EDGE_CLASS = "power-edge";
 
-function isPowerEdge(edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle">): boolean {
-  return edge.sourceHandle === "energy" || edge.targetHandle === "energy";
+function isPowerEdge(
+  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "resourceType">,
+): boolean {
+  return (
+    edge.resourceType === "energy" ||
+    edge.sourceHandle === "energy" ||
+    edge.targetHandle === "energy"
+  );
 }
 
 function getEdgeClass(
-  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "class">,
+  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "resourceType" | "class">,
 ): string | undefined {
   return isPowerEdge(edge) ? POWER_EDGE_CLASS : edge.class;
 }
@@ -201,23 +232,74 @@ export function isMachineryEdge(value: unknown): value is MachineryEdge {
   if (!("target" in value) || typeof value.target !== "string") return false;
   return (
     (!("sourceHandle" in value) || isOptionalString(value.sourceHandle)) &&
-    (!("targetHandle" in value) || isOptionalString(value.targetHandle))
+    (!("targetHandle" in value) || isOptionalString(value.targetHandle)) &&
+    (!("resourceType" in value) ||
+      value.resourceType === "solid" ||
+      value.resourceType === "energy") &&
+    (!("flowRate" in value) || isFiniteNumber(value.flowRate))
   );
 }
 
-function getNodeHandleIds(node: MachineryNode, side: "source" | "target"): string[] {
-  if (node.type === "text") return [];
+type ActiveHandle = {
+  resourceType: ResourceType;
+  kind: "item" | "port";
+};
+
+type ActiveNodeHandles = {
+  source: Map<string, ActiveHandle>;
+  target: Map<string, ActiveHandle>;
+};
+
+function addActiveHandle(
+  handles: Map<string, ActiveHandle>,
+  id: string,
+  resourceType: ResourceType,
+  kind: ActiveHandle["kind"],
+): void {
+  if (!handles.has(id)) handles.set(id, { resourceType, kind });
+}
+
+function getNodeHandles(node: MachineryNode): ActiveNodeHandles {
+  const handles: ActiveNodeHandles = { source: new Map(), target: new Map() };
+  if (node.type === "text") return handles;
+
   if (node.type === "energy") {
-    if (side === "source") return ["energy"];
-    return node.data.recipeId ? getMachineInputIds(node.data.recipeId) : [];
+    addActiveHandle(handles.source, "energy", "energy", "port");
+    for (const input of getRecipe(node.data.recipeId ?? "")?.inputs ?? []) {
+      addActiveHandle(handles.target, input.itemId, "solid", "item");
+      if (input.portId) addActiveHandle(handles.target, input.portId, "solid", "port");
+    }
+    return handles;
   }
-  const itemHandles = node.data.recipeId
-    ? side === "source"
-      ? getMachineOutputIds(node.data.recipeId)
-      : getMachineInputIds(node.data.recipeId)
-    : [];
-  if (side === "target" && requiresPower(node)) return [...itemHandles, "energy"];
-  return itemHandles;
+
+  const machine = getMachine(node.data.machineType);
+  for (const port of machine?.ports ?? []) {
+    const handleSet = port.direction === "output" ? handles.source : handles.target;
+    addActiveHandle(handleSet, port.id, port.resourceType, "port");
+  }
+
+  for (const output of getRecipe(node.data.recipeId ?? "")?.outputs ?? []) {
+    addActiveHandle(handles.source, output.itemId, "solid", "item");
+    if (output.portId) addActiveHandle(handles.source, output.portId, "solid", "port");
+  }
+  for (const input of getRecipe(node.data.recipeId ?? "")?.inputs ?? []) {
+    addActiveHandle(handles.target, input.itemId, "solid", "item");
+    if (input.portId) addActiveHandle(handles.target, input.portId, "solid", "port");
+  }
+  if (requiresPower(node)) addActiveHandle(handles.target, "energy", "energy", "port");
+  return handles;
+}
+
+function areNodeHandlesCompatible(
+  source: ActiveHandle | undefined,
+  target: ActiveHandle | undefined,
+  sourceHandle: string,
+  targetHandle: string,
+  resourceType?: ResourceType,
+): boolean {
+  if (!source || !target || source.resourceType !== target.resourceType) return false;
+  if (resourceType && resourceType !== source.resourceType) return false;
+  return source.kind === "port" || target.kind === "port" || sourceHandle === targetHandle;
 }
 
 function requiresPower(node: Extract<MachineryNode, { type: "machine" }>): boolean {
@@ -226,8 +308,25 @@ function requiresPower(node: Extract<MachineryNode, { type: "machine" }>): boole
   return Math.max(machinePower, recipePower) > 0;
 }
 
+function areNodesAndHandlesCompatible(
+  sourceNode: MachineryNode | undefined,
+  targetNode: MachineryNode | undefined,
+  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "resourceType">,
+  handlesByNode: Map<string, ActiveNodeHandles>,
+): boolean {
+  if (!sourceNode || !targetNode || !edge.sourceHandle || !edge.targetHandle) return false;
+  return areNodeHandlesCompatible(
+    handlesByNode.get(sourceNode.id)?.source.get(edge.sourceHandle),
+    handlesByNode.get(targetNode.id)?.target.get(edge.targetHandle),
+    edge.sourceHandle,
+    edge.targetHandle,
+    edge.resourceType,
+  );
+}
+
 export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): MachineryEdge[] {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const handlesByNode = new Map(nodes.map((node) => [node.id, getNodeHandles(node)]));
   const sourceHandles = new Set<string>();
   const targetHandles = new Set<string>();
   const edgeIds = new Set<string>();
@@ -236,33 +335,22 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
   for (const edge of edges) {
     const sourceNode = nodeById.get(edge.source);
     const targetNode = nodeById.get(edge.target);
-    const sourceHandlesForNode = sourceNode ? getNodeHandleIds(sourceNode, "source") : [];
-    const targetHandlesForNode = targetNode ? getNodeHandleIds(targetNode, "target") : [];
     const sourceKey = `${edge.source}:${edge.sourceHandle ?? ""}`;
     const targetKey = `${edge.target}:${edge.targetHandle ?? ""}`;
 
     if (
-      !sourceNode ||
+      !isMachineryEdge(edge) ||
       !edge.id ||
       edgeIds.has(edge.id) ||
       edge.source === edge.target ||
-      !edge.sourceHandle ||
-      !edge.targetHandle ||
-      edge.sourceHandle !== edge.targetHandle ||
-      !sourceHandlesForNode.includes(edge.sourceHandle) ||
-      !targetHandlesForNode.includes(edge.targetHandle) ||
+      !areNodesAndHandlesCompatible(sourceNode, targetNode, edge, handlesByNode) ||
       sourceHandles.has(sourceKey) ||
-      targetHandles.has(targetKey) ||
-      hasPath([...validEdges, edge], edge.target, edge.source)
+      targetHandles.has(targetKey)
     ) {
       continue;
     }
 
-    validEdges.push({
-      ...edge,
-      animated: true,
-      class: getEdgeClass(edge),
-    });
+    validEdges.push({ ...edge, animated: true, class: getEdgeClass(edge) });
     edgeIds.add(edge.id);
     sourceHandles.add(sourceKey);
     targetHandles.add(targetKey);
@@ -272,11 +360,8 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
 
 export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEdge[]): boolean {
   const nodeIds = new Set<string>();
-  const sourceHandles = new Set<string>();
-  const targetHandles = new Set<string>();
-
   for (const node of nodes) {
-    if (nodeIds.has(node.id) || !node.id) return false;
+    if (nodeIds.has(node.id) || !node.id || !isMachineryNode(node)) return false;
     nodeIds.add(node.id);
     if (node.type === "text") {
       if (!node.data.text.trim()) return false;
@@ -304,26 +389,22 @@ export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEd
   }
 
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const handlesByNode = new Map(nodes.map((node) => [node.id, getNodeHandles(node)]));
   const edgeIds = new Set<string>();
+  const sourceHandles = new Set<string>();
+  const targetHandles = new Set<string>();
   for (const edge of edges) {
-    const sourceNode = nodeById.get(edge.source);
-    const targetNode = nodeById.get(edge.target);
     if (
+      !isMachineryEdge(edge) ||
       !edge.id ||
       edgeIds.has(edge.id) ||
       edge.source === edge.target ||
-      !sourceNode ||
-      !targetNode ||
-      !edge.sourceHandle ||
-      !edge.targetHandle ||
-      edge.sourceHandle !== edge.targetHandle
-    ) {
-      return false;
-    }
-
-    if (
-      !getNodeHandleIds(sourceNode, "source").includes(edge.sourceHandle) ||
-      !getNodeHandleIds(targetNode, "target").includes(edge.targetHandle)
+      !areNodesAndHandlesCompatible(
+        nodeById.get(edge.source),
+        nodeById.get(edge.target),
+        edge,
+        handlesByNode,
+      )
     ) {
       return false;
     }
@@ -336,12 +417,5 @@ export function isValidMachineryGraph(nodes: MachineryNode[], edges: MachineryEd
     edgeIds.add(edge.id);
   }
 
-  return !edges.some((edge) => hasPath(edges, edge.target, edge.source));
-}
-
-function getMachineInputIds(recipeId: string): string[] {
-  return getRecipe(recipeId)?.inputs.map((input) => input.itemId) ?? [];
-}
-function getMachineOutputIds(recipeId: string): string[] {
-  return getRecipe(recipeId)?.outputs.map((output) => output.itemId) ?? [];
+  return true;
 }

@@ -4,9 +4,10 @@ import {
   connectEdge,
   createMachineNode,
   createTextNode,
+  isValidMachineryGraph,
   removeNode,
-  updateNodeData,
   sanitizeEdges,
+  updateNodeData,
   type MachineNode,
   type MachineryEdge,
 } from "../../src/lib/engine/machinery";
@@ -72,11 +73,51 @@ describe("machinery graph", () => {
     });
   });
 
-  it("accepts matching handles and rejects mismatches or occupied handles", () => {
-    expect(canConnect([], connection)).toBe(true);
-    expect(canConnect([], { ...connection, targetHandle: "copper_ingot" })).toBe(false);
-    expect(canConnect([edge], { ...connection, source: "other" })).toBe(false);
-    expect(canConnect([edge], { ...connection, target: "other-target" })).toBe(false);
+  it("accepts compatible ports and rejects incompatible directions or resources", () => {
+    expect(canConnect([], { ...connection, sourceHandle: "out_0", targetHandle: "in_0" })).toBe(
+      true,
+    );
+    expect(canConnect([], { ...connection, sourceHandle: "in_0" })).toBe(false);
+    expect(canConnect([], { ...connection, targetHandle: "out_0" })).toBe(false);
+    expect(canConnect([], { ...connection, sourceHandle: "energy", targetHandle: "in_0" })).toBe(
+      false,
+    );
+    expect(
+      canConnect([], {
+        ...connection,
+        sourceHandle: "out_0",
+        targetHandle: "in_0",
+        resourceType: "energy",
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts cyclic connections and considers cyclic graphs valid", () => {
+    const nodes = (["a", "b", "c"] as const).map((id): MachineNode => ({
+      ...source,
+      id,
+      data: { ...source.data, recipeId: null },
+    }));
+    const cycle: MachineryEdge[] = [
+      { id: "a-b", source: "a", sourceHandle: "out_0", target: "b", targetHandle: "in_0" },
+      { id: "b-c", source: "b", sourceHandle: "out_0", target: "c", targetHandle: "in_0" },
+    ];
+    expect(
+      canConnect(cycle, {
+        source: "c",
+        sourceHandle: "out_0",
+        target: "a",
+        targetHandle: "in_0",
+      }),
+    ).toBe(true);
+    cycle.push({
+      id: "c-a",
+      source: "c",
+      sourceHandle: "out_0",
+      target: "a",
+      targetHandle: "in_0",
+    });
+    expect(isValidMachineryGraph(nodes, cycle)).toBe(true);
   });
 
   it("does not add invalid connections", () => {

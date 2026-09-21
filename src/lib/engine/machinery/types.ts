@@ -1,5 +1,6 @@
 import type { MachineType } from "$lib/data/types";
 import type { NetworkCalculationResult } from "../calculator";
+import type { ResourceType } from "./schema/port";
 
 export type Position = { x: number; y: number };
 
@@ -8,6 +9,8 @@ export type ConnectionInput = {
   sourceHandle: string;
   target: string;
   targetHandle: string;
+  resourceType?: ResourceType;
+  flowRate?: number;
 };
 
 export type MachineNodeData = {
@@ -65,6 +68,8 @@ export type MachineryEdge = {
   sourceHandle?: string | null;
   target: string;
   targetHandle?: string | null;
+  resourceType?: ResourceType;
+  flowRate?: number;
   animated?: boolean;
   style?: string;
   class?: string;

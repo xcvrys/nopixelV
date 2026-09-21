@@ -85,4 +85,29 @@ describe("machinery connection utilities", () => {
       }).isCompatible,
     ).toBe(false);
   });
+  it("accepts a candidate that closes a feedback loop", () => {
+    const cycleEdges: MachineryEdge[] = [
+      {
+        id: "a-b",
+        source: "a",
+        sourceHandle: "iron_ingot",
+        target: "b",
+        targetHandle: "iron_ingot",
+      },
+      {
+        id: "b-c",
+        source: "b",
+        sourceHandle: "iron_ingot",
+        target: "c",
+        targetHandle: "iron_ingot",
+      },
+    ];
+    expect(
+      getHandleConnectionState(
+        cycleEdges,
+        { nodeId: "c", handleId: "iron_ingot", handleType: "source" },
+        { nodeId: "a", handleId: "iron_ingot", handleType: "target" },
+      ),
+    ).toMatchObject({ inProgress: true, isCompatible: true });
+  });
 });
