@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Handle, Position, useStore } from "@xyflow/svelte";
+  import { Handle, Position } from "@xyflow/svelte";
   import { isHandleOccupied } from "$lib/engine/machinery";
+  import { machineryStore } from "$lib/stores/machinery.svelte";
   import { cn } from "$lib/utils/cn";
 
   let {
@@ -19,8 +20,7 @@
     showImage: boolean;
   } = $props();
 
-  const flowStore = useStore();
-  let edges = $derived(flowStore.edges);
+  let edges = $derived(machineryStore.edges);
   let handleState = $derived.by(() => {
     const edge = edges.find(
       (candidate) => candidate.target === id && candidate.targetHandle === "energy",

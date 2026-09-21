@@ -147,9 +147,29 @@ function hasPath(edges: MachineryEdge[], start: string, target: string): boolean
   return false;
 }
 
+const POWER_EDGE_CLASS = "power-edge";
+
+function isPowerEdge(edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle">): boolean {
+  return edge.sourceHandle === "energy" || edge.targetHandle === "energy";
+}
+
+function getEdgeClass(
+  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "class">,
+): string | undefined {
+  return isPowerEdge(edge) ? POWER_EDGE_CLASS : edge.class;
+}
+
 export function connectEdge(edges: MachineryEdge[], connection: ConnectionInput): MachineryEdge[] {
   if (!canConnect(edges, connection)) return edges;
-  return [...edges, { id: `edge-${crypto.randomUUID()}`, ...connection, animated: true }];
+  return [
+    ...edges,
+    {
+      id: `edge-${crypto.randomUUID()}`,
+      ...connection,
+      animated: true,
+      class: getEdgeClass(connection),
+    },
+  ];
 }
 
 export function removeEdge(edges: MachineryEdge[], id: string): MachineryEdge[] {
@@ -218,7 +238,6 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
 
     if (
       !sourceNode ||
-      !targetNode ||
       !edge.id ||
       edgeIds.has(edge.id) ||
       edge.source === edge.target ||
@@ -234,7 +253,11 @@ export function sanitizeEdges(nodes: MachineryNode[], edges: MachineryEdge[]): M
       continue;
     }
 
-    validEdges.push(edge);
+    validEdges.push({
+      ...edge,
+      animated: true,
+      class: getEdgeClass(edge),
+    });
     edgeIds.add(edge.id);
     sourceHandles.add(sourceKey);
     targetHandles.add(targetKey);

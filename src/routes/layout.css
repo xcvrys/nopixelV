@@ -124,6 +124,15 @@ body {
 .svelte-flow__edge-path {
   stroke: var(--color-white) !important;
 }
+.svelte-flow__edge.animated.power-edge path {
+  stroke-dasharray: 16 12;
+  animation: power-dashdraw 1.2s linear infinite;
+}
+@keyframes power-dashdraw {
+  from {
+    stroke-dashoffset: 28;
+  }
+}
 .svelte-flow__edge.selected .svelte-flow__edge-path {
   stroke: var(--color-white) !important;
   stroke-width: 3px !important;

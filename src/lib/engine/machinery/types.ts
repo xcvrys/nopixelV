@@ -66,6 +66,7 @@ export type MachineryEdge = {
   targetHandle?: string | null;
   animated?: boolean;
   style?: string;
+  class?: string;
 };
 
 export type GraphState = {
