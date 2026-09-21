@@ -23,7 +23,6 @@
   }: { id: string; data: EnergyNodeData; selected?: boolean } = $props();
   const flowStore = useStore();
   const updateNodeInternals = useUpdateNodeInternals();
-  let nodeElement: HTMLDivElement | undefined = $state();
   const machine = $derived(getMachine("fabricator"));
   let recipes = $derived(getRecipesForMachine("fabricator"));
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
@@ -57,20 +56,12 @@
     void tick().then(() => updateNodeInternals([nodeId]));
   });
 
-  $effect(() => {
-    if (!nodeElement) return;
-    const observer = new ResizeObserver(() => updateNodeInternals([id]));
-    observer.observe(nodeElement);
-    return () => observer.disconnect();
-  });
-
   function handleRecipeChange(recipeId: string | null): void {
     machineryStore.updateNodeData(id, { recipeId });
   }
 </script>
 
 <div
-  bind:this={nodeElement}
   class={cn(
     "w-72 border-2 border-neutral-800 bg-neutral-950 transition-all duration-200",
     selected ? "border-white" : "",
