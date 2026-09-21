@@ -2,7 +2,10 @@
   import { CircleCheckBig, TriangleAlert, Zap } from "lucide-svelte";
   import type { MachineStats } from "$lib/engine/calculator";
 
-  let { stats }: { stats: MachineStats | undefined } = $props();
+  let {
+    stats,
+    requiresPower = false,
+  }: { stats: MachineStats | undefined; requiresPower?: boolean } = $props();
   let efficiency = $derived(stats?.efficiency ?? 1);
   let hasRecipe = $derived((stats?.rates.effectiveDuration ?? 0) > 0);
   let isBottlenecked = $derived(
@@ -33,8 +36,10 @@
       </div>
     {/if}
   </div>
-  <div class="flex items-center gap-1.5 font-mono text-neutral-400">
-    <Zap class="h-3.5 w-3.5 text-neutral-300" />
-    <span>{(stats?.rates.powerPerMinute ?? 0).toFixed(0)} kW</span>
-  </div>
+  {#if requiresPower}
+    <div class="flex items-center gap-1.5 font-mono text-neutral-400">
+      <Zap class="h-3.5 w-3.5 text-neutral-300" />
+      <span>{(stats?.rates.powerPerMinute ?? 0).toFixed(0)} kW</span>
+    </div>
+  {/if}
 </div>

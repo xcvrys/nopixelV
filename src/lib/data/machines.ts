@@ -32,7 +32,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: localMachineImage("assembly-machine"),
     price: 180000,
     defaultDuration: 4,
-    defaultPowerCost: 4,
+    defaultPowerCost: 2,
   },
   {
     id: "splitter",
@@ -72,7 +72,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: localMachineImage("large-storage"),
     price: 240000,
     defaultDuration: 6,
-    defaultPowerCost: 8,
+    defaultPowerCost: 0,
   },
   {
     id: "press",
@@ -82,7 +82,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: localMachineImage("medium-storage"),
     price: 95000,
     defaultDuration: 5,
-    defaultPowerCost: 5,
+    defaultPowerCost: 0,
   },
   {
     id: "extruder",
@@ -112,7 +112,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 45000,
     defaultDuration: 0,
-    defaultPowerCost: 1,
+    defaultPowerCost: 0,
   },
   {
     id: "unloader",
@@ -122,7 +122,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 45000,
     defaultDuration: 0,
-    defaultPowerCost: 1,
+    defaultPowerCost: 0,
   },
   {
     id: "buffer",
@@ -132,7 +132,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 70000,
     defaultDuration: 0,
-    defaultPowerCost: 1,
+    defaultPowerCost: 0,
   },
   {
     id: "sorter",
@@ -142,7 +142,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 85000,
     defaultDuration: 0,
-    defaultPowerCost: 2,
+    defaultPowerCost: 0,
   },
   {
     id: "tank",
@@ -152,7 +152,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 110000,
     defaultDuration: 0,
-    defaultPowerCost: 1,
+    defaultPowerCost: 0,
   },
   {
     id: "controller",
@@ -162,7 +162,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     imageUrl: placeholderMachineImage(),
     price: 125000,
     defaultDuration: 0,
-    defaultPowerCost: 3,
+    defaultPowerCost: 0,
   },
 ];
 export const REPOSITORY_MACHINES = addDevelopmentImages(REPOSITORY_MACHINES_BASE);
