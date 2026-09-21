@@ -1,5 +1,6 @@
 import type { MachineType } from "$lib/data/types";
 import {
+  calculateMachinery,
   canConnect,
   connectEdge,
   createEnergyNode,
@@ -19,64 +20,15 @@ import {
 } from "$lib/engine/machinery";
 import { MachineryWorkflowStore } from "$lib/stores/machinery-workflows.svelte";
 import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
-import { MachineryEngineStore, MachineryLayoutStore } from "$lib/stores/machinery";
 import type { MachineryWorkflowRecord } from "$lib/db/machinery";
 
 export type SavedWorkflow = MachineryWorkflowRecord;
 export const MAX_WORKFLOW_NAME_LENGTH = 40;
 
-function sameNodeTopology(previous: MachineryNode[], next: MachineryNode[]): boolean {
-  return (
-    previous.length === next.length &&
-    previous.every((node, index) => {
-      const candidate = next[index];
-      return (
-        candidate !== undefined &&
-        node.id === candidate.id &&
-        node.type === candidate.type &&
-        sameNodeData(node.data, candidate.data)
-      );
-    })
-  );
-}
-
-function sameNodeData(previous: MachineryNode["data"], next: MachineryNode["data"]): boolean {
-  const previousEntries = Object.entries(previous);
-  const nextEntries = Object.entries(next);
-  return (
-    previousEntries.length === nextEntries.length &&
-    previousEntries.every(([key, value]) =>
-      nextEntries.some(([nextKey, nextValue]) => nextKey === key && nextValue === value),
-    )
-  );
-}
-
 export class MachineryStore {
-  private readonly engineStore = new MachineryEngineStore();
-  private readonly layoutStore = new MachineryLayoutStore();
-
-  public get nodes(): MachineryNode[] {
-    return this.engineStore.nodes.map((node) => ({
-      ...node,
-      position: this.layoutStore.getPosition(node.id) ?? node.position,
-    }));
-  }
-
-  public set nodes(nodes: MachineryNode[]) {
-    this.setNodes(nodes);
-  }
-
-  public get edges(): MachineryEdge[] {
-    return this.engineStore.edges;
-  }
-
-  public set edges(edges: MachineryEdge[]) {
-    this.engineStore.edges = edges;
-  }
-
-  public get calculationResult() {
-    return this.engineStore.calculationResult;
-  }
+  public nodes = $state.raw<MachineryNode[]>([]);
+  public edges = $state.raw<MachineryEdge[]>([]);
+  public calculationResult = $derived(calculateMachinery(this.nodes, this.edges));
 
   public get imagesVisible(): boolean {
     return machineryUiStore.imagesVisible;
@@ -129,56 +81,53 @@ export class MachineryStore {
   public addMachine(type: MachineType, position?: Position): string {
     const node =
       type === "fabricator"
-        ? createEnergyNode(position, this.engineStore.nodes.length)
-        : createMachineNode(type, position, this.engineStore.nodes.length);
-    this.engineStore.nodes = [...this.engineStore.nodes, node];
-    this.layoutStore.setPosition(node.id, node.position);
+        ? createEnergyNode(position, this.nodes.length)
+        : createMachineNode(type, position, this.nodes.length);
+    this.nodes = [...this.nodes, node];
     this.markChanged();
     return node.id;
   }
 
   public addTextNode(text = "Text", position?: Position): string {
     const node = createTextNode(text, position);
-    this.engineStore.nodes = [...this.engineStore.nodes, node];
-    this.layoutStore.setPosition(node.id, node.position);
+    this.nodes = [...this.nodes, node];
     this.markChanged();
     return node.id;
   }
 
   public updateTextNode(id: string, text: string): void {
-    this.engineStore.nodes = this.engineStore.nodes.map((node) =>
+    this.nodes = this.nodes.map((node) =>
       node.id === id && node.type === "text" ? { ...node, data: { text } } : node,
     );
     this.markChanged();
   }
 
   public removeNode(id: string): void {
-    const graph = removeNode(this.engineStore.nodes, this.engineStore.edges, id);
-    this.engineStore.nodes = graph.nodes;
-    this.engineStore.edges = graph.edges;
-    this.layoutStore.removePosition(id);
+    const graph = removeNode(this.nodes, this.edges, id);
+    this.nodes = graph.nodes;
+    this.edges = graph.edges;
     this.markChanged();
   }
 
   public updateNodeData(id: string, updates: MachineryNodeDataUpdate): void {
-    this.engineStore.nodes = updateNodeData(this.engineStore.nodes, id, updates);
-    this.engineStore.edges = sanitizeEdges(this.engineStore.nodes, this.engineStore.edges);
+    this.nodes = updateNodeData(this.nodes, id, updates);
+    this.edges = sanitizeEdges(this.nodes, this.edges);
     this.markChanged();
   }
 
   public canConnect(connection: ConnectionInput): boolean {
-    return canConnect(this.engineStore.edges, connection);
+    return canConnect(this.edges, connection);
   }
 
   public connect(connection: ConnectionInput): void {
-    const nextEdges = connectEdge(this.engineStore.edges, connection);
-    if (nextEdges === this.engineStore.edges) return;
-    this.engineStore.edges = nextEdges;
+    const nextEdges = connectEdge(this.edges, connection);
+    if (nextEdges === this.edges) return;
+    this.edges = nextEdges;
     this.markChanged();
   }
 
   public removeEdge(id: string): void {
-    this.engineStore.edges = removeEdge(this.engineStore.edges, id);
+    this.edges = removeEdge(this.edges, id);
     this.markChanged();
   }
 
@@ -201,7 +150,10 @@ export class MachineryStore {
   }
 
   public commitNodePositions(): void {
-    this.layoutStore.setPositions(this.nodes.map((node) => [node.id, node.position] as const));
+    this.nodes = this.nodes.map((node) => ({
+      ...node,
+      position: { ...node.position },
+    }));
     this.markChanged();
   }
 
@@ -236,15 +188,9 @@ export class MachineryStore {
     return this.workflowStore.flushPersistence();
   }
 
-  private setNodes(nodes: MachineryNode[]): void {
-    this.layoutStore.setPositions(nodes.map((node) => [node.id, node.position] as const));
-    if (!sameNodeTopology(this.engineStore.nodes, nodes)) this.engineStore.nodes = nodes;
-  }
-
   private replaceGraph(nodes: MachineryNode[], edges: MachineryEdge[]): void {
-    this.engineStore.nodes = nodes;
-    this.engineStore.edges = edges;
-    this.layoutStore.setPositions(nodes.map((node) => [node.id, node.position] as const));
+    this.nodes = nodes;
+    this.edges = edges;
   }
   private markChanged(): void {
     this.mutationRevision += 1;
