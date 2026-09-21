@@ -23,6 +23,7 @@
     stats: MachineStats | undefined;
     connectable: boolean;
   } = $props();
+
   let edges = $derived(machineryStore.edges);
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
@@ -60,7 +61,7 @@
             isConnectableStart={isHandleAvailable("target", input.itemId)}
             isConnectableEnd={isHandleAvailable("target", input.itemId)}
             class={cn(
-              "!box-border !-left-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+              "!-left-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("target", input.itemId),
             )}
           />
@@ -102,7 +103,7 @@
             isConnectableStart={isHandleAvailable("source", output.itemId)}
             isConnectableEnd={isHandleAvailable("source", output.itemId)}
             class={cn(
-              "!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+              "!-right-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("source", output.itemId),
             )}
           />

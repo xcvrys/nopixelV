@@ -4,9 +4,10 @@ import type { MachineCategory, MachineDefinition, MachineType } from "./types";
 export const MACHINE_CATEGORIES = {
   production: "Production",
   logistics: "Logistics",
+  energy: "Energy",
 } as const satisfies Record<string, string>;
 
-export const MACHINE_CATEGORY_ORDER: MachineCategory[] = ["production", "logistics"];
+export const MACHINE_CATEGORY_ORDER: MachineCategory[] = ["production", "energy", "logistics"];
 
 const localMachineImage = (filename: string): string => `/images/machines/${filename}.webp`;
 
@@ -97,7 +98,7 @@ const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
     id: "fabricator",
     type: "fabricator",
     name: "Generator",
-    category: "production",
+    category: "energy",
     imageUrl: localMachineImage("generator"),
     price: 210000,
     defaultDuration: 7,

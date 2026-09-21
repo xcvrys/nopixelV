@@ -121,6 +121,7 @@ describe("MachineryStore", () => {
       customDurationOverride: 2,
     });
 
+    if (store.nodes[0]?.type !== "machine") throw new Error("Expected machine node");
     expect(store.nodes[0].data.customDurationOverride).toBe(2);
     expect(store.calculationResult.summary.totalPowerDraw).toBeCloseTo(60, 1);
   });
@@ -220,6 +221,7 @@ describe("MachineryStore", () => {
     await store.deleteWorkflow(secondId ?? "");
 
     expect(store.activeWorkflowId).toBe(firstId);
+    if (store.nodes[0]?.type !== "machine") throw new Error("Expected machine node");
     expect(store.nodes[0].data.machineType).toBe("furnace");
   });
 

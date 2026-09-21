@@ -47,6 +47,16 @@ describe("machinery graph", () => {
     expect(nodes[0].data.name).toBe("Updated");
     expect(nodes[1]).toEqual(target);
   });
+  it("updates energy node display data", () => {
+    const energyNode = {
+      id: "energy",
+      type: "energy" as const,
+      position: { x: 0, y: 0 },
+      data: { energyType: "generator" as const, name: "Generator", showImage: true },
+    };
+    const nodes = updateNodeData([energyNode], "energy", { showImage: false });
+    expect(nodes[0].data.showImage).toBe(false);
+  });
   it("removes edges that no longer match active recipe handles", () => {
     const changedSource = {
       ...source,

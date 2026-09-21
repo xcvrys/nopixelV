@@ -3,6 +3,7 @@ import {
   calculateMachinery,
   canConnect,
   connectEdge,
+  createEnergyNode,
   createMachineNode,
   createTextNode,
   exportBlueprint,
@@ -12,7 +13,7 @@ import {
   sanitizeEdges,
   updateNodeData,
   type ConnectionInput,
-  type MachineNodeData,
+  type MachineryNodeDataUpdate,
   type MachineryEdge,
   type MachineryNode,
   type Position,
@@ -63,7 +64,10 @@ export class MachineryStore {
   }
 
   public addMachine(type: MachineType, position?: Position): string {
-    const node = createMachineNode(type, position, this.nodes.length);
+    const node =
+      type === "fabricator"
+        ? createEnergyNode(position, this.nodes.length)
+        : createMachineNode(type, position, this.nodes.length);
     this.nodes = [...this.nodes, node];
     this.markChanged();
     return node.id;
@@ -90,7 +94,7 @@ export class MachineryStore {
     this.markChanged();
   }
 
-  public updateNodeData(id: string, updates: Partial<MachineNodeData>): void {
+  public updateNodeData(id: string, updates: MachineryNodeDataUpdate): void {
     this.nodes = updateNodeData(this.nodes, id, updates);
     this.edges = sanitizeEdges(this.nodes, this.edges);
     this.markChanged();
@@ -121,9 +125,11 @@ export class MachineryStore {
   }
 
   public setAllImagesVisible(showImage: boolean): void {
-    this.nodes = this.nodes.map((node) =>
-      node.type === "machine" ? { ...node, data: { ...node.data, showImage } } : node,
-    );
+    this.nodes = this.nodes.map((node) => {
+      if (node.type === "machine") return { ...node, data: { ...node.data, showImage } };
+      if (node.type === "energy") return { ...node, data: { ...node.data, showImage } };
+      return node;
+    });
     this.markChanged();
   }
 

@@ -1,4 +1,4 @@
-export type MachineCategory = "production" | "logistics";
+export type MachineCategory = "production" | "logistics" | "energy";
 
 export interface ItemDefinition {
   id: string;

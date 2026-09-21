@@ -29,12 +29,14 @@
   let recipes = $derived(getRecipesForMachine(data.machineType));
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
   let machine = $derived(getMachine(data.machineType));
+  let requiresPower = $derived((recipe?.powerCost ?? machine?.defaultPowerCost ?? 0) > 0);
   let stats = $derived(machineryStore.calculationResult.machineStats[id]);
 
   $effect(() => {
     const nodeId = id;
     void showImage;
     void recipe;
+    void requiresPower;
     void tick().then(() => updateNodeInternals([nodeId]));
   });
 
@@ -58,9 +60,14 @@
   )}
 >
   <MachineNodeHeader {id} {data} {interactive} />
-  {#if showImage}
-    <MachineNodeImage name={data.name} imageUrl={machine?.imageUrl ?? null} />
-  {/if}
+  <MachineNodeImage
+    {id}
+    name={data.name}
+    imageUrl={machine?.imageUrl ?? null}
+    {connectable}
+    {requiresPower}
+    {showImage}
+  />
   <MachineNodeRecipe
     {id}
     selectedRecipeId={data.recipeId}

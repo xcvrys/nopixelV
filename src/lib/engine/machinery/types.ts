@@ -18,10 +18,18 @@ export type MachineNodeData = {
   customDurationOverride?: number;
   powerCostOverride?: number;
 };
+export type MachineryNodeDataUpdate = Partial<
+  Pick<
+    MachineNodeData,
+    "name" | "showImage" | "recipeId" | "customDurationOverride" | "powerCostOverride"
+  >
+>;
 
-export type TextNodeData = {
-  text: string;
-} & Partial<MachineNodeData>;
+export type EnergyNodeData = {
+  energyType: "generator";
+  name: string;
+  showImage?: boolean;
+};
 
 export type MachineNode = {
   id: string;
@@ -30,6 +38,17 @@ export type MachineNode = {
   data: MachineNodeData;
 };
 
+export type EnergyNode = {
+  id: string;
+  type: "energy";
+  position: Position;
+  data: EnergyNodeData;
+};
+
+export type TextNodeData = {
+  text: string;
+} & Partial<MachineNodeData>;
+
 export type TextNode = {
   id: string;
   type: "text";
@@ -37,7 +56,7 @@ export type TextNode = {
   data: TextNodeData;
 };
 
-export type MachineryNode = MachineNode | TextNode;
+export type MachineryNode = MachineNode | EnergyNode | TextNode;
 
 export type MachineryEdge = {
   id: string;
