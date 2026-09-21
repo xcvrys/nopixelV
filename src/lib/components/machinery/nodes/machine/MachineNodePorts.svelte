@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Handle, Position } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
-  import type { RecipeDefinition } from "$lib/data/recipes";
+  import type { RecipeDefinition } from "$lib/data/types";
   import {
     getHandleConnectionState,
     isHandleOccupied,
@@ -57,6 +57,8 @@
             position={Position.Left}
             id={input.itemId}
             isConnectable={isHandleAvailable("target", input.itemId)}
+            isConnectableStart={isHandleAvailable("target", input.itemId)}
+            isConnectableEnd={isHandleAvailable("target", input.itemId)}
             class={cn(
               "!box-border !-left-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("target", input.itemId),
@@ -97,6 +99,8 @@
             position={Position.Right}
             id={output.itemId}
             isConnectable={isHandleAvailable("source", output.itemId)}
+            isConnectableStart={isHandleAvailable("source", output.itemId)}
+            isConnectableEnd={isHandleAvailable("source", output.itemId)}
             class={cn(
               "!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("source", output.itemId),

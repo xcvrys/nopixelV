@@ -1,11 +1,16 @@
 <script lang="ts">
   import { useSvelteFlow } from "@xyflow/svelte";
   import Button from "$lib/components/ui/Button.svelte";
-  import { MACHINE_CATEGORIES, MACHINE_CATEGORY_ORDER, STARTER_MACHINES } from "$lib/data/machines";
+  import {
+    MACHINE_CATEGORIES,
+    MACHINE_CATEGORY_ORDER,
+    REPOSITORY_MACHINES,
+  } from "$lib/data/machines";
+  import type { MachineType } from "$lib/data/types";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   let showMenu = $state(false);
   const { screenToFlowPosition } = useSvelteFlow();
-  function addMachine(type: string): void {
+  function addMachine(type: MachineType): void {
     const center = screenToFlowPosition(
       { x: window.innerWidth / 2, y: window.innerHeight / 2 },
       { snapToGrid: false },
@@ -70,13 +75,13 @@
       class="absolute right-0 z-50 mt-2 w-[26rem] max-w-[calc(100vw-2rem)] border border-neutral-800 bg-black p-1 shadow-2xl"
     >
       <div class="max-h-[min(28rem,calc(100vh-6rem))] space-y-3 overflow-y-auto">
-        {#each MACHINE_CATEGORY_ORDER as category}
+        {#each MACHINE_CATEGORY_ORDER as category (category)}
           <section>
             <h3 class="mb-2 px-2 pb-1 text-xl font-semibold italic text-white">
               {MACHINE_CATEGORIES[category]}
             </h3>
             <div class="grid grid-cols-2 gap-1">
-              {#each STARTER_MACHINES.filter((machine) => machine.category === category) as machine (machine.type)}
+              {#each REPOSITORY_MACHINES.filter((machine) => machine.category === category) as machine (machine.type)}
                 <div
                   role="group"
                   class="min-w-0"

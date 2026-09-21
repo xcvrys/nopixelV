@@ -9,7 +9,7 @@
   import MachineNodeHeader from "./MachineNodeHeader.svelte";
   import MachineNodeImage from "./MachineNodeImage.svelte";
   import MachineNodePorts from "./MachineNodePorts.svelte";
-  import MachineNodeRecipe from "./MachineNodeRecipe.svelte";
+  import MachineNodeRecipe from "../../recipe-selector/MachineNodeRecipe.svelte";
   import MachineNodeStatus from "./MachineNodeStatus.svelte";
 
   let {
@@ -45,9 +45,8 @@
     return () => observer.disconnect();
   });
 
-  function handleRecipeChange(event: Event): void {
-    const select = event.currentTarget as HTMLSelectElement;
-    machineryStore.updateNodeData(id, { recipeId: select.value || null });
+  function handleRecipeChange(recipeId: string | null): void {
+    machineryStore.updateNodeData(id, { recipeId });
   }
 </script>
 
@@ -62,7 +61,13 @@
   {#if showImage}
     <MachineNodeImage name={data.name} imageUrl={machine?.imageUrl ?? null} />
   {/if}
-  <MachineNodeRecipe {id} {data} {recipes} {interactive} onRecipeChange={handleRecipeChange} />
+  <MachineNodeRecipe
+    {id}
+    selectedRecipeId={data.recipeId}
+    {recipes}
+    {interactive}
+    onRecipeChange={handleRecipeChange}
+  />
   <MachineNodePorts {id} {recipe} {stats} {connectable} />
   <MachineNodeStatus {stats} />
 </div>

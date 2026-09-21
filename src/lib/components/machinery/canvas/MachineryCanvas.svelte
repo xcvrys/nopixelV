@@ -7,15 +7,55 @@
     type Edge,
     useSvelteFlow,
   } from "@xyflow/svelte";
-  import type { OnConnectStart } from "@xyflow/system";
+  import type { OnConnectEnd, OnConnectStart } from "@xyflow/system";
+  import { isMachineType } from "$lib/data/machines";
+  import { REPOSITORY_RECIPES } from "$lib/data/recipes";
+  import type { RecipeDefinition } from "$lib/data/types";
   import { toConnectionInput } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
+  import MachineNodeRecipe from "../recipe-selector/MachineNodeRecipe.svelte";
   import MachineryBackground from "./MachineryBackground.svelte";
   import MachineryControls from "./MachineryControls.svelte";
   import { machineryNodeTypes } from "../nodes/registry";
   const { screenToFlowPosition } = useSvelteFlow();
   const MACHINE_DRAG_TYPE = "application/x-machinery-type";
+  let compatibleRecipes = $derived.by(() => {
+    const pending = machineryUiStore.pendingConnection;
+    if (!pending) return [] as RecipeDefinition[];
+    const itemId = pending.connection.handleId;
+    return REPOSITORY_RECIPES.filter((recipe) =>
+      pending.connection.handleType === "source"
+        ? recipe.inputs.some((item) => item.itemId === itemId)
+        : recipe.outputs.some((item) => item.itemId === itemId),
+    );
+  });
+
+  function selectPendingRecipe(recipeId: string | null): void {
+    if (!recipeId) return;
+    const pending = machineryUiStore.pendingConnection;
+    const recipe = compatibleRecipes.find((candidate) => candidate.id === recipeId);
+    if (!pending || !recipe) return;
+
+    const nodeId = machineryStore.addMachine(recipe.machineType, pending.position);
+    machineryStore.updateNodeData(nodeId, { recipeId: recipe.id });
+    machineryStore.connect(
+      pending.connection.handleType === "source"
+        ? {
+            source: pending.connection.nodeId,
+            sourceHandle: pending.connection.handleId,
+            target: nodeId,
+            targetHandle: pending.connection.handleId,
+          }
+        : {
+            source: nodeId,
+            sourceHandle: pending.connection.handleId,
+            target: pending.connection.nodeId,
+            targetHandle: pending.connection.handleId,
+          },
+    );
+    machineryUiStore.endConnection();
+  }
 
   function handleDragOver(event: DragEvent): void {
     if (event.dataTransfer?.types.includes(MACHINE_DRAG_TYPE)) {
@@ -26,7 +66,7 @@
 
   function handleDrop(event: DragEvent): void {
     const machineType = event.dataTransfer?.getData(MACHINE_DRAG_TYPE);
-    if (!machineType) return;
+    if (!machineType || !isMachineType(machineType)) return;
 
     event.preventDefault();
     const position = screenToFlowPosition(
@@ -58,8 +98,26 @@
     });
   }
 
-  function handleConnectEnd(): void {
+  function handleConnectEnd(
+    event: Parameters<OnConnectEnd>[0],
+    state: Parameters<OnConnectEnd>[1],
+  ): void {
+    const active = machineryUiStore.activeConnection;
+    if (active && !state.toNode && "clientX" in event) {
+      machineryUiStore.startPendingConnection(
+        active,
+        screenToFlowPosition({ x: event.clientX, y: event.clientY }, { snapToGrid: false }),
+      );
+      return;
+    }
     machineryUiStore.endConnection();
+  }
+
+  function handleKeydown(event: KeyboardEvent): void {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    machineryUiStore.cancelConnection();
   }
 
   function handleDelete(params: { nodes: { id: string }[]; edges: Edge[] }): void {
@@ -68,7 +126,7 @@
   }
 </script>
 
-<svelte:window onclick={() => machineryUiStore.closeActions()} />
+<svelte:window onclick={() => machineryUiStore.closeActions()} onkeydown={handleKeydown} />
 
 <div
   role="application"
@@ -80,6 +138,7 @@
     bind:nodes={machineryStore.nodes}
     edges={machineryStore.edges}
     nodeTypes={machineryNodeTypes}
+    proOptions={{ hideAttribution: true }}
     onlyRenderVisibleElements
     defaultEdgeOptions={{ type: "step" }}
     connectionLineType={ConnectionLineType.Step}
@@ -96,10 +155,18 @@
   >
     <MachineryControls />
     <MachineryBackground />
-    <MiniMap
-      class="!rounded-none !bg-neutral-950/95 !border-neutral-800"
-      nodeColor="var(--color-white)"
-      maskColor="rgba(0, 0, 0, 0.8)"
-    />
+    <MiniMap nodeColor="var(--color-white)" maskColor="rgba(0, 0, 0, 0.8)" class=" !rounded-none" />
   </SvelteFlow>
+  {#if machineryUiStore.pendingConnection}
+    <MachineNodeRecipe
+      id="pending-recipe"
+      selectedRecipeId={null}
+      recipes={compatibleRecipes}
+      interactive
+      standalone
+      openOnMount
+      onRecipeChange={selectPendingRecipe}
+      onCancel={() => machineryUiStore.cancelConnection()}
+    />
+  {/if}
 </div>
