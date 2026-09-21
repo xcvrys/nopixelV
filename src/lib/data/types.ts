@@ -1,11 +1,6 @@
 export type MachineCategory = "production" | "logistics" | "energy";
 
-export interface ItemDefinition {
-  id: string;
-  name: string;
-  imageUrl?: string;
-}
-
+export type { ItemDefinition } from "./items/types";
 export type MachineType =
   | "furnace"
   | "processor"
