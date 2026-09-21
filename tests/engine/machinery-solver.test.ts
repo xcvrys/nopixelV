@@ -5,6 +5,9 @@ import {
   type PowerGridEvaluation,
 } from "../../src/lib/engine/machinery/solver/power-grid";
 import type { StronglyConnectedComponent } from "../../src/lib/engine/machinery/solver/cycles";
+import { solveProductionGraph } from "../../src/lib/engine/machinery/solver";
+import type { Recipe } from "../../src/lib/data/types";
+import type { MachineryEdge, MachineryNode } from "../../src/lib/engine/calculator";
 
 type Edge = { source: string; target: string };
 
@@ -201,5 +204,151 @@ describe("evaluatePowerGrids", () => {
       "generator-b": 0.5,
       "consumer-b": 0.5,
     });
+  });
+});
+
+describe("solveProductionGraph", () => {
+  const producerRecipe: Recipe = {
+    id: "producer",
+    name: "Producer",
+    allowedMachineClasses: ["furnace"],
+    machineType: "furnace",
+    duration: 60,
+    powerCost: 0,
+    inputs: [],
+    outputs: [{ itemId: "ore", amount: 1 }],
+  };
+  const consumerRecipe: Recipe = {
+    id: "consumer",
+    name: "Consumer",
+    allowedMachineClasses: ["processor"],
+    machineType: "processor",
+    duration: 60,
+    powerCost: 0,
+    inputs: [{ itemId: "ore", amount: 1 }],
+    outputs: [{ itemId: "product", amount: 1 }],
+  };
+
+  it("propagates a feed-forward graph in topological order", () => {
+    const nodes: MachineryNode[] = [
+      {
+        id: "producer",
+        type: "furnace",
+        name: "Producer",
+        recipe: producerRecipe,
+        basePowerDrawKW: 0,
+      },
+      {
+        id: "consumer",
+        type: "processor",
+        name: "Consumer",
+        recipe: consumerRecipe,
+        basePowerDrawKW: 0,
+      },
+    ];
+    const edges: MachineryEdge[] = [
+      {
+        id: "ore-edge",
+        sourceNodeId: "producer",
+        sourceHandle: "ore",
+        targetNodeId: "consumer",
+        targetHandle: "ore",
+      },
+    ];
+
+    const result = solveProductionGraph(nodes, edges);
+
+    expect(result.machineStats.consumer.efficiency).toBe(1);
+    expect(result.edgeFlowRates["ore-edge"]).toBe(1);
+    expect(result.summary.netOutputsProduced).toEqual([{ itemId: "product", ratePerMin: 1 }]);
+  });
+
+  it("relaxes a cyclic component without iterating unrelated nodes", () => {
+    const firstRecipe: Recipe = {
+      ...producerRecipe,
+      id: "first",
+      outputs: [{ itemId: "first", amount: 1 }],
+      inputs: [{ itemId: "second", amount: 1 }],
+    };
+    const secondRecipe: Recipe = {
+      ...consumerRecipe,
+      id: "second",
+      inputs: [{ itemId: "first", amount: 1 }],
+      outputs: [{ itemId: "second", amount: 1 }],
+    };
+    const nodes: MachineryNode[] = [
+      { id: "first", type: "furnace", name: "First", recipe: firstRecipe, basePowerDrawKW: 0 },
+      { id: "second", type: "processor", name: "Second", recipe: secondRecipe, basePowerDrawKW: 0 },
+    ];
+    const edges: MachineryEdge[] = [
+      {
+        id: "first-to-second",
+        sourceNodeId: "first",
+        sourceHandle: "first",
+        targetNodeId: "second",
+        targetHandle: "first",
+      },
+      {
+        id: "second-to-first",
+        sourceNodeId: "second",
+        sourceHandle: "second",
+        targetNodeId: "first",
+        targetHandle: "second",
+      },
+    ];
+
+    const result = solveProductionGraph(nodes, edges);
+
+    expect(result.machineStats.first.efficiency).toBeCloseTo(1, 5);
+    expect(result.machineStats.second.efficiency).toBeCloseTo(1, 5);
+    expect(result.summary.netOutputsProduced).toEqual([]);
+  });
+
+  it("applies a brownout multiplier after material propagation", () => {
+    const nodes: MachineryNode[] = [
+      {
+        id: "producer",
+        type: "furnace",
+        name: "Producer",
+        recipe: producerRecipe,
+        basePowerDrawKW: 0,
+      },
+      {
+        id: "consumer",
+        type: "processor",
+        name: "Consumer",
+        recipe: consumerRecipe,
+        basePowerDrawKW: 100,
+      },
+      {
+        id: "generator",
+        type: "fabricator",
+        name: "Generator",
+        recipe: null,
+        basePowerDrawKW: -50,
+      },
+    ];
+    const edges: MachineryEdge[] = [
+      {
+        id: "ore-edge",
+        sourceNodeId: "producer",
+        sourceHandle: "ore",
+        targetNodeId: "consumer",
+        targetHandle: "ore",
+      },
+      {
+        id: "power-edge",
+        sourceNodeId: "generator",
+        sourceHandle: "energy",
+        targetNodeId: "consumer",
+        targetHandle: "energy",
+        resourceType: "energy",
+      },
+    ];
+
+    const result = solveProductionGraph(nodes, edges);
+
+    expect(result.machineStats.consumer.efficiency).toBeCloseTo(0.5, 5);
+    expect(result.summary.netOutputsProduced).toEqual([{ itemId: "product", ratePerMin: 0.5 }]);
   });
 });

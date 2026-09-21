@@ -5,6 +5,8 @@
  */
 
 import type { Recipe } from "$lib/data/types";
+import { solveProductionGraph } from "./machinery/solver";
+export { solveProductionGraph };
 
 export interface MachineryNode {
   id: string;
@@ -13,14 +15,16 @@ export interface MachineryNode {
   recipe: Recipe | null;
   customDurationOverride?: number;
   powerCostOverride?: number;
+  basePowerDrawKW?: number;
 }
 
 export interface MachineryEdge {
   id: string;
   sourceNodeId: string;
-  sourceHandle: string; // item ID output
+  sourceHandle: string;
   targetNodeId: string;
-  targetHandle: string; // item ID input
+  targetHandle: string;
+  resourceType?: "solid" | "energy";
 }
 
 export interface MachineRateItem {
@@ -65,6 +69,7 @@ export interface NetworkSummary {
 export interface NetworkCalculationResult {
   machineStats: Record<string, MachineStats>;
   bottlenecks: BottleneckWarning[];
+  edgeFlowRates: Record<string, number>;
   summary: NetworkSummary;
 }
 
@@ -110,180 +115,17 @@ export function calculateMachineRates(
 }
 
 /**
- * Evaluates the entire network of machines and conveyor belts:
- * - Traverses connected conveyor edges
- * - Determines inflow vs demand for each input socket
- * - Calculates operating efficiency and scales downstream outputs
- * - Aggregates raw inputs, net final outputs, and global power
+ * Evaluates the entire network through the SCC-aware production solver.
  */
 export function evaluateProductionNetwork(
   nodes: MachineryNode[],
   edges: MachineryEdge[],
 ): NetworkCalculationResult {
-  const nodeMap = new Map<string, MachineryNode>();
-  const theoreticalRates: Record<string, MachineRateResult> = {};
-  const machineStats: Record<string, MachineStats> = {};
-  const bottlenecks: BottleneckWarning[] = [];
-
-  // Step 1: Pre-calculate theoretical maximum rates for all active machines
-  for (const node of nodes) {
-    nodeMap.set(node.id, node);
-    if (node.recipe) {
-      theoreticalRates[node.id] = calculateMachineRates(
-        node.recipe,
-        node.customDurationOverride,
-        node.powerCostOverride,
-      );
-    } else {
-      theoreticalRates[node.id] = {
-        effectiveDuration: 0,
-        cyclesPerMinute: 0,
-        inputs: [],
-        outputs: [],
-        powerPerMinute: 0,
-      };
-    }
-  }
-
-  // Step 2: Build graph dependencies and conveyor edge mappings
-  // Target handle -> edges feeding into it
-  const incomingEdges = new Map<string, MachineryEdge[]>(); // key: `${targetNodeId}:${targetHandle}`
-  // Source handle -> edges taking from it
-  const outgoingEdges = new Map<string, MachineryEdge[]>(); // key: `${sourceNodeId}:${sourceHandle}`
-
-  for (const edge of edges) {
-    const targetKey = `${edge.targetNodeId}:${edge.targetHandle}`;
-    const sourceKey = `${edge.sourceNodeId}:${edge.sourceHandle}`;
-
-    const inList = incomingEdges.get(targetKey) || [];
-    inList.push(edge);
-    incomingEdges.set(targetKey, inList);
-
-    const outList = outgoingEdges.get(sourceKey) || [];
-    outList.push(edge);
-    outgoingEdges.set(sourceKey, outList);
-  }
-
-  // Step 3: Topological / iterative propagation to resolve actual output rates & efficiencies
-  // Initialize each machine at efficiency = 1.0 (or 0 if no recipe)
-  for (const node of nodes) {
-    const rates = theoreticalRates[node.id];
-    machineStats[node.id] = {
-      efficiency: node.recipe ? 1.0 : 0,
-      rates,
-      actualOutputs: rates.outputs.map((o) => ({ ...o })),
-    };
-  }
-
-  // Perform 3 relaxation passes to stabilize multi-step conveyor networks
-  const PASS_COUNT = Math.max(3, nodes.length);
-  for (let pass = 0; pass < PASS_COUNT; pass++) {
-    for (const node of nodes) {
-      if (!node.recipe) continue;
-
-      const rates = theoreticalRates[node.id];
-      let minEfficiency = 1.0;
-
-      // Check each input requirement
-      for (const input of rates.inputs) {
-        const targetKey = `${node.id}:${input.itemId}`;
-        const belts = incomingEdges.get(targetKey) || [];
-
-        if (belts.length > 0) {
-          // Connected to upstream machines: sum incoming supply
-          let suppliedRate = 0;
-          for (const belt of belts) {
-            const upstreamNode = nodeMap.get(belt.sourceNodeId);
-            const upstreamStats = machineStats[belt.sourceNodeId];
-            if (upstreamNode && upstreamStats) {
-              const upstreamOutput = upstreamStats.actualOutputs.find(
-                (o) => o.itemId === belt.sourceHandle,
-              );
-              if (upstreamOutput) {
-                // If an upstream output feeds multiple belts, split evenly among them
-                const siblings = outgoingEdges.get(`${belt.sourceNodeId}:${belt.sourceHandle}`) || [
-                  belt,
-                ];
-                suppliedRate += upstreamOutput.amountPerMin / siblings.length;
-              }
-            }
-          }
-
-          const demandRate = input.amountPerMin;
-          const ratio = demandRate > 0 ? suppliedRate / demandRate : 1;
-          if (ratio < minEfficiency) {
-            minEfficiency = Math.max(0, ratio);
-          }
-
-          // On the final pass, record bottleneck warnings if noticeably undersupplied (< 99%)
-          if (pass === PASS_COUNT - 1 && ratio < 0.99) {
-            bottlenecks.push({
-              nodeId: node.id,
-              machineName: node.name,
-              itemId: input.itemId,
-              suppliedRate: Number(suppliedRate.toFixed(2)),
-              demandedRate: Number(demandRate.toFixed(2)),
-              efficiency: Number(minEfficiency.toFixed(3)),
-            });
-          }
-        }
-        // If no incoming belts connected, input is treated as manually fed / raw supply
-      }
-
-      machineStats[node.id].efficiency = minEfficiency;
-      machineStats[node.id].actualOutputs = rates.outputs.map((out) => ({
-        itemId: out.itemId,
-        amountPerMin: out.amountPerMin * minEfficiency,
-      }));
-    }
-  }
-
-  // Step 4: Aggregate Global Summary
-  const rawInputsMap = new Map<string, number>();
-  const netOutputsMap = new Map<string, number>();
-  let totalPowerDraw = 0;
-
-  for (const node of nodes) {
-    if (!node.recipe) continue;
-    const stats = machineStats[node.id];
-    totalPowerDraw += stats.rates.powerPerMinute * stats.efficiency;
-
-    // Raw inputs: inputs that do NOT have an incoming conveyor belt
-    for (const input of stats.rates.inputs) {
-      const targetKey = `${node.id}:${input.itemId}`;
-      const incoming = incomingEdges.get(targetKey);
-      if (!incoming || incoming.length === 0) {
-        const current = rawInputsMap.get(input.itemId) || 0;
-        rawInputsMap.set(input.itemId, current + input.amountPerMin * stats.efficiency);
-      }
-    }
-
-    // Net outputs: outputs that do NOT have an outgoing conveyor belt (end products)
-    for (const output of stats.actualOutputs) {
-      const sourceKey = `${node.id}:${output.itemId}`;
-      const outgoing = outgoingEdges.get(sourceKey);
-      if (!outgoing || outgoing.length === 0) {
-        const current = netOutputsMap.get(output.itemId) || 0;
-        netOutputsMap.set(output.itemId, current + output.amountPerMin);
-      }
-    }
-  }
-
-  const rawInputsNeeded: ItemFlowTotal[] = Array.from(rawInputsMap.entries()).map(
-    ([itemId, ratePerMin]) => ({ itemId, ratePerMin: Number(ratePerMin.toFixed(2)) }),
+  return solveProductionGraph(
+    nodes.map((node) => ({
+      ...node,
+      basePowerDrawKW: node.basePowerDrawKW ?? 0,
+    })),
+    edges,
   );
-
-  const netOutputsProduced: ItemFlowTotal[] = Array.from(netOutputsMap.entries()).map(
-    ([itemId, ratePerMin]) => ({ itemId, ratePerMin: Number(ratePerMin.toFixed(2)) }),
-  );
-
-  return {
-    machineStats,
-    bottlenecks,
-    summary: {
-      rawInputsNeeded,
-      netOutputsProduced,
-      totalPowerDraw: Number(totalPowerDraw.toFixed(2)),
-    },
-  };
 }
