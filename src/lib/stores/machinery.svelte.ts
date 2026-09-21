@@ -34,9 +34,20 @@ function sameNodeTopology(previous: MachineryNode[], next: MachineryNode[]): boo
         candidate !== undefined &&
         node.id === candidate.id &&
         node.type === candidate.type &&
-        node.data === candidate.data
+        sameNodeData(node.data, candidate.data)
       );
     })
+  );
+}
+
+function sameNodeData(previous: MachineryNode["data"], next: MachineryNode["data"]): boolean {
+  const previousEntries = Object.entries(previous);
+  const nextEntries = Object.entries(next);
+  return (
+    previousEntries.length === nextEntries.length &&
+    previousEntries.every(([key, value]) =>
+      nextEntries.some(([nextKey, nextValue]) => nextKey === key && nextValue === value),
+    )
   );
 }
 
@@ -235,7 +246,6 @@ export class MachineryStore {
     this.engineStore.edges = edges;
     this.layoutStore.setPositions(nodes.map((node) => [node.id, node.position] as const));
   }
-
   private markChanged(): void {
     this.mutationRevision += 1;
     this.workflowStore.markChanged();

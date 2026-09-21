@@ -22,11 +22,22 @@
   } = $props();
 
   let edges = $derived(machineryStore.edges);
+  let activeConnection = $derived(machineryUiStore.activeConnection);
   let handleState = $derived.by(() => {
     const edge = edges.find(
       (candidate) => candidate.target === id && candidate.targetHandle === "energy",
     );
-    return edge ? "connection-connected" : "connection-available";
+    return cn(
+      edge ? "connection-connected" : "connection-available",
+      activeConnection && "connection-in-progress",
+      activeConnection?.nodeId === id &&
+        activeConnection.handleId === "energy" &&
+        activeConnection.handleType === "target" &&
+        "connection-start",
+      activeConnection &&
+        machineryUiStore.isHandleCompatible(id, "energy") &&
+        "connection-compatible",
+    );
   });
   let isPowerDimmed = $derived(!machineryUiStore.powerRequired);
 </script>

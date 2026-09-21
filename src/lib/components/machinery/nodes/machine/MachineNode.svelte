@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { tick } from "svelte";
-  import { useStore, useUpdateNodeInternals } from "@xyflow/svelte";
+  import { getContext } from "svelte";
+  import { useStore } from "@xyflow/svelte";
   import { getRecipesForMachine, getRecipe } from "$lib/data/recipes";
   import { getMachine } from "$lib/data/machines";
   import { machineryStore } from "$lib/stores/machinery.svelte";
@@ -12,6 +12,10 @@
   import MachineNodePorts from "./MachineNodePorts.svelte";
   import MachineNodeRecipe from "../../recipe-selector/MachineNodeRecipe.svelte";
   import MachineNodeStatus from "./MachineNodeStatus.svelte";
+  import {
+    NodeInternalsCoordinator,
+    NODE_INTERNALS_COORDINATOR_CONTEXT,
+  } from "../../canvas/NodeInternalsCoordinator.svelte";
 
   let {
     id,
@@ -20,7 +24,9 @@
   }: { id: string; data: MachineNodeData; selected?: boolean } = $props();
 
   const flowStore = useStore();
-  const updateNodeInternals = useUpdateNodeInternals();
+  const nodeInternalsCoordinator = getContext<NodeInternalsCoordinator>(
+    NODE_INTERNALS_COORDINATOR_CONTEXT,
+  );
   let showImage = $derived(machineryUiStore.imagesVisible && data.showImage !== false);
   let interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
@@ -33,11 +39,10 @@
   let stats = $derived(machineryStore.calculationResult.machineStats[id]);
 
   $effect(() => {
-    const nodeId = id;
     void showImage;
     void recipe;
     void requiresPower;
-    void tick().then(() => updateNodeInternals([nodeId]));
+    nodeInternalsCoordinator.queue(id);
   });
 
   function handleRecipeChange(recipeId: string | null): void {

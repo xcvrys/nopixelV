@@ -1,28 +1,29 @@
 <script lang="ts">
-  import { tick } from "svelte";
-  import { Handle, Position, useStore, useUpdateNodeInternals } from "@xyflow/svelte";
+  import { getContext } from "svelte";
+  import { Handle, Position, useStore } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import { getMachine } from "$lib/data/machines";
   import { getRecipe, getRecipesForMachine } from "$lib/data/recipes";
-  import {
-    getHandleConnectionState,
-    isHandleOccupied,
-    type EnergyNodeData,
-    type HandleType,
-  } from "$lib/engine/machinery";
+  import { isHandleOccupied, type EnergyNodeData, type HandleType } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import MachineNodeHeader from "../machine/MachineNodeHeader.svelte";
   import MachineNodeRecipe from "../../recipe-selector/MachineNodeRecipe.svelte";
   import { cn } from "$lib/utils/cn";
 
+  import {
+    NodeInternalsCoordinator,
+    NODE_INTERNALS_COORDINATOR_CONTEXT,
+  } from "../../canvas/NodeInternalsCoordinator.svelte";
   let {
     id,
     data,
     selected = false,
   }: { id: string; data: EnergyNodeData; selected?: boolean } = $props();
   const flowStore = useStore();
-  const updateNodeInternals = useUpdateNodeInternals();
+  const nodeInternalsCoordinator = getContext<NodeInternalsCoordinator>(
+    NODE_INTERNALS_COORDINATOR_CONTEXT,
+  );
   const machine = $derived(getMachine("fabricator"));
   let recipes = $derived(getRecipesForMachine("fabricator"));
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
@@ -36,24 +37,23 @@
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
   function handleState(type: HandleType, handleId: string): string {
-    const state = getHandleConnectionState(edges, activeConnection, {
-      nodeId: id,
-      handleId,
-      handleType: type,
-    });
     return cn(
-      state.inProgress && "connection-in-progress",
-      state.isStart && "connection-start",
-      state.isCompatible && "connection-compatible",
+      activeConnection && "connection-in-progress",
+      activeConnection?.nodeId === id &&
+        activeConnection.handleId === handleId &&
+        activeConnection.handleType === type &&
+        "connection-start",
+      activeConnection &&
+        machineryUiStore.isHandleCompatible(id, handleId) &&
+        "connection-compatible",
     );
   }
 
   const energyAvailable = $derived(connectable && !isHandleOccupied(edges, id, "source", "energy"));
   $effect(() => {
-    const nodeId = id;
     void showImage;
     void recipe;
-    void tick().then(() => updateNodeInternals([nodeId]));
+    nodeInternalsCoordinator.queue(id);
   });
 
   function handleRecipeChange(recipeId: string | null): void {

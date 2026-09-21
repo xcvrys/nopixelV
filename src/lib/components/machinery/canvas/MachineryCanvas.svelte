@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { setContext } from "svelte";
   import {
     ConnectionLineType,
     MiniMap,
@@ -6,6 +7,7 @@
     type Connection,
     type Edge,
     useSvelteFlow,
+    useUpdateNodeInternals,
   } from "@xyflow/svelte";
   import type { OnConnectEnd, OnConnectStart } from "@xyflow/system";
   import { isMachineType } from "$lib/data/machines";
@@ -17,9 +19,15 @@
   import MachineNodeRecipe from "../recipe-selector/MachineNodeRecipe.svelte";
   import MachineryBackground from "./MachineryBackground.svelte";
   import MachineryControls from "./MachineryControls.svelte";
+  import {
+    NodeInternalsCoordinator,
+    NODE_INTERNALS_COORDINATOR_CONTEXT,
+  } from "./NodeInternalsCoordinator.svelte";
   import { cn } from "$lib/utils/cn";
   import { machineryNodeTypes } from "../nodes/registry";
   const { screenToFlowPosition } = useSvelteFlow();
+  const nodeInternalsCoordinator = new NodeInternalsCoordinator(useUpdateNodeInternals());
+  setContext(NODE_INTERNALS_COORDINATOR_CONTEXT, nodeInternalsCoordinator);
   const MACHINE_DRAG_TYPE = "application/x-machinery-type";
   let compatibleRecipes = $derived.by(() => {
     const pending = machineryUiStore.pendingConnection;
@@ -97,11 +105,15 @@
     params: Parameters<OnConnectStart>[1],
   ): void {
     if (!params.handleType || !params.nodeId || !params.handleId) return;
-    machineryUiStore.startConnection({
-      nodeId: params.nodeId,
-      handleId: params.handleId,
-      handleType: params.handleType,
-    });
+    machineryUiStore.startConnection(
+      {
+        nodeId: params.nodeId,
+        handleId: params.handleId,
+        handleType: params.handleType,
+      },
+      machineryStore.nodes,
+      machineryStore.edges,
+    );
   }
 
   function handleConnectEnd(

@@ -2,11 +2,7 @@
   import { Handle, Position } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import type { RecipeDefinition } from "$lib/data/types";
-  import {
-    getHandleConnectionState,
-    isHandleOccupied,
-    type HandleType,
-  } from "$lib/engine/machinery";
+  import { isHandleOccupied, type HandleType } from "$lib/engine/machinery";
   import type { MachineStats } from "$lib/engine/calculator";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
@@ -28,15 +24,15 @@
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
   function getHandleState(type: HandleType, handleId: string): string {
-    const state = getHandleConnectionState(edges, activeConnection, {
-      nodeId: id,
-      handleId,
-      handleType: type,
-    });
     return cn(
-      state.inProgress && "connection-in-progress",
-      state.isStart && "connection-start",
-      state.isCompatible && "connection-compatible",
+      activeConnection && "connection-in-progress",
+      activeConnection?.nodeId === id &&
+        activeConnection.handleId === handleId &&
+        activeConnection.handleType === type &&
+        "connection-start",
+      activeConnection &&
+        machineryUiStore.isHandleCompatible(id, handleId) &&
+        "connection-compatible",
     );
   }
 

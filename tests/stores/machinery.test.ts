@@ -75,6 +75,7 @@ describe("MachineryStore", () => {
   it("does not recalculate when node positions move", () => {
     const nodeId = store.addMachine("furnace", { x: 0, y: 0 });
     const initialCalculation = store.calculationResult;
+
     store.nodes = store.nodes.map((node) =>
       node.id === nodeId ? { ...node, position: { x: 400, y: 120 } } : node,
     );
