@@ -37,6 +37,7 @@ function getNodeHandleRefs(node: MachineryNode): HandleRef[] {
 
 export class MachineryUiStore {
   public openActionsNodeId = $state<string | null>(null);
+  public recipePickerNodeId = $state<string | null>(null);
   public activeConnection = $state<ActiveConnection | null>(null);
   public compatibleHandleKeys = $state<Set<string>>(new Set());
   public imagesVisible = $state(true);
@@ -91,6 +92,12 @@ export class MachineryUiStore {
   }
   public closeActions(): void {
     this.openActionsNodeId = null;
+  }
+  public openRecipePicker(nodeId: string): void {
+    this.recipePickerNodeId = nodeId;
+  }
+  public closeRecipePicker(): void {
+    this.recipePickerNodeId = null;
   }
   public isActionsOpen(nodeId: string): boolean {
     return this.openActionsNodeId === nodeId;

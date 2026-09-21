@@ -3,12 +3,12 @@
   import { Handle, Position, useStore } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import { getMachine } from "$lib/data/machines";
-  import { getRecipe, getRecipesForMachine } from "$lib/data/recipes";
+  import { getRecipe } from "$lib/data/recipes";
+  import { ChevronDown } from "lucide-svelte";
   import { isHandleOccupied, type EnergyNodeData, type HandleType } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import MachineNodeHeader from "../machine/MachineNodeHeader.svelte";
-  import MachineNodeRecipe from "../../recipe-selector/MachineNodeRecipe.svelte";
   import { cn } from "$lib/utils/cn";
 
   import {
@@ -25,7 +25,6 @@
     NODE_INTERNALS_COORDINATOR_CONTEXT,
   );
   const machine = $derived(getMachine("fabricator"));
-  let recipes = $derived(getRecipesForMachine("fabricator"));
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
   const isDimmed = $derived(!machineryUiStore.powerRequired);
   const connectable = $derived(flowStore.nodesConnectable);
@@ -55,10 +54,6 @@
     void recipe;
     nodeInternalsCoordinator.queue(id);
   });
-
-  function handleRecipeChange(recipeId: string | null): void {
-    machineryStore.updateNodeData(id, { recipeId });
-  }
 </script>
 
 <div
@@ -76,13 +71,15 @@
       <div class="flex h-28 items-center justify-center text-5xl text-neutral-500">?</div>
     {/if}
   {/if}
-  <MachineNodeRecipe
-    {id}
-    selectedRecipeId={data.recipeId}
-    {recipes}
-    {interactive}
-    onRecipeChange={handleRecipeChange}
-  />
+  <button
+    type="button"
+    disabled={!interactive}
+    onclick={() => machineryUiStore.openRecipePicker(id)}
+    class="flex w-full items-center justify-between border-b border-neutral-900 bg-neutral-950 px-3.5 py-2 text-left text-xs font-semibold text-white hover:bg-neutral-900"
+  >
+    <span class="truncate">{recipe?.name ?? "Select Recipe"}</span>
+    <ChevronDown class="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+  </button>
   <div class="relative grid grid-cols-2 gap-2 bg-neutral-950 px-3.5 py-3">
     <div class="space-y-3">
       {#if recipe && recipe.inputs.length > 0}

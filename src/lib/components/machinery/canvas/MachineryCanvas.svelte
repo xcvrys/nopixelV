@@ -11,7 +11,7 @@
   } from "@xyflow/svelte";
   import type { OnConnectEnd, OnConnectStart } from "@xyflow/system";
   import { isMachineType } from "$lib/data/machines";
-  import { REPOSITORY_RECIPES } from "$lib/data/recipes";
+  import { getRecipesForMachine, REPOSITORY_RECIPES } from "$lib/data/recipes";
   import type { RecipeDefinition } from "$lib/data/types";
   import { toConnectionInput } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
@@ -44,6 +44,12 @@
         : recipe.outputs.some((item) => item.itemId === itemId),
     );
   });
+  function selectRecipe(recipeId: string | null): void {
+    const nodeId = machineryUiStore.recipePickerNodeId;
+    if (!nodeId) return;
+    machineryStore.updateNodeData(nodeId, { recipeId });
+    machineryUiStore.closeRecipePicker();
+  }
 
   function selectPendingRecipe(recipeId: string | null): void {
     if (!recipeId) return;
@@ -175,6 +181,25 @@
     <MachineryBackground />
     <MiniMap nodeColor="var(--color-white)" maskColor="rgba(0, 0, 0, 0.8)" class=" !rounded-none" />
   </SvelteFlow>
+  {#if machineryUiStore.recipePickerNodeId}
+    {@const recipeNode = machineryStore.nodes.find(
+      (node) => node.id === machineryUiStore.recipePickerNodeId,
+    )}
+    {#if recipeNode && recipeNode.type !== "text"}
+      <MachineNodeRecipe
+        id={recipeNode.id}
+        selectedRecipeId={recipeNode.data.recipeId ?? null}
+        recipes={getRecipesForMachine(
+          recipeNode.type === "energy" ? "fabricator" : recipeNode.data.machineType,
+        )}
+        interactive
+        standalone
+        openOnMount
+        onRecipeChange={selectRecipe}
+        onCancel={() => machineryUiStore.closeRecipePicker()}
+      />
+    {/if}
+  {/if}
   {#if machineryUiStore.pendingConnection}
     <MachineNodeRecipe
       id="pending-recipe"
