@@ -1,3 +1,4 @@
+import type { MachineType } from "$lib/data/types";
 import type { NetworkCalculationResult } from "../calculator";
 
 export type Position = { x: number; y: number };
@@ -10,7 +11,7 @@ export type ConnectionInput = {
 };
 
 export type MachineNodeData = {
-  machineType: string;
+  machineType: MachineType;
   name: string;
   recipeId: string | null;
   showImage?: boolean;

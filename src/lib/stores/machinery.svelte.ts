@@ -1,3 +1,4 @@
+import type { MachineType } from "$lib/data/types";
 import {
   calculateMachinery,
   canConnect,
@@ -61,7 +62,7 @@ export class MachineryStore {
     return this.workflowStore.newWorkflow();
   }
 
-  public addMachine(type: string, position?: Position): string {
+  public addMachine(type: MachineType, position?: Position): string {
     const node = createMachineNode(type, position, this.nodes.length);
     this.nodes = [...this.nodes, node];
     this.markChanged();

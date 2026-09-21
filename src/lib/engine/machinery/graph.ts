@@ -1,4 +1,5 @@
-import { getMachine } from "$lib/data/machines";
+import { getMachine, isMachineType } from "$lib/data/machines";
+import type { MachineType } from "$lib/data/types";
 import { getRecipe, getRecipesForMachine } from "$lib/data/recipes";
 import type {
   ConnectionInput,
@@ -29,6 +30,7 @@ function isMachineNodeData(value: unknown): value is MachineNodeData {
   return (
     "machineType" in value &&
     typeof value.machineType === "string" &&
+    isMachineType(value.machineType) &&
     "name" in value &&
     typeof value.name === "string" &&
     "recipeId" in value &&
@@ -37,7 +39,7 @@ function isMachineNodeData(value: unknown): value is MachineNodeData {
 }
 
 export function createMachineNode(
-  machineType: string,
+  machineType: MachineType,
   position: Position = { x: 200, y: 200 },
   index = 0,
 ): MachineryNode {

@@ -1,8 +1,6 @@
-import type { Recipe } from "../engine/calculator";
+import type { MachineType, RecipeDefinition } from "./types";
 
-export type RecipeDefinition = Recipe;
-
-export const STARTER_RECIPES: RecipeDefinition[] = [
+export const REPOSITORY_RECIPES: RecipeDefinition[] = [
   {
     id: "smelt_iron_scrap",
     name: "Smelt Scrap to Iron",
@@ -87,16 +85,136 @@ export const STARTER_RECIPES: RecipeDefinition[] = [
     ],
     outputs: [{ itemId: "reinforced_frame", amount: 1 }],
   },
+  {
+    id: "reclaim_rubber",
+    name: "Reclaim Rubber",
+    machineType: "processor",
+    duration: 3,
+    powerCost: 3,
+    inputs: [{ itemId: "rubber", amount: 2 }],
+    outputs: [{ itemId: "rubber", amount: 3 }],
+  },
+  {
+    id: "sort_scrap_metal",
+    name: "Sort Scrap Metal",
+    machineType: "processor",
+    duration: 2,
+    powerCost: 2,
+    inputs: [{ itemId: "scrap_metal", amount: 3 }],
+    outputs: [
+      { itemId: "iron_ore", amount: 1 },
+      { itemId: "copper_ore", amount: 1 },
+    ],
+  },
+  {
+    id: "press_iron_plate_batch",
+    name: "Press Iron Plate Batch",
+    machineType: "processor",
+    duration: 8,
+    powerCost: 7,
+    inputs: [{ itemId: "iron_ingot", amount: 4 }],
+    outputs: [{ itemId: "iron_plate", amount: 2 }],
+  },
+  {
+    id: "extrude_copper_wire_batch",
+    name: "Extrude Copper Wire Batch",
+    machineType: "processor",
+    duration: 6,
+    powerCost: 5,
+    inputs: [{ itemId: "copper_ingot", amount: 2 }],
+    outputs: [{ itemId: "copper_wire", amount: 4 }],
+  },
+  {
+    id: "assemble_circuit_batch",
+    name: "Assemble Circuit Batch",
+    machineType: "processor",
+    duration: 10,
+    powerCost: 9,
+    inputs: [
+      { itemId: "copper_wire", amount: 4 },
+      { itemId: "rubber", amount: 2 },
+    ],
+    outputs: [{ itemId: "circuit_board", amount: 2 }],
+  },
+  {
+    id: "assemble_frame_batch",
+    name: "Assemble Frame Batch",
+    machineType: "processor",
+    duration: 14,
+    powerCost: 13,
+    inputs: [
+      { itemId: "iron_plate", amount: 6 },
+      { itemId: "circuit_board", amount: 4 },
+    ],
+    outputs: [{ itemId: "reinforced_frame", amount: 2 }],
+  },
+  {
+    id: "smelt_mixed_ore",
+    name: "Smelt Mixed Ore",
+    machineType: "furnace",
+    duration: 4,
+    powerCost: 5,
+    inputs: [
+      { itemId: "iron_ore", amount: 1 },
+      { itemId: "copper_ore", amount: 1 },
+    ],
+    outputs: [
+      { itemId: "iron_ingot", amount: 1 },
+      { itemId: "copper_ingot", amount: 1 },
+    ],
+  },
+  {
+    id: "smelt_iron_ingot_batch",
+    name: "Smelt Iron Ingot Batch",
+    machineType: "furnace",
+    duration: 6,
+    powerCost: 6,
+    inputs: [{ itemId: "iron_ore", amount: 3 }],
+    outputs: [{ itemId: "iron_ingot", amount: 3 }],
+  },
+  {
+    id: "smelt_copper_ingot_batch",
+    name: "Smelt Copper Ingot Batch",
+    machineType: "furnace",
+    duration: 6,
+    powerCost: 6,
+    inputs: [{ itemId: "copper_ore", amount: 3 }],
+    outputs: [{ itemId: "copper_ingot", amount: 3 }],
+  },
+  {
+    id: "craft_heavy_frame",
+    name: "Craft Heavy Frame",
+    machineType: "processor",
+    duration: 12,
+    powerCost: 12,
+    inputs: [
+      { itemId: "iron_plate", amount: 4 },
+      { itemId: "reinforced_frame", amount: 1 },
+    ],
+    outputs: [{ itemId: "reinforced_frame", amount: 2 }],
+  },
+  {
+    id: "assemble_industrial_frame",
+    name: "Assemble Industrial Frame",
+    machineType: "processor",
+    duration: 16,
+    powerCost: 15,
+    inputs: [
+      { itemId: "iron_plate", amount: 2 },
+      { itemId: "circuit_board", amount: 1 },
+      { itemId: "rubber", amount: 1 },
+    ],
+    outputs: [{ itemId: "reinforced_frame", amount: 1 }],
+  },
 ];
 
 const RECIPES_BY_ID: Record<string, RecipeDefinition> = Object.fromEntries(
-  STARTER_RECIPES.map((r) => [r.id, r]),
+  REPOSITORY_RECIPES.map((r) => [r.id, r]),
 );
 
 export function getRecipe(id: string): RecipeDefinition | undefined {
   return RECIPES_BY_ID[id];
 }
-
-export function getRecipesForMachine(machineType: string): RecipeDefinition[] {
-  return STARTER_RECIPES.filter((r) => r.machineType === machineType);
+export function getRecipesForMachine(machineType: MachineType): RecipeDefinition[] {
+  return REPOSITORY_RECIPES.filter((r) => r.machineType === machineType);
 }

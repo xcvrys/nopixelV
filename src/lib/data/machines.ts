@@ -1,27 +1,18 @@
+import { addDevelopmentImages } from "./development-images";
+import type { MachineCategory, MachineDefinition, MachineType } from "./types";
+
 export const MACHINE_CATEGORIES = {
   production: "Production",
   logistics: "Logistics",
 } as const satisfies Record<string, string>;
 
-export type MachineCategory = keyof typeof MACHINE_CATEGORIES;
 export const MACHINE_CATEGORY_ORDER: MachineCategory[] = ["production", "logistics"];
-
-export interface MachineDefinition {
-  id: string;
-  type: string;
-  name: string;
-  category: MachineCategory;
-  imageUrl: string | null;
-  price: number;
-  defaultDuration: number;
-  defaultPowerCost: number;
-}
 
 const localMachineImage = (filename: string): string => `/images/machines/${filename}.webp`;
 
 const placeholderMachineImage = (): null => null;
 
-export const STARTER_MACHINES: MachineDefinition[] = [
+const REPOSITORY_MACHINES_BASE: MachineDefinition[] = [
   {
     id: "furnace",
     type: "furnace",
@@ -173,9 +164,13 @@ export const STARTER_MACHINES: MachineDefinition[] = [
     defaultPowerCost: 3,
   },
 ];
+export const REPOSITORY_MACHINES = addDevelopmentImages(REPOSITORY_MACHINES_BASE);
+export function isMachineType(value: string): value is MachineType {
+  return REPOSITORY_MACHINES.some((machine) => machine.type === value);
+}
 
 const MACHINES_BY_TYPE: Record<string, MachineDefinition> = Object.fromEntries(
-  STARTER_MACHINES.map((machine) => [machine.type, machine]),
+  REPOSITORY_MACHINES.map((machine) => [machine.type, machine]),
 );
 
 export function getMachine(type: string): MachineDefinition | undefined {

@@ -4,20 +4,7 @@
  * bottleneck diagnostics, and total power draw.
  */
 
-export interface RecipeItem {
-  itemId: string;
-  amount: number;
-}
-
-export interface Recipe {
-  id: string;
-  name: string;
-  machineType: string;
-  duration: number; // in seconds
-  powerCost: number; // in kW per cycle
-  inputs: RecipeItem[];
-  outputs: RecipeItem[];
-}
+import type { Recipe } from "$lib/data/types";
 
 export interface MachineryNode {
   id: string;

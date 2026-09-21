@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { REPOSITORY_ITEMS, getItem } from "../../src/lib/data/items";
-import { STARTER_RECIPES, getRecipesForMachine } from "../../src/lib/data/recipes";
+import { REPOSITORY_RECIPES, getRecipesForMachine } from "../../src/lib/data/recipes";
 import { getMachine } from "../../src/lib/data/machines";
 
-describe("Starter Data Catalog", () => {
+describe("Repository Data Catalog", () => {
   it("defines items with valid IDs and names", () => {
     expect(REPOSITORY_ITEMS.length).toBeGreaterThanOrEqual(6);
     for (const item of REPOSITORY_ITEMS) {
@@ -22,7 +22,7 @@ describe("Starter Data Catalog", () => {
   it("ensures all recipe inputs and outputs reference valid items", () => {
     const itemIds = new Set(REPOSITORY_ITEMS.map((i) => i.id));
 
-    for (const recipe of STARTER_RECIPES) {
+    for (const recipe of REPOSITORY_RECIPES) {
       expect(recipe.duration).toBeGreaterThan(0);
       expect(recipe.inputs.length).toBeGreaterThanOrEqual(1);
       expect(recipe.outputs.length).toBeGreaterThanOrEqual(1);

@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   calculateMachineRates,
   evaluateProductionNetwork,
-  type Recipe,
   type MachineryNode,
   type MachineryEdge,
 } from "../../src/lib/engine/calculator";
+import type { Recipe } from "../../src/lib/data/types";
 
 describe("Calculator Engine", () => {
   const mockSmeltIron: Recipe = {

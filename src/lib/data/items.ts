@@ -1,10 +1,7 @@
-export interface ItemDefinition {
-  id: string;
-  name: string;
-  imageUrl?: string;
-}
+import { addDevelopmentImages, itemImageFallback } from "./development-images";
+import type { ItemDefinition } from "./types";
 
-export const REPOSITORY_ITEMS: ItemDefinition[] = [
+const REPOSITORY_ITEMS_BASE: ItemDefinition[] = [
   {
     id: "scrap_metal",
     name: "Scrap Metal",
@@ -46,6 +43,7 @@ export const REPOSITORY_ITEMS: ItemDefinition[] = [
     name: "Reinforced Frame",
   },
 ];
+export const REPOSITORY_ITEMS = addDevelopmentImages(REPOSITORY_ITEMS_BASE, itemImageFallback);
 
 const ITEMS_BY_ID: Record<string, ItemDefinition> = Object.fromEntries(
   REPOSITORY_ITEMS.map((item) => [item.id, item]),
