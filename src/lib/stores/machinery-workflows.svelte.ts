@@ -14,10 +14,12 @@ export type WorkflowGraph = {
   nodes: MachineryNode[];
   edges: MachineryEdge[];
   imagesVisible: boolean;
+  powerRequired: boolean;
 };
 
 type WorkflowDraft = Pick<MachineryWorkflowRecord, "id" | "name" | "nodes" | "edges"> & {
   imagesVisible: boolean;
+  powerRequired: boolean;
 };
 type WorkflowCallbacks = {
   getGraph: () => WorkflowGraph;
@@ -84,6 +86,7 @@ export class MachineryWorkflowStore {
       nodes: [],
       edges: [],
       imagesVisible: true,
+      powerRequired: true,
     });
     this.markChanged();
   }
@@ -128,6 +131,7 @@ export class MachineryWorkflowStore {
           nodes: [],
           edges: [],
           imagesVisible: true,
+          powerRequired: true,
         });
         this.markChanged();
         await this.flushPersistence();
@@ -145,6 +149,7 @@ export class MachineryWorkflowStore {
       nodes: [],
       edges: [],
       imagesVisible: true,
+      powerRequired: true,
     });
     this.initializationPromise = null;
     this.persistenceQueue = Promise.resolve();
@@ -169,6 +174,7 @@ export class MachineryWorkflowStore {
     this.applyGraph({
       id: workflow.id,
       imagesVisible: workflow.imagesVisible !== false,
+      powerRequired: workflow.powerRequired !== false,
       name: workflow.name.trim().slice(0, 40) || UNTITLED_WORKFLOW,
       nodes: structuredClone(workflow.nodes),
       edges: structuredClone(workflow.edges),
@@ -183,6 +189,7 @@ export class MachineryWorkflowStore {
       name: graph.name,
       createdAt: Date.now(),
       imagesVisible: graph.imagesVisible,
+      powerRequired: graph.powerRequired,
       updatedAt: Date.now(),
       nodes: graph.nodes,
       edges: graph.edges,
@@ -212,6 +219,7 @@ export class MachineryWorkflowStore {
     return {
       id: this.activeWorkflowId ?? "",
       imagesVisible: graph.imagesVisible,
+      powerRequired: graph.powerRequired,
       name: this.activeWorkflowName,
       nodes: structuredClone(graph.nodes),
       edges: structuredClone(graph.edges),

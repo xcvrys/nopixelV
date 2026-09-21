@@ -9,6 +9,7 @@ export interface MachineryWorkflowRecord {
   id: string;
   name: string;
   imagesVisible?: boolean;
+  powerRequired?: boolean;
   createdAt: number;
   updatedAt: number;
   nodes: MachineryNode[];

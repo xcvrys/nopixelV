@@ -2,6 +2,7 @@
   import { Handle, Position } from "@xyflow/svelte";
   import { isHandleOccupied } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
+  import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import { cn } from "$lib/utils/cn";
 
   let {
@@ -27,6 +28,7 @@
     );
     return edge ? "connection-connected" : "connection-available";
   });
+  let isPowerDimmed = $derived(!machineryUiStore.powerRequired);
 </script>
 
 <div
@@ -44,12 +46,16 @@
       isConnectableStart={connectable && !isHandleOccupied(edges, id, "target", "energy")}
       isConnectableEnd={connectable && !isHandleOccupied(edges, id, "target", "energy")}
       class={cn(
-        "!box-border !-left-3 !top-auto !bottom-1.5 !h-2 !w-2 !rounded-none !border-0 !bg-white",
+        "!box-border !-left-3 !top-auto !bottom-1.5 !h-2 !w-2 !rounded-none !border-0 !bg-white transition-opacity duration-200",
         handleState,
+        isPowerDimmed && "!opacity-30",
       )}
     />
     <span
-      class="pointer-events-none absolute bottom-2 left-4 text-[10px] font-semibold uppercase tracking-wider text-white"
+      class={cn(
+        "pointer-events-none absolute bottom-2 left-4 text-[10px] font-semibold uppercase tracking-wider text-white transition-opacity duration-200",
+        isPowerDimmed && "opacity-30",
+      )}
     >
       Power
     </span>

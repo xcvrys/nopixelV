@@ -124,9 +124,18 @@ body {
 .svelte-flow__edge-path {
   stroke: var(--color-white) !important;
 }
-.svelte-flow__edge.animated.power-edge path {
+.svelte-flow__edge.animated.power-edge path.svelte-flow__edge-path {
   stroke-dasharray: 16 12;
   animation: power-dashdraw 1.2s linear infinite;
+}
+.svelte-flow__edge.animated.power-edge path.svelte-flow__edge-interaction {
+  stroke-dasharray: none !important;
+  animation: none !important;
+  pointer-events: stroke !important;
+}
+.power-dimmed .svelte-flow__edge.power-edge {
+  opacity: 0.3 !important;
+  transition: opacity 200ms ease;
 }
 @keyframes power-dashdraw {
   from {

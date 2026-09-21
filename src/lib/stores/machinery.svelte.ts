@@ -32,6 +32,9 @@ export class MachineryStore {
   public get imagesVisible(): boolean {
     return machineryUiStore.imagesVisible;
   }
+  public get powerRequired(): boolean {
+    return machineryUiStore.powerRequired;
+  }
 
   private mutationRevision = 0;
   private workflowStore = new MachineryWorkflowStore({
@@ -39,10 +42,12 @@ export class MachineryStore {
       nodes: this.nodes,
       edges: this.edges,
       imagesVisible: machineryUiStore.imagesVisible,
+      powerRequired: machineryUiStore.powerRequired,
     }),
     getRevision: () => this.mutationRevision,
     applyWorkflow: (workflow) => {
       machineryUiStore.setImagesVisible(workflow.imagesVisible !== false);
+      machineryUiStore.setPowerRequired(workflow.powerRequired !== false);
       this.nodes = workflow.nodes;
       this.edges = workflow.edges;
     },
@@ -135,6 +140,11 @@ export class MachineryStore {
 
   public toggleImages(): void {
     machineryUiStore.toggleImages();
+    this.markChanged();
+  }
+
+  public togglePowerRequired(): void {
+    machineryUiStore.togglePowerRequired();
     this.markChanged();
   }
   public commitNodePositions(): void {
