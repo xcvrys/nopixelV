@@ -1,12 +1,12 @@
 <script lang="ts">
   import { ControlButton, Controls } from "@xyflow/svelte";
-  import { Eye, EyeOff } from "lucide-svelte";
+  import { Image, ImageOff } from "lucide-svelte";
   import { machineryStore } from "$lib/stores/machinery.svelte";
 
   let allImagesVisible = $derived(
-    machineryStore.nodes.some((node) => node.type === "machine") &&
+    machineryStore.nodes.some((node) => node.type === "machine" || node.type === "energy") &&
       machineryStore.nodes
-        .filter((node) => node.type === "machine")
+        .filter((node) => node.type === "machine" || node.type === "energy")
         .every((node) => node.data.showImage !== false),
   );
 
@@ -23,9 +23,9 @@
       aria-label={allImagesVisible ? "Hide all images" : "Show all images"}
     >
       {#if allImagesVisible}
-        <EyeOff />
+        <Image />
       {:else}
-        <Eye />
+        <ImageOff />
       {/if}
     </ControlButton>
   {/snippet}

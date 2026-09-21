@@ -5,13 +5,15 @@
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import { Eye, EyeOff, Pencil, Trash2 } from "lucide-svelte";
-  import type { MachineNodeData } from "$lib/engine/machinery";
-
   let {
     id,
     data,
     interactive = true,
-  }: { id: string; data: MachineNodeData; interactive?: boolean } = $props();
+  }: {
+    id: string;
+    data: { name: string; showImage?: boolean };
+    interactive?: boolean;
+  } = $props();
   let isEditingName = $state(false);
   let draftName = $state("");
   let nameInput = $state<HTMLInputElement | undefined>();
