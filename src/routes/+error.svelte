@@ -24,8 +24,8 @@
 
 <style>
   .return-link:hover {
-    background: #fff;
-    border-color: #fff;
-    color: #000;
+    background: var(--color-white);
+    border-color: var(--color-white);
+    color: var(--color-background);
   }
 </style>

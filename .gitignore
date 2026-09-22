@@ -26,3 +26,8 @@ docs/
 
 # Local agent instructions; never commit.
 /AGENTS.md
+
+# Local machine image sources and processing files
+/assets/machines/source/
+!/assets/machines/source/.gitkeep
+/.tmp/

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   import { SafeDialLogic } from "$lib/engine/safedial";
   import { audioStore } from "$lib/stores/audio.svelte";
   import {
@@ -299,7 +300,7 @@
               {y}
               text-anchor="middle"
               dominant-baseline="central"
-              fill="#94a3b8"
+              fill="var(--color-muted)"
               font-size="4.5"
               font-weight="bold"
               font-family="'Barlow Condensed', sans-serif"
@@ -324,7 +325,7 @@
               {y1}
               {x2}
               {y2}
-              stroke={isMajor ? "#cbd5e1" : "#475569"}
+              stroke={isMajor ? "var(--color-foreground)" : "var(--color-muted-dark)"}
               stroke-width={isMajor ? "1" : "0.5"}
             />
           {/each}
@@ -357,15 +358,9 @@
         <span class="font-mono font-bold text-2xl text-white">{currentNumber}</span>
       </div>
 
-      <button
-        onclick={tryUnlock}
-        class="px-5 py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wider transition-all duration-75 flex items-center gap-2 active:scale-[0.98] {status ===
-        'won'
-          ? 'bg-neutral-200 text-black hover:bg-white'
-          : 'bg-white text-black hover:bg-neutral-200'}"
-      >
+      <Button variant="primary" onclick={tryUnlock} class="rounded-lg px-5 py-2.5 tracking-wider">
         <span>{status === "won" ? "Next Safe" : "Set Number (Space)"}</span>
-      </button>
+      </Button>
     </div>
 
     <!-- Victory Banner -->
@@ -379,15 +374,13 @@
         </div>
         <p class="text-neutral-400 text-xs">
           Combination <span class="text-white font-mono font-bold">{code.join(" - ")}</span>
-          unlocked in <span class="text-white font-bold">{elapsedTime.toFixed(1)}s</span>.
+          unlocked in
+          <span class="text-white font-bold">{elapsedTime.toFixed(1)}s</span>.
         </p>
-        <button
-          onclick={handleReset}
-          class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-colors"
-        >
-          <RotateCcw class="w-3.5 h-3.5" />
+        <Button variant="primary" onclick={handleReset} class="mt-3 rounded-lg px-4 py-2">
+          <RotateCcw class="h-3.5 w-3.5" />
           <span>New Safe Combination (Space)</span>
-        </button>
+        </Button>
       </div>
     {/if}
   </div>
@@ -401,47 +394,48 @@
         <SlidersHorizontal class="w-3.5 h-3.5 text-neutral-400" />
         <span>Training Assists & Audio Settings</span>
       </div>
-      <button
+      <Button
+        variant="quiet"
         onclick={handleReset}
-        class="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-white transition-colors"
+        class="gap-1.5 text-xs not-italic text-neutral-500"
       >
-        <RotateCcw class="w-3.5 h-3.5" />
+        <RotateCcw class="h-3.5 w-3.5" />
         <span>New Codes</span>
-      </button>
+      </Button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
       <!-- Toggle visual wave indicator -->
-      <button
+      <Button
+        variant={showVisualCue ? "primary" : "quiet"}
         onclick={() => (showVisualCue = !showVisualCue)}
-        class="flex items-center justify-between p-3 rounded-lg border transition-colors {showVisualCue
-          ? 'bg-white text-black border-white font-medium'
-          : 'bg-black border-neutral-800 text-neutral-400 hover:text-white'}"
+        ariaPressed={showVisualCue}
+        class="w-full justify-between rounded-lg border border-neutral-800 p-3 text-xs not-italic"
       >
-        <div class="flex items-center gap-2">
-          <Radio class="w-4 h-4" />
+        <span class="flex items-center gap-2">
+          <Radio class="h-4 w-4" />
           <span>Visual Sound Wave</span>
-        </div>
+        </span>
         <span class="font-bold">{showVisualCue ? "ON" : "OFF"}</span>
-      </button>
+      </Button>
 
       <!-- Reveal Codes toggle (Training cheat) -->
-      <button
+      <Button
+        variant={revealCodes ? "primary" : "quiet"}
         onclick={() => (revealCodes = !revealCodes)}
-        class="flex items-center justify-between p-3 rounded-lg border transition-colors {revealCodes
-          ? 'bg-white text-black border-white font-medium'
-          : 'bg-black border-neutral-800 text-neutral-400 hover:text-white'}"
+        ariaPressed={revealCodes}
+        class="w-full justify-between rounded-lg border border-neutral-800 p-3 text-xs not-italic"
       >
-        <div class="flex items-center gap-2">
+        <span class="flex items-center gap-2">
           {#if revealCodes}
-            <Eye class="w-4 h-4" />
+            <Eye class="h-4 w-4" />
           {:else}
-            <EyeOff class="w-4 h-4" />
+            <EyeOff class="h-4 w-4" />
           {/if}
           <span>Reveal Code</span>
-        </div>
+        </span>
         <span class="font-bold">{revealCodes ? "ON" : "OFF"}</span>
-      </button>
+      </Button>
     </div>
   </div>
 </div>

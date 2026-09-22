@@ -1,5 +1,6 @@
 <script lang="ts">
   import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
+  import { navigationSections } from "$lib/config/navigation";
   import Footer from "./Footer.svelte";
 </script>
 
@@ -17,7 +18,7 @@
     >
       <span>NOPIXEL</span>
       <span
-        class="text-[#2dd4bf] text-[1.35em] font-black italic leading-none inline-block -translate-y-[3.5px]"
+        class="text-accent text-[1.35em] font-black italic leading-none inline-block -translate-y-[3.5px]"
         >V</span
       >
     </h1>
@@ -25,27 +26,27 @@
       Minigames & more....
     </p>
 
-    <!-- Section 1: MINIGAMES -->
-    <div class="mb-10 md:mb-12">
-      <h2 class="text-xl md:text-2xl font-bold italic text-white uppercase mb-4">MINIGAMES</h2>
-      <div class="flex flex-col items-center gap-1.5">
-        <a
-          href="/minigames/lockpick"
-          class="inline-flex items-center justify-center px-5 h-8 leading-none pb-0.5 rounded-none font-semibold italic text-sm md:text-base uppercase bg-black text-white hover:bg-white hover:text-black border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          LOCKPICK
-        </a>
-        <ComingSoon label="STORE SAFE" class="h-8 px-5 text-sm md:text-base" />
+    {#each navigationSections as section (section.label)}
+      <div class="mb-10 last:mb-0 md:mb-12">
+        <h2 class="text-xl md:text-2xl font-bold italic text-white uppercase mb-4">
+          {section.label}
+        </h2>
+        <div class="flex flex-col items-center gap-1.5">
+          {#each section.items as item (item.href)}
+            {#if item.available}
+              <a
+                href={item.href}
+                class="inline-flex items-center justify-center px-5 h-8 leading-none pb-0.5 rounded-none font-semibold italic text-sm md:text-base uppercase bg-black text-white hover:bg-white hover:text-black border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                {item.label}
+              </a>
+            {:else}
+              <ComingSoon label={item.label} class="h-8 px-5 text-sm md:text-base" />
+            {/if}
+          {/each}
+        </div>
       </div>
-    </div>
-
-    <!-- Section 2: RESOURCES -->
-    <div>
-      <h2 class="text-xl md:text-2xl font-bold italic text-white uppercase mb-4">RESOURCES</h2>
-      <div class="flex flex-col items-center gap-1.5">
-        <ComingSoon label="MACHINERY" class="h-8 px-5 text-sm md:text-base" />
-      </div>
-    </div>
+    {/each}
   </div>
 
   <!-- Bottom Footer -->

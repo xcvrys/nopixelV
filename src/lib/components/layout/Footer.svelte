@@ -1,5 +1,5 @@
 <footer
-  class="w-full grid grid-cols-[1fr_auto_auto_1fr] md:grid-cols-3 items-center gap-x-2 gap-y-3 md:gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
+  class="w-full grid grid-cols-[1fr_auto_auto_1fr] md:grid-cols-[1fr_2fr_1fr] items-center gap-x-2 gap-y-3 md:gap-3 text-xs md:text-sm text-neutral-500 font-semibold italic"
 >
   <a
     href="https://github.com/xcvrys"
@@ -35,7 +35,7 @@
       </a>
     </div>
     <div
-      class="text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center max-w-xl"
+      class="w-full text-[10px] md:text-[11px] font-mono not-italic text-neutral-600 text-center"
     >
       Not affiliated with, endorsed, or sponsored by Rockstar Games, Take-Two Interactive, or
       NoPixel. All trademarks belong to their respective owners.

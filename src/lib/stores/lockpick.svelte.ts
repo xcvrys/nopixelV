@@ -70,6 +70,15 @@ export class LockpickStore {
   }
 
   public tap(): void {
+    if (
+      this.snapshot.status === "failed" ||
+      this.snapshot.status === "lost" ||
+      this.snapshot.status === "stage_complete" ||
+      this.snapshot.status === "won"
+    ) {
+      return;
+    }
+
     audioStore.playLockpickClick();
     this.flashKeycap();
 

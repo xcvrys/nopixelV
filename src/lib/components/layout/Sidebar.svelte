@@ -6,32 +6,13 @@
   import ComingSoon from "$lib/components/ui/ComingSoon.svelte";
   import { audioStore } from "$lib/stores/audio.svelte";
   import { cn } from "$lib/utils/cn";
-
-  type NavigationItem = {
-    label: string;
-    href: string;
-    available: boolean;
-  };
-
-  const navigationSections: { label: string; items: NavigationItem[] }[] = [
-    {
-      label: "MINIGAMES",
-      items: [
-        { label: "LOCKPICK", href: "/minigames/lockpick", available: true },
-        {
-          label: "STORE SAFE",
-          href: "/minigames/store-safe",
-          available: false,
-        },
-      ],
-    },
-    {
-      label: "RESOURCES",
-      items: [{ label: "MACHINERY", href: "/calculator", available: false }],
-    },
-  ];
+  import { navigationSections } from "$lib/config/navigation";
 
   let { currentPath = "/" }: { currentPath: string } = $props();
+  const showVolumeControl = $derived(
+    navigationSections.find((section) => section.items.some((item) => item.href === currentPath))
+      ?.showVolumeControl ?? true,
+  );
 
   let isHovered = $state(false);
   let hasMouse = $state(false);
@@ -102,13 +83,13 @@
         class="fixed inset-x-0 bottom-0 z-50 flex min-h-[50dvh] max-h-[85dvh] flex-col border-t border-neutral-800 bg-black p-6 shadow-2xl outline-none transition-transform duration-300 ease-out"
       >
         <nav class="flex flex-col gap-10 pt-6">
-          {#each navigationSections as section}
+          {#each navigationSections as section (section.label)}
             <div>
               <h2 class="mb-4 text-2xl font-black italic uppercase tracking-wide text-white">
                 {section.label}
               </h2>
               <div class="flex flex-col items-start gap-1.5">
-                {#each section.items as item}
+                {#each section.items as item (item.href)}
                   {#if item.available}
                     <a
                       href={item.href}
@@ -147,7 +128,7 @@
       : "opacity-20 hover:opacity-100 focus-within:opacity-100",
   )}
 >
-  {#each navigationSections as section}
+  {#each navigationSections as section (section.label)}
     <div>
       <h2
         class="text-2xl md:text-3xl font-black italic text-white uppercase tracking-wide mb-3 md:mb-4"
@@ -155,7 +136,7 @@
         {section.label}
       </h2>
       <div class="flex flex-col items-start gap-1.5">
-        {#each section.items as item}
+        {#each section.items as item (item.href)}
           {#if item.available}
             <a
               href={item.href}
@@ -182,71 +163,74 @@
   {/each}
 </aside>
 <!-- Bottom Page Audio Control (Compact & separated from main menu) -->
-<div
-  class="fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9 {isHovered
-    ? 'opacity-100'
-    : 'opacity-30 hover:opacity-100'}"
->
-  <div class="flex items-center gap-2">
-    <span
-      class="text-[9px] md:text-[10px] font-mono font-bold tracking-wider text-neutral-500 uppercase"
-    >
-      VOL
-    </span>
-    <span
-      class="font-mono text-[10px] md:text-[11px] font-bold tabular-nums {audioStore.muted
-        ? 'text-neutral-600 line-through'
-        : 'text-neutral-300'}"
-    >
-      {audioStore.muted ? "MUTED" : `${Math.round(audioStore.volume * 100)}%`}
-    </span>
-  </div>
+{#if showVolumeControl}
+  <div
+    class={cn(
+      "fixed bottom-5 left-3 z-40 hidden select-none flex-col gap-1 transition-opacity duration-200 sm:bottom-8 sm:left-8 md:flex md:bottom-9",
+      isHovered ? "opacity-100" : "opacity-30 hover:opacity-100",
+    )}
+  >
+    <div class="flex items-center gap-2">
+      <span
+        class="text-[9px] md:text-[10px] font-mono font-bold tracking-wider text-neutral-500 uppercase"
+      >
+        VOL
+      </span>
+      <span
+        class={cn(
+          "font-mono text-[10px] md:text-[11px] font-bold tabular-nums",
+          audioStore.muted ? "text-neutral-600 line-through" : "text-neutral-300",
+        )}
+      >
+      </span>
+    </div>
 
-  <div class="flex items-center gap-2">
-    <Button
-      variant="icon"
-      type="button"
-      onclick={handleToggleMute}
-      title={audioStore.muted ? "Unmute audio" : "Mute audio"}
-      ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
-      class="h-5 w-5 px-0"
-    >
-      {#if audioStore.muted || audioStore.volume === 0}
-        <VolumeX class="w-3 h-3" />
-      {:else if audioStore.volume < 0.5}
-        <Volume1 class="w-3 h-3" />
-      {:else}
-        <Volume2 class="w-3 h-3" />
-      {/if}
-    </Button>
+    <div class="flex items-center gap-2">
+      <Button
+        variant="icon"
+        type="button"
+        onclick={handleToggleMute}
+        title={audioStore.muted ? "Unmute audio" : "Mute audio"}
+        ariaLabel={audioStore.muted ? "Unmute audio" : "Mute audio"}
+        class="h-5 w-5 px-0"
+      >
+        {#if audioStore.muted || audioStore.volume === 0}
+          <VolumeX class="w-3 h-3" />
+        {:else if audioStore.volume < 0.5}
+          <Volume1 class="w-3 h-3" />
+        {:else}
+          <Volume2 class="w-3 h-3" />
+        {/if}
+      </Button>
 
-    <input
-      type="range"
-      min="0"
-      max="1"
-      step="0.05"
-      value={audioStore.muted ? 0 : audioStore.volume}
-      oninput={handleVolumeInput}
-      onchange={handleVolumeChange}
-      aria-label="Master volume"
-      class="sharp-range w-24 md:w-28 h-1 outline-none cursor-pointer"
-    />
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
+        value={audioStore.muted ? 0 : audioStore.volume}
+        oninput={handleVolumeInput}
+        onchange={handleVolumeChange}
+        aria-label="Master volume"
+        class="sharp-range w-24 md:w-28 h-1 outline-none cursor-pointer"
+      />
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   .sharp-range {
     -webkit-appearance: none;
     appearance: none;
-    background: #141414;
-    border: 1px solid #262626;
+    background: var(--color-surface-input);
+    border: 1px solid var(--color-border-subtle);
   }
   .sharp-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 6px;
     height: 12px;
-    background: #ffffff;
+    background: var(--color-white);
     cursor: pointer;
     border-radius: 0;
   }
@@ -254,11 +238,12 @@
   .sharp-range::-moz-range-thumb {
     width: 6px;
     height: 12px;
-    background: #ffffff;
+    background: var(--color-white);
     cursor: pointer;
     border-radius: 0;
     border: none;
   }
+
   @keyframes mobile-drawer-enter {
     from {
       transform: translate3d(0, 100%, 0);
@@ -268,7 +253,9 @@
     }
   }
 
-  :global([data-vaul-drawer][data-vaul-drawer-visible="true"]) {
-    animation: mobile-drawer-enter 500ms cubic-bezier(0.32, 0.72, 0, 1);
+  @media (max-width: 767px) {
+    :global(#mobile-navigation[data-vaul-drawer][data-vaul-drawer-visible="true"]) {
+      animation: mobile-drawer-enter 500ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
   }
 </style>

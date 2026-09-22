@@ -1,0 +1,87 @@
+<script lang="ts">
+  import { Handle, Position } from "@xyflow/svelte";
+  import { getHandleUiClass, isHandleAvailable, isHandleOccupied } from "$lib/engine/machinery";
+  import { machineryStore } from "$lib/stores/machinery.svelte";
+  import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
+  import { cn } from "$lib/utils/cn";
+
+  let {
+    id,
+    name,
+    imageUrl,
+    connectable,
+    requiresPower,
+    showImage,
+  }: {
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    connectable: boolean;
+    requiresPower: boolean;
+    showImage: boolean;
+  } = $props();
+
+  let edges = $derived(machineryStore.edges);
+  let activeConnection = $derived(machineryUiStore.activeConnection);
+  let isEnergyConnected = $derived(isHandleOccupied(edges, id, "target", "energy"));
+  let handleState = $derived.by(() =>
+    getHandleUiClass(
+      "target",
+      "energy",
+      id,
+      activeConnection,
+      machineryUiStore.isHandleCompatible(id, "energy"),
+      isEnergyConnected,
+    ),
+  );
+  let isPowerDimmed = $derived(!machineryUiStore.powerRequired);
+</script>
+
+<div
+  class={cn(
+    "relative flex justify-center border-b border-neutral-900 p-1",
+    !showImage && "min-h-8",
+  )}
+>
+  {#if requiresPower}
+    <Handle
+      type="target"
+      position={Position.Left}
+      id="energy"
+      isConnectable={isHandleAvailable(edges, id, "target", "energy", connectable)}
+      isConnectableStart={isHandleAvailable(edges, id, "target", "energy", connectable)}
+      isConnectableEnd={isHandleAvailable(edges, id, "target", "energy", connectable)}
+      class={cn(
+        "!box-border !-left-3 !top-auto !bottom-1.5 !h-2 !w-2 !rounded-none !border-0 !bg-white transition-opacity duration-200",
+        handleState,
+        isPowerDimmed && "!opacity-30",
+      )}
+    />
+    <span
+      class={cn(
+        "pointer-events-none absolute bottom-2 left-4 text-[10px] font-semibold uppercase tracking-wider text-white transition-opacity duration-200",
+        isPowerDimmed && "opacity-30",
+      )}
+    >
+      Power
+    </span>
+  {/if}
+  {#if showImage}
+    <div
+      class="flex aspect-square w-[100px] max-w-full items-center justify-center overflow-hidden"
+    >
+      {#if imageUrl}
+        <img
+          src={imageUrl}
+          alt={`${name} image`}
+          width="100"
+          height="100"
+          class="h-full w-full object-contain"
+          decoding="async"
+        />
+      {:else}
+        <span aria-hidden="true" class="text-5xl font-semibold text-neutral-500">?</span>
+      {/if}
+    </div>
+  {/if}
+</div>
