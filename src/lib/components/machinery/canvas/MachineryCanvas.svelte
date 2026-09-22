@@ -24,11 +24,13 @@
     NODE_INTERNALS_COORDINATOR_CONTEXT,
   } from "./NodeInternalsCoordinator.svelte";
   import { cn } from "$lib/utils/cn";
+  import { ChevronDown, ChevronUp } from "lucide-svelte";
   import { machineryNodeTypes } from "../nodes/registry";
 
   const { screenToFlowPosition } = useSvelteFlow();
   const nodeInternalsCoordinator = new NodeInternalsCoordinator(useUpdateNodeInternals());
   const MACHINE_DRAG_TYPE = "application/x-machinery-type";
+  let previewExpanded = $state(false);
 
   setContext(NODE_INTERNALS_COORDINATOR_CONTEXT, nodeInternalsCoordinator);
 
@@ -183,8 +185,37 @@
   >
     <MachineryControls />
     <MachineryBackground />
-    <MiniMap nodeColor="var(--color-white)" maskColor="rgba(0, 0, 0, 0.8)" class=" !rounded-none" />
+    <MiniMap nodeColor="var(--color-white)" maskColor="rgba(0, 0, 0, 0.8)" class="!rounded-none" />
   </SvelteFlow>
+  <div
+    class={cn(
+      "absolute bottom-4 right-58 z-20 bg-[#ff8a00] text-black max-w-64",
+      previewExpanded ? "w-80" : "w-72",
+    )}
+  >
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-3 py-2 text-left cursor-pointer"
+      aria-expanded={previewExpanded}
+      aria-controls="machinery-preview-details"
+      onclick={() => (previewExpanded = !previewExpanded)}
+    >
+      <span class="text-2xl font-bold italic uppercase leading-none tracking-tight">Preview</span>
+      {#if previewExpanded}
+        <ChevronUp class="h-5 w-5" strokeWidth={3} />
+      {:else}
+        <ChevronDown class="h-5 w-5" strokeWidth={3} />
+      {/if}
+    </button>
+    {#if previewExpanded}
+      <div id="machinery-preview-details" class="px-3 pb-3 pt-2">
+        <p class="text-sm font-medium">
+          This feature is currently in development and will be expanded over time. Bugs and behavior
+          are expected while the preview evolves.
+        </p>
+      </div>
+    {/if}
+  </div>
   {#if machineryUiStore.recipePickerNodeId}
     {@const recipeNode = machineryStore.nodes.find(
       (node) => node.id === machineryUiStore.recipePickerNodeId,
