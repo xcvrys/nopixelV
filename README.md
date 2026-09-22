@@ -113,16 +113,6 @@ bun run build
 bun run preview
 ```
 
-## Deployment
-
-Configured for automatic deployment on **Cloudflare Workers**:
-
-- **Build command**: `bun run build`
-- **Build output directory**: `build`
-- **Deploy command**: `npx wrangler deploy`
-- Static assets are served from `build`; unmatched paths use the branded `404.html`.
-- Sitemap: `https://nopixelv.xcvrys.workers.dev/sitemap.xml`.
-
 ## Feedback
 
 - [Report a bug](https://github.com/xcvrys/nopixelV/issues/new?template=bug_report.md)
