@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Handle, Position } from "@xyflow/svelte";
-  import { isHandleOccupied } from "$lib/engine/machinery";
+  import { getHandleUiClass, isHandleAvailable, isHandleOccupied } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import { cn } from "$lib/utils/cn";
@@ -23,22 +23,17 @@
 
   let edges = $derived(machineryStore.edges);
   let activeConnection = $derived(machineryUiStore.activeConnection);
-  let handleState = $derived.by(() => {
-    const edge = edges.find(
-      (candidate) => candidate.target === id && candidate.targetHandle === "energy",
-    );
-    return cn(
-      edge ? "connection-connected" : "connection-available",
-      activeConnection && "connection-in-progress",
-      activeConnection?.nodeId === id &&
-        activeConnection.handleId === "energy" &&
-        activeConnection.handleType === "target" &&
-        "connection-start",
-      activeConnection &&
-        machineryUiStore.isHandleCompatible(id, "energy") &&
-        "connection-compatible",
-    );
-  });
+  let isEnergyConnected = $derived(isHandleOccupied(edges, id, "target", "energy"));
+  let handleState = $derived.by(() =>
+    getHandleUiClass(
+      "target",
+      "energy",
+      id,
+      activeConnection,
+      machineryUiStore.isHandleCompatible(id, "energy"),
+      isEnergyConnected,
+    ),
+  );
   let isPowerDimmed = $derived(!machineryUiStore.powerRequired);
 </script>
 
@@ -53,9 +48,9 @@
       type="target"
       position={Position.Left}
       id="energy"
-      isConnectable={connectable && !isHandleOccupied(edges, id, "target", "energy")}
-      isConnectableStart={connectable && !isHandleOccupied(edges, id, "target", "energy")}
-      isConnectableEnd={connectable && !isHandleOccupied(edges, id, "target", "energy")}
+      isConnectable={isHandleAvailable(edges, id, "target", "energy", connectable)}
+      isConnectableStart={isHandleAvailable(edges, id, "target", "energy", connectable)}
+      isConnectableEnd={isHandleAvailable(edges, id, "target", "energy", connectable)}
       class={cn(
         "!box-border !-left-3 !top-auto !bottom-1.5 !h-2 !w-2 !rounded-none !border-0 !bg-white transition-opacity duration-200",
         handleState,

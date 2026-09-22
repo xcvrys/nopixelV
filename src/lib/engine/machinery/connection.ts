@@ -66,6 +66,44 @@ export function isHandleOccupied(
   );
 }
 
+export function isHandleAvailable(
+  edges: MachineryEdge[],
+  nodeId: string,
+  handleType: HandleType,
+  handleId: string,
+  connectable = true,
+): boolean {
+  return connectable && !isHandleOccupied(edges, nodeId, handleType, handleId);
+}
+
+export function getHandleUiClass(
+  handleType: HandleType,
+  handleId: string,
+  nodeId: string,
+  activeConnection: ActiveConnection | null,
+  isCompatible: boolean,
+  isConnected?: boolean,
+): string {
+  const classes: string[] = [];
+  if (isConnected !== undefined) {
+    classes.push(isConnected ? "connection-connected" : "connection-available");
+  }
+  if (activeConnection) {
+    classes.push("connection-in-progress");
+    if (
+      activeConnection.nodeId === nodeId &&
+      activeConnection.handleId === handleId &&
+      activeConnection.handleType === handleType
+    ) {
+      classes.push("connection-start");
+    }
+    if (isCompatible) {
+      classes.push("connection-compatible");
+    }
+  }
+  return classes.join(" ");
+}
+
 export function getConnectionFromHandle(
   active: ActiveConnection,
   candidate: HandleRef,

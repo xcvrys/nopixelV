@@ -2,7 +2,7 @@
   import { Handle, Position } from "@xyflow/svelte";
   import { getItem } from "$lib/data/items";
   import type { RecipeDefinition } from "$lib/data/types";
-  import { isHandleOccupied, type HandleType } from "$lib/engine/machinery";
+  import { getHandleUiClass, isHandleAvailable, type HandleType } from "$lib/engine/machinery";
   import type { MachineStats } from "$lib/engine/calculator";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
@@ -24,20 +24,17 @@
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
   function getHandleState(type: HandleType, handleId: string): string {
-    return cn(
-      activeConnection && "connection-in-progress",
-      activeConnection?.nodeId === id &&
-        activeConnection.handleId === handleId &&
-        activeConnection.handleType === type &&
-        "connection-start",
-      activeConnection &&
-        machineryUiStore.isHandleCompatible(id, handleId) &&
-        "connection-compatible",
+    return getHandleUiClass(
+      type,
+      handleId,
+      id,
+      activeConnection,
+      machineryUiStore.isHandleCompatible(id, handleId),
     );
   }
 
-  function isHandleAvailable(type: HandleType, handleId: string): boolean {
-    return connectable && !isHandleOccupied(edges, id, type, handleId);
+  function isAvailable(type: HandleType, handleId: string): boolean {
+    return isHandleAvailable(edges, id, type, handleId, connectable);
   }
 </script>
 
@@ -53,9 +50,9 @@
             type="target"
             position={Position.Left}
             id={input.itemId}
-            isConnectable={isHandleAvailable("target", input.itemId)}
-            isConnectableStart={isHandleAvailable("target", input.itemId)}
-            isConnectableEnd={isHandleAvailable("target", input.itemId)}
+            isConnectable={isAvailable("target", input.itemId)}
+            isConnectableStart={isAvailable("target", input.itemId)}
+            isConnectableEnd={isAvailable("target", input.itemId)}
             class={cn(
               "!-left-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("target", input.itemId),
@@ -95,9 +92,9 @@
             type="source"
             position={Position.Right}
             id={output.itemId}
-            isConnectable={isHandleAvailable("source", output.itemId)}
-            isConnectableStart={isHandleAvailable("source", output.itemId)}
-            isConnectableEnd={isHandleAvailable("source", output.itemId)}
+            isConnectable={isAvailable("source", output.itemId)}
+            isConnectableStart={isAvailable("source", output.itemId)}
+            isConnectableEnd={isAvailable("source", output.itemId)}
             class={cn(
               "!-right-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
               getHandleState("source", output.itemId),

@@ -5,50 +5,58 @@
   import { getMachine } from "$lib/data/machines";
   import { getRecipe } from "$lib/data/recipes";
   import { ChevronDown } from "lucide-svelte";
-  import { isHandleOccupied, type EnergyNodeData, type HandleType } from "$lib/engine/machinery";
+  import {
+    getHandleUiClass,
+    isHandleAvailable,
+    type EnergyNodeData,
+    type HandleType,
+  } from "$lib/engine/machinery";
   import { machineryStore } from "$lib/stores/machinery.svelte";
   import { machineryUiStore } from "$lib/stores/machinery-ui.svelte";
   import MachineNodeHeader from "../machine/MachineNodeHeader.svelte";
   import { cn } from "$lib/utils/cn";
-
   import {
     NodeInternalsCoordinator,
     NODE_INTERNALS_COORDINATOR_CONTEXT,
   } from "../../canvas/NodeInternalsCoordinator.svelte";
+
   let {
     id,
     data,
     selected = false,
   }: { id: string; data: EnergyNodeData; selected?: boolean } = $props();
+
   const flowStore = useStore();
   const nodeInternalsCoordinator = getContext<NodeInternalsCoordinator>(
     NODE_INTERNALS_COORDINATOR_CONTEXT,
   );
   const machine = $derived(getMachine("fabricator"));
+
   let recipe = $derived(data.recipeId ? (getRecipe(data.recipeId) ?? null) : null);
+
   const isDimmed = $derived(!machineryUiStore.powerRequired);
   const connectable = $derived(flowStore.nodesConnectable);
   const interactive = $derived(
     flowStore.nodesDraggable || flowStore.nodesConnectable || flowStore.elementsSelectable,
   );
+
   let showImage = $derived(machineryUiStore.imagesVisible && data.showImage !== false);
   let edges = $derived(machineryStore.edges);
   let activeConnection = $derived(machineryUiStore.activeConnection);
 
   function handleState(type: HandleType, handleId: string): string {
-    return cn(
-      activeConnection && "connection-in-progress",
-      activeConnection?.nodeId === id &&
-        activeConnection.handleId === handleId &&
-        activeConnection.handleType === type &&
-        "connection-start",
-      activeConnection &&
-        machineryUiStore.isHandleCompatible(id, handleId) &&
-        "connection-compatible",
+    return getHandleUiClass(
+      type,
+      handleId,
+      id,
+      activeConnection,
+      machineryUiStore.isHandleCompatible(id, handleId),
     );
   }
 
-  const energyAvailable = $derived(connectable && !isHandleOccupied(edges, id, "source", "energy"));
+  function isAvailable(type: HandleType, handleId: string): boolean {
+    return isHandleAvailable(edges, id, type, handleId, connectable);
+  }
   $effect(() => {
     void showImage;
     void recipe;
@@ -93,10 +101,9 @@
               type="target"
               position={Position.Left}
               id={input.itemId}
-              isConnectable={connectable && !isHandleOccupied(edges, id, "target", input.itemId)}
-              isConnectableStart={connectable &&
-                !isHandleOccupied(edges, id, "target", input.itemId)}
-              isConnectableEnd={connectable && !isHandleOccupied(edges, id, "target", input.itemId)}
+              isConnectable={isAvailable("target", input.itemId)}
+              isConnectableStart={isAvailable("target", input.itemId)}
+              isConnectableEnd={isAvailable("target", input.itemId)}
               class={cn(
                 "!-left-6 !box-border !h-2 !w-2 !rounded-none !border-0 !bg-white",
                 handleState("target", input.itemId),
@@ -124,9 +131,9 @@
         type="source"
         position={Position.Right}
         id="energy"
-        isConnectable={energyAvailable}
-        isConnectableStart={energyAvailable}
-        isConnectableEnd={energyAvailable}
+        isConnectable={isAvailable("source", "energy")}
+        isConnectableStart={isAvailable("source", "energy")}
+        isConnectableEnd={isAvailable("source", "energy")}
         class={cn(
           "!box-border !-right-6 !h-2 !w-2 !rounded-none !border-0 !bg-white",
           handleState("source", "energy"),
