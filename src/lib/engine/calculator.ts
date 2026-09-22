@@ -84,7 +84,7 @@ export function calculateMachineRates(
   const validDuration =
     durationOverride !== undefined && Number.isFinite(durationOverride) && durationOverride >= 0
       ? durationOverride
-      : recipe.duration;
+      : recipe.durationSeconds;
   const effectiveDuration = Math.max(0.001, validDuration);
   const safeDuration = effectiveDuration;
   const cyclesPerMinute = 60 / safeDuration;

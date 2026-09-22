@@ -301,7 +301,7 @@
                         <span class="min-w-0 truncate">
                           {getMachine(recipe.machineType)?.name ?? recipe.machineType}
                         </span>
-                        <span class="shrink-0 font-mono">{recipe.duration}s</span>
+                        <span class="shrink-0 font-mono">{recipe.durationSeconds}s</span>
                         {#if recipe.machineType !== "fabricator"}
                           <span class="shrink-0 font-mono">{recipe.powerCost} kW</span>
                         {/if}

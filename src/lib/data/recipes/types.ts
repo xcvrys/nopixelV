@@ -12,7 +12,7 @@ export interface RecipeDefinition {
   allowedMachineClasses: string[];
   machineType: MachineType;
   imageUrl?: string;
-  duration: number;
+  durationSeconds: number;
   powerCost: number;
   inputs: RecipePortRequirement[];
   outputs: RecipePortRequirement[];

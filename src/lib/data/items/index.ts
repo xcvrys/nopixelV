@@ -1,10 +1,9 @@
 import { addDevelopmentImages, itemImageFallback } from "../development-images";
 import { CRAFTABLES } from "./craftable";
-import { FUELS } from "./fuel";
 import { ORES } from "./ores";
 import type { ItemDefinition } from "./types";
 
-const REPOSITORY_ITEMS_BASE: ItemDefinition[] = [...ORES, ...CRAFTABLES, ...FUELS];
+const REPOSITORY_ITEMS_BASE: ItemDefinition[] = [...ORES, ...CRAFTABLES];
 
 export const REPOSITORY_ITEMS = addDevelopmentImages(REPOSITORY_ITEMS_BASE, itemImageFallback);
 
@@ -18,5 +17,4 @@ export function getItem(id: string): ItemDefinition | undefined {
 
 export type { ItemCategory, ItemDefinition } from "./types";
 export { CRAFTABLES } from "./craftable";
-export { FUELS } from "./fuel";
 export { ORES } from "./ores";

@@ -13,7 +13,7 @@ describe("Calculator Engine", () => {
     name: "Smelt Iron Ingot",
     allowedMachineClasses: ["furnace"],
     machineType: "furnace",
-    duration: 3, // 3 seconds per craft
+    durationSeconds: 3, // 3 seconds per craft
     powerCost: 2, // 2 kW per craft
     inputs: [{ itemId: "scrap_metal", amount: 2 }],
     outputs: [{ itemId: "iron_ingot", amount: 1 }],
@@ -56,7 +56,7 @@ describe("Calculator Engine", () => {
       name: "Craft Iron Plate",
       allowedMachineClasses: ["assembly", "processor"],
       machineType: "processor",
-      duration: 6, // 10 cycles/min
+      durationSeconds: 6, // 10 cycles/min
       powerCost: 5,
       inputs: [{ itemId: "iron_ingot", amount: 2 }], // needs 20 ingots/min
       outputs: [{ itemId: "iron_plate", amount: 1 }], // produces 10 plates/min

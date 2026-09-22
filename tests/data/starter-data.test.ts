@@ -57,7 +57,7 @@ describe("Repository Data Catalog", () => {
     for (const recipe of REPOSITORY_RECIPES) {
       expect(recipe.allowedMachineClasses.length).toBeGreaterThan(0);
       expect(recipe.allowedMachineClasses).toContain(recipe.machineType);
-      expect(recipe.duration).toBeGreaterThan(0);
+      expect(recipe.durationSeconds).toBeGreaterThan(0);
       expect(recipe.inputs.length).toBeGreaterThanOrEqual(1);
       expect(recipe.outputs.length).toBeGreaterThanOrEqual(
         recipe.machineType === "fabricator" ? 0 : 1,
