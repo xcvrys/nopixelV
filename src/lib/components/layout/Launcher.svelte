@@ -41,7 +41,7 @@
                 {item.label}
                 {#if item.badge}
                   <span
-                    class="bg-[#ff8a00] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black"
+                    class="bg-orange px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black"
                   >
                     {item.badge}
                   </span>

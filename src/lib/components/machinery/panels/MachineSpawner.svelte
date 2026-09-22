@@ -92,14 +92,15 @@
     <span class="text-lg leading-none">+</span>
     <span>Spawn Machine</span>
   </Button>
-  <Button
-    variant="quiet"
-    onclick={addPreviewSetup}
-    disabled={previewSetupAdded}
-    class="rounded-none border-0 bg-[#ff8a00] px-3.5 py-1 text-base font-bold italic uppercase text-black hover:bg-[#ff8a00] hover:text-black"
-  >
-    {previewSetupAdded ? "Preview Added" : "Preview Setup"}
-  </Button>
+  {#if !previewSetupAdded}
+    <Button
+      variant="quiet"
+      onclick={addPreviewSetup}
+      class="rounded-none border-0 bg-orange px-3.5 py-1 text-base font-bold italic uppercase text-black hover:bg-orange hover:text-black"
+    >
+      Preview Setup
+    </Button>
+  {/if}
   <Button
     variant="quiet"
     onclick={addTextNode}

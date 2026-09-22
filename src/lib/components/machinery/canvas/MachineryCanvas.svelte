@@ -189,7 +189,7 @@
   </SvelteFlow>
   <div
     class={cn(
-      "absolute bottom-4 right-58 z-20 bg-[#ff8a00] text-black max-w-64",
+      "absolute bottom-4 right-58 z-20 bg-orange text-black max-w-64",
       previewExpanded ? "w-80" : "w-72",
     )}
   >
