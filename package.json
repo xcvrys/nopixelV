@@ -6,7 +6,7 @@
   "scripts": {
     "process:machine-images": "bun scripts/process-machine-images.ts",
     "process:item-images": "bun scripts/process-item-images.ts",
-    "dev": "vite dev",
+    "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "check": "bun run check-types && bun run lint && bun run format:check",
