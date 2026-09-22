@@ -6,12 +6,12 @@
   let allImagesVisible = $derived(machineryStore.imagesVisible);
   let powerRequired = $derived(machineryStore.powerRequired);
 
-  function toggleAllImages(): void {
-    machineryStore.toggleImages();
-  }
-
   function togglePowerRequired(): void {
     machineryStore.togglePowerRequired();
+  }
+
+  function toggleAllImages(): void {
+    machineryStore.toggleImages();
   }
 </script>
 
@@ -30,12 +30,8 @@
     </ControlButton>
     <ControlButton
       onclick={togglePowerRequired}
-      title={powerRequired
-        ? "Power required (click to disable)"
-        : "Power not required (click to enable)"}
-      aria-label={powerRequired
-        ? "Power required (click to disable)"
-        : "Power not required (click to enable)"}
+      title="Power requirements disabled"
+      aria-label="Power requirements disabled"
     >
       {#if powerRequired}
         <Zap class="!fill-none" strokeWidth={2.25} />

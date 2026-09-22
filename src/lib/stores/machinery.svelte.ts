@@ -49,7 +49,7 @@ export class MachineryStore {
     getRevision: () => this.mutationRevision,
     applyWorkflow: (workflow) => {
       machineryUiStore.setImagesVisible(workflow.imagesVisible !== false);
-      machineryUiStore.setPowerRequired(workflow.powerRequired !== false);
+      machineryUiStore.setPowerRequired();
       this.replaceGraph(workflow.nodes, workflow.edges);
     },
   });
@@ -143,7 +143,6 @@ export class MachineryStore {
     machineryUiStore.toggleImages();
     this.markChanged();
   }
-
   public togglePowerRequired(): void {
     machineryUiStore.togglePowerRequired();
     this.markChanged();

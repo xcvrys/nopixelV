@@ -86,7 +86,7 @@ export class MachineryWorkflowStore {
       nodes: [],
       edges: [],
       imagesVisible: true,
-      powerRequired: true,
+      powerRequired: false,
     });
     this.markChanged();
   }
@@ -131,7 +131,7 @@ export class MachineryWorkflowStore {
           nodes: [],
           edges: [],
           imagesVisible: true,
-          powerRequired: true,
+          powerRequired: false,
         });
         this.markChanged();
         await this.flushPersistence();
@@ -149,7 +149,7 @@ export class MachineryWorkflowStore {
       nodes: [],
       edges: [],
       imagesVisible: true,
-      powerRequired: true,
+      powerRequired: false,
     });
     this.initializationPromise = null;
     this.persistenceQueue = Promise.resolve();
@@ -174,7 +174,7 @@ export class MachineryWorkflowStore {
     this.applyGraph({
       id: workflow.id,
       imagesVisible: workflow.imagesVisible !== false,
-      powerRequired: workflow.powerRequired !== false,
+      powerRequired: false,
       name: workflow.name.trim().slice(0, 40) || UNTITLED_WORKFLOW,
       nodes: structuredClone(workflow.nodes),
       edges: structuredClone(workflow.edges),

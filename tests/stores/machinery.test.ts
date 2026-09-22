@@ -27,6 +27,20 @@ describe("MachineryStore", () => {
     expect(restoredStore.nodes).toHaveLength(1);
   });
 
+  it("keeps power requirements disabled for every workflow", async () => {
+    expect(store.powerRequired).toBe(false);
+    store.togglePowerRequired();
+    expect(store.powerRequired).toBe(false);
+
+    store.addMachine("furnace");
+    await store.flushPersistence();
+
+    const restoredStore = new MachineryStore();
+    await restoredStore.initialize();
+
+    expect(restoredStore.powerRequired).toBe(false);
+  });
+
   it("keeps workflow IDs immutable while renaming", async () => {
     store.addMachine("furnace");
     const id = store.activeWorkflowId;

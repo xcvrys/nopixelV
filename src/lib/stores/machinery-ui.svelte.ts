@@ -41,7 +41,7 @@ export class MachineryUiStore {
   public activeConnection = $state<ActiveConnection | null>(null);
   public compatibleHandleKeys = $state<Set<string>>(new Set());
   public imagesVisible = $state(true);
-  public powerRequired = $state(true);
+  public powerRequired = $state(false);
   public pendingConnection = $state<{
     connection: ActiveConnection;
     position: Position;
@@ -53,10 +53,11 @@ export class MachineryUiStore {
     this.imagesVisible = imagesVisible;
   }
   public togglePowerRequired(): void {
-    this.powerRequired = !this.powerRequired;
+    this.powerRequired = false;
   }
-  public setPowerRequired(powerRequired: boolean): void {
-    this.powerRequired = powerRequired;
+
+  public setPowerRequired(): void {
+    this.powerRequired = false;
   }
 
   public startConnection(
