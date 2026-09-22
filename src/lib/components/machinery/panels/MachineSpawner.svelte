@@ -10,6 +10,14 @@
   import { machineryStore } from "$lib/stores/machinery.svelte";
 
   let showMenu = $state(false);
+  let previewSetupAdded = $derived(
+    machineryStore.nodes.some(
+      (node) => node.type === "machine" && node.data.recipeId === "nuggets_to_gold",
+    ) &&
+      machineryStore.nodes.some(
+        (node) => node.type === "machine" && node.data.recipeId === "gold_to_bar",
+      ),
+  );
   const { screenToFlowPosition } = useSvelteFlow();
 
   function addMachine(type: MachineType): void {
@@ -22,6 +30,26 @@
       y: center.y - 200,
     });
     showMenu = false;
+  }
+  function addPreviewSetup(): void {
+    if (previewSetupAdded) return;
+    const center = screenToFlowPosition(
+      { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+      { snapToGrid: false },
+    );
+    const firstFurnace = machineryStore.addMachine("furnace", {
+      x: center.x - 360,
+      y: center.y - 140,
+    });
+    const secondFurnace = machineryStore.addMachine("furnace", {
+      x: center.x + 40,
+      y: center.y - 140,
+    });
+
+    machineryStore.updateNodeData(firstFurnace, {
+      recipeId: "nuggets_to_gold",
+    });
+    machineryStore.updateNodeData(secondFurnace, { recipeId: "gold_to_bar" });
   }
 
   function addTextNode(): void {
@@ -64,6 +92,15 @@
     <span class="text-lg leading-none">+</span>
     <span>Spawn Machine</span>
   </Button>
+  {#if !previewSetupAdded}
+    <Button
+      variant="quiet"
+      onclick={addPreviewSetup}
+      class="rounded-none border-0 bg-orange px-3.5 py-1 text-base font-bold italic uppercase text-black hover:bg-orange hover:text-black"
+    >
+      Preview Setup
+    </Button>
+  {/if}
   <Button
     variant="quiet"
     onclick={addTextNode}
