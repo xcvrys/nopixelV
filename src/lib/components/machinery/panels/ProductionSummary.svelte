@@ -17,12 +17,12 @@
       <div class="flex items-center gap-2">
         {#each summary.rawInputsNeeded as input (input.itemId)}
           {@const item = getItem(input.itemId)}
-          <span class="inline-flex items-center gap-1 font-mono font-bold text-white"
-            >{input.ratePerMin}/m
-            <span class="text-[10px] font-normal text-neutral-500"
-              >{item?.name || input.itemId}</span
-            ></span
-          >
+          <span class="inline-flex items-center gap-1 font-mono font-bold text-white">
+            {input.ratePerMin}/m
+            <span class="text-[10px] font-normal text-neutral-500">
+              {item?.name || input.itemId}
+            </span>
+          </span>
         {/each}
       </div>
     </div>
@@ -35,12 +35,12 @@
       <div class="flex items-center gap-2">
         {#each summary.netOutputsProduced as output (output.itemId)}
           {@const item = getItem(output.itemId)}
-          <span class="inline-flex items-center gap-1 font-mono font-bold text-white"
-            >{output.ratePerMin}/m
-            <span class="text-[10px] font-normal text-neutral-500"
-              >{item?.name || output.itemId}</span
-            ></span
-          >
+          <span class="inline-flex items-center gap-1 font-mono font-bold text-white">
+            {output.ratePerMin}/m
+            <span class="text-[10px] font-normal text-neutral-500">
+              {item?.name || output.itemId}
+            </span>
+          </span>
         {/each}
       </div>
     </div>

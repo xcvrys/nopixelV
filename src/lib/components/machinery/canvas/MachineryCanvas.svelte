@@ -25,10 +25,13 @@
   } from "./NodeInternalsCoordinator.svelte";
   import { cn } from "$lib/utils/cn";
   import { machineryNodeTypes } from "../nodes/registry";
+
   const { screenToFlowPosition } = useSvelteFlow();
   const nodeInternalsCoordinator = new NodeInternalsCoordinator(useUpdateNodeInternals());
-  setContext(NODE_INTERNALS_COORDINATOR_CONTEXT, nodeInternalsCoordinator);
   const MACHINE_DRAG_TYPE = "application/x-machinery-type";
+
+  setContext(NODE_INTERNALS_COORDINATOR_CONTEXT, nodeInternalsCoordinator);
+
   let compatibleRecipes = $derived.by(() => {
     const pending = machineryUiStore.pendingConnection;
     if (!pending) return [] as RecipeDefinition[];
@@ -44,6 +47,7 @@
         : recipe.outputs.some((item) => item.itemId === itemId),
     );
   });
+
   function selectRecipe(recipeId: string | null): void {
     const nodeId = machineryUiStore.recipePickerNodeId;
     if (!nodeId) return;

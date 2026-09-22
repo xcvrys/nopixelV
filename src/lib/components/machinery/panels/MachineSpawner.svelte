@@ -8,8 +8,10 @@
   } from "$lib/data/machines";
   import type { MachineType } from "$lib/data/types";
   import { machineryStore } from "$lib/stores/machinery.svelte";
+
   let showMenu = $state(false);
   const { screenToFlowPosition } = useSvelteFlow();
+
   function addMachine(type: MachineType): void {
     const center = screenToFlowPosition(
       { x: window.innerWidth / 2, y: window.innerHeight / 2 },

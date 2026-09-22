@@ -102,8 +102,9 @@
         <label
           for="workflow-name-input"
           class="mb-2 block text-xs font-bold uppercase tracking-widest text-white"
-          >Workflow Name</label
         >
+          Workflow Name
+        </label>
         <input
           id="workflow-name-input"
           aria-label="Rename workflow"
@@ -196,9 +197,11 @@
             class="hidden"
           />
         </div>
-        {#if importError}<p class="mt-3 text-xs font-semibold text-red-400">
+        {#if importError}
+          <p class="mt-3 text-xs font-semibold text-red-400">
             {importError}
-          </p>{/if}
+          </p>
+        {/if}
       </div>
     </Drawer.Content>
   </Drawer.Portal>
