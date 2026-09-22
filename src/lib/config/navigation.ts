@@ -2,6 +2,7 @@ export type NavigationItem = {
   label: string;
   href: string;
   available: boolean;
+  badge?: "PREVIEW";
 };
 
 export type NavigationSection = {
@@ -26,6 +27,13 @@ export const navigationSections: NavigationSection[] = [
   {
     label: "RESOURCES",
     showVolumeControl: false,
-    items: [{ label: "MACHINERY", href: "/calculation/machinery", available: true }],
+    items: [
+      {
+        label: "MACHINERY",
+        href: "/calculation/machinery",
+        available: true,
+        badge: "PREVIEW",
+      },
+    ],
   },
 ];

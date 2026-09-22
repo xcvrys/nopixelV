@@ -36,9 +36,16 @@
             {#if item.available}
               <a
                 href={item.href}
-                class="inline-flex items-center justify-center px-5 h-8 leading-none pb-0.5 rounded-none font-semibold italic text-sm md:text-base uppercase bg-black text-white hover:bg-white hover:text-black border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                class="inline-flex items-center justify-center gap-2 px-5 h-8 leading-none pb-0.5 rounded-none font-semibold italic text-sm md:text-base uppercase bg-black text-white hover:bg-white hover:text-black border-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {item.label}
+                {#if item.badge}
+                  <span
+                    class="bg-[#ff8a00] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black"
+                  >
+                    {item.badge}
+                  </span>
+                {/if}
               </a>
             {:else}
               <ComingSoon label={item.label} class="h-8 px-5 text-sm md:text-base" />

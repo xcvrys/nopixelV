@@ -96,13 +96,20 @@
                       aria-current={currentPath === item.href ? "page" : undefined}
                       onclick={closeMobileMenu}
                       class={cn(
-                        "inline-flex items-center px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+                        "inline-flex items-center gap-2 px-3.5 py-1 leading-none font-bold italic text-lg uppercase outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
                         currentPath === item.href
                           ? "bg-white text-black"
                           : "text-white hover:bg-white hover:text-black",
                       )}
                     >
                       {item.label}
+                      {#if item.badge}
+                        <span
+                          class="bg-[#ff8a00] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black"
+                        >
+                          {item.badge}
+                        </span>
+                      {/if}
                     </a>
                   {:else}
                     <ComingSoon label={item.label} badge="SOON" class="px-3.5 py-1 text-lg" />
@@ -142,13 +149,20 @@
               href={item.href}
               aria-current={currentPath === item.href ? "page" : undefined}
               class={cn(
-                "inline-flex items-center px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+                "inline-flex items-center gap-2 px-3 md:px-3.5 py-1 leading-none rounded-none font-bold italic text-base md:text-lg uppercase border-0 outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
                 currentPath === item.href
                   ? "bg-white text-black"
                   : "bg-transparent text-white hover:bg-white hover:text-black",
               )}
             >
               {item.label}
+              {#if item.badge}
+                <span
+                  class="bg-[#ff8a00] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black"
+                >
+                  {item.badge}
+                </span>
+              {/if}
             </a>
           {:else}
             <ComingSoon
