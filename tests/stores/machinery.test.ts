@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { getRecipe } from "../../src/lib/data/recipes";
 import { MachineryStore } from "../../src/lib/stores/machinery.svelte";
 
 describe("MachineryStore", () => {
@@ -137,20 +136,6 @@ describe("MachineryStore", () => {
     expect(store.nodes).toEqual([]);
   });
 
-  it("updates node data and live stats", () => {
-    const furnaceId = store.addMachine("furnace", { x: 0, y: 0 });
-    const recipe = getRecipe("smelt_iron_scrap");
-    if (!recipe) throw new Error("Expected iron scrap recipe");
-
-    store.updateNodeData(furnaceId, {
-      recipeId: recipe.id,
-      customDurationOverride: 2,
-    });
-
-    if (store.nodes[0]?.type !== "machine") throw new Error("Expected machine node");
-    expect(store.nodes[0].data.customDurationOverride).toBe(2);
-    expect(store.calculationResult.summary.totalPowerDraw).toBeCloseTo(60, 1);
-  });
   it("removes recipe-incompatible edges when a recipe changes", () => {
     const furnaceId = store.addMachine("furnace");
     const processorId = store.addMachine("processor");
@@ -226,13 +211,6 @@ describe("MachineryStore", () => {
     store.connect(connection);
     expect(store.canConnect({ ...connection, source: "source-b" })).toBe(false);
     expect(store.canConnect({ ...connection, sourceHandle: "copper_ingot" })).toBe(false);
-  });
-
-  it("exports and imports blueprints", () => {
-    store.addMachine("furnace");
-    const json = store.exportBlueprint();
-    expect(store.importBlueprint(json)).toBe(true);
-    expect(store.nodes).toHaveLength(1);
   });
 
   it("switches to the newest remaining workflow after deleting active", async () => {

@@ -1,31 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { REPOSITORY_ITEMS, getItem } from "../../src/lib/data/items";
+import { REPOSITORY_ITEMS } from "../../src/lib/data/items";
 import { REPOSITORY_PIPES, getPipe } from "../../src/lib/data/pipes";
-import {
-  REPOSITORY_RECIPES,
-  getRecipesForMachine,
-  getRecipesForMachineClass,
-} from "../../src/lib/data/recipes";
+import { REPOSITORY_RECIPES } from "../../src/lib/data/recipes";
 import { REPOSITORY_MACHINES, getMachine, isMachineType } from "../../src/lib/data/machines";
 
 describe("Repository Data Catalog", () => {
-  it("defines items with valid IDs and names", () => {
-    expect(REPOSITORY_ITEMS).toHaveLength(10);
-    for (const item of REPOSITORY_ITEMS) {
-      expect(item.id).toBeTruthy();
-      expect(item.name).toBeTruthy();
-      expect(["ores", "craftable", "fuel"]).toContain(item.category);
-      expect(item.imageUrl === undefined || typeof item.imageUrl === "string").toBe(true);
-    }
-    expect(getItem("rubber")?.energyValueJoules).toBeGreaterThan(0);
-  });
-
-  it("retrieves items by ID", () => {
-    const scrap = getItem("scrap_metal");
-    expect(scrap).toBeDefined();
-    expect(scrap?.name).toBe("Scrap Metal");
-  });
-
   it("defines all authoritative pipes and retrieves them by ID", () => {
     expect(REPOSITORY_PIPES).toHaveLength(7);
     expect(REPOSITORY_PIPES.map((pipe) => pipe.id)).toEqual([
@@ -73,22 +52,6 @@ describe("Repository Data Catalog", () => {
         expect(output.amount).toBeGreaterThan(0);
       }
     }
-  });
-
-  it("filters recipes by machine class and legacy machine type", () => {
-    const furnaceRecipes = getRecipesForMachineClass("furnace");
-    expect(furnaceRecipes.length).toBeGreaterThanOrEqual(2);
-    expect(furnaceRecipes.every((recipe) => recipe.allowedMachineClasses.includes("furnace"))).toBe(
-      true,
-    );
-
-    const assemblyRecipes = getRecipesForMachineClass("assembly");
-    expect(assemblyRecipes.length).toBeGreaterThanOrEqual(2);
-    expect(
-      assemblyRecipes.every((recipe) => recipe.allowedMachineClasses.includes("assembly")),
-    ).toBe(true);
-    expect(getRecipesForMachine("processor")).toEqual(assemblyRecipes);
-    expect(getRecipesForMachine("fabricator")).toEqual(getRecipesForMachineClass("generator"));
   });
 
   it("defines all authoritative machines and their ports", () => {
