@@ -1,3 +1,5 @@
+import { isPowerEdge } from "../schema/port";
+
 export interface PowerGridSubnet {
   id: number;
   nodeIds: string[];
@@ -57,14 +59,6 @@ class DisjointSet {
   }
 }
 
-function isPowerEdge(edge: PowerGridEdge): boolean {
-  return (
-    edge.resourceType === "energy" ||
-    edge.sourceHandle === "energy" ||
-    edge.targetHandle === "energy"
-  );
-}
-
 function getPowerDraw(node: PowerGridNode): number {
   const basePowerDraw = Number.isFinite(node.basePowerDrawKW) ? node.basePowerDrawKW : 0;
   if (basePowerDraw === 0) return 0;
@@ -78,14 +72,8 @@ function getPowerDraw(node: PowerGridNode): number {
 }
 
 export function evaluatePowerGrids(
-  nodes: Array<{ id: string; basePowerDrawKW: number; powerCostOverride?: number }>,
-  edges: Array<{
-    source: string;
-    target: string;
-    sourceHandle?: string | null;
-    targetHandle?: string | null;
-    resourceType?: "solid" | "energy";
-  }>,
+  nodes: PowerGridNode[],
+  edges: PowerGridEdge[],
 ): PowerGridEvaluation {
   const nodeIndexById = new Map<string, number>();
   for (let index = 0; index < nodes.length; index += 1) {

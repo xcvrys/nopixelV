@@ -10,6 +10,7 @@ import {
 } from "../../calculator";
 import { findStronglyConnectedComponents, type StronglyConnectedComponent } from "./cycles";
 import { evaluatePowerGrids } from "./power-grid";
+import { isPowerEdge } from "../schema/port";
 
 type ProductionEdge = {
   id: string;
@@ -58,16 +59,6 @@ function getRequirementId(
   if (indexMatch) return requirements[Number(indexMatch[1])]?.itemId;
   if (requirements.length === 1) return requirements[0].itemId;
   return undefined;
-}
-
-function isPowerEdge(edge: MachineryEdge): boolean {
-  return (
-    edge.resourceType === "energy" ||
-    edge.sourceHandle === "energy" ||
-    edge.sourceHandle === "power" ||
-    edge.targetHandle === "energy" ||
-    edge.targetHandle === "power"
-  );
 }
 
 function toProductionEdge(

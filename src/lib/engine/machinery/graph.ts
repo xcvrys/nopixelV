@@ -12,6 +12,7 @@ import type {
   Position,
   TextNode,
 } from "./types";
+import { isPowerEdge } from "./schema/port";
 
 type ResourceType = "solid" | "energy";
 
@@ -175,16 +176,6 @@ export function canConnect(edges: MachineryEdge[], connection: ConnectionInput):
 }
 
 const POWER_EDGE_CLASS = "power-edge";
-
-function isPowerEdge(
-  edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "resourceType">,
-): boolean {
-  return (
-    edge.resourceType === "energy" ||
-    edge.sourceHandle === "energy" ||
-    edge.targetHandle === "energy"
-  );
-}
 
 function getEdgeClass(
   edge: Pick<MachineryEdge, "sourceHandle" | "targetHandle" | "resourceType" | "class">,
