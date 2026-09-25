@@ -17,6 +17,7 @@ export const navigationSections: NavigationSection[] = [
     showVolumeControl: true,
     items: [
       { label: "LOCKPICK", href: "/minigames/lockpick", available: true },
+      { label: "TRACEROUTE", href: "/minigames/traceroute", available: true },
       {
         label: "STORE SAFE",
         href: "/minigames/store-safe",
