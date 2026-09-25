@@ -11,7 +11,7 @@ const REFRESH_INTERVAL_MS = 100;
 export class TracerouteStore {
   public snapshot = $state.raw<GameSnapshot | null>(null);
 
-  public selectedTier = $state<DifficultyTier>("medium");
+  public selectedTier = $state<DifficultyTier>("mid");
 
   private game: TracerouteGame | null = null;
   private interval: number | null = null;

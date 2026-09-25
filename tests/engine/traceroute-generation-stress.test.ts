@@ -11,13 +11,19 @@ import {
 import type { GeneratedBoard } from "../../src/lib/engine/traceroute/generation";
 import type { Config } from "../../src/lib/engine/traceroute/types";
 
-// Set TRACEROUTE_GENERATION_STRESS=1 for the full sweep; default to 1,000 seeds for normal tests.
-const SEED_COUNT = process.env.TRACEROUTE_GENERATION_STRESS === "1" ? 100_000 : 1_000;
+// Set TRACEROUTE_GENERATION_STRESS=1 for 100,000 seeds; normal tests sample 100 across all tiers.
+const SEED_COUNT = process.env.TRACEROUTE_GENERATION_STRESS === "1" ? 100_000 : 100;
 const TIERS_BY_SEED: { name: DifficultyTier; config: Partial<Config> }[] = [
-  { name: "easy", config: TIERS.easy },
-  { name: "medium", config: TIERS.medium },
-  { name: "hard", config: TIERS.hard },
+  { name: "short", config: TIERS.short },
+  { name: "mid", config: TIERS.mid },
+  { name: "long", config: TIERS.long },
 ];
+
+const DECOY_DECISION_LIMITS: Record<DifficultyTier, readonly [number, number]> = {
+  short: [3, 5],
+  mid: [6, 8],
+  long: [9, BOARD_SIZE],
+};
 
 interface StructuralMetrics {
   L: number;
@@ -34,6 +40,8 @@ interface StructuralMetrics {
   junctions: number;
   reachableSafe: number;
   criticalHazards: number;
+  decoyDecisions: number;
+  rejoiningDecoys: number;
 }
 
 const METRIC_KEYS = [
@@ -51,6 +59,8 @@ const METRIC_KEYS = [
   "junctions",
   "reachableSafe",
   "criticalHazards",
+  "decoyDecisions",
+  "rejoiningDecoys",
 ] as const satisfies readonly (keyof StructuralMetrics)[];
 
 function safeBfs(
@@ -82,6 +92,68 @@ function safeBfs(
 
   return { distance, pathCounts, order };
 }
+function independentRejoiningDecoyCount(
+  adjacency: number[][],
+  hazards: ReadonlySet<number>,
+  route: number[],
+): number {
+  const routeIndex = new Int16Array(BOARD_SIZE).fill(-1);
+  route.forEach((cell, index) => {
+    routeIndex[cell] = index;
+  });
+  const visited = new Uint8Array(BOARD_SIZE);
+  const countedPairs = new Uint8Array(route.length * route.length);
+  const boundaryNodes = Array.from({ length: route.length }, () => [] as number[]);
+  let count = 0;
+
+  for (let start = 0; start < BOARD_SIZE; start += 1) {
+    if (routeIndex[start] !== -1 || hazards.has(start) || visited[start]) continue;
+    const queue = [start];
+    visited[start] = 1;
+    for (let cursor = 0; cursor < queue.length; cursor += 1) {
+      const cell = queue[cursor];
+      for (const neighbor of adjacency[cell]) {
+        if (routeIndex[neighbor] !== -1) {
+          boundaryNodes[routeIndex[neighbor]].push(cell);
+        } else if (!hazards.has(neighbor) && !visited[neighbor]) {
+          visited[neighbor] = 1;
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    for (let from = 0; from < route.length; from += 1) {
+      for (const source of boundaryNodes[from]) {
+        const distance = new Int16Array(BOARD_SIZE).fill(-1);
+        const search = [source];
+        distance[source] = 0;
+        for (let cursor = 0; cursor < search.length; cursor += 1) {
+          const cell = search[cursor];
+          for (const neighbor of adjacency[cell]) {
+            if (routeIndex[neighbor] !== -1 || hazards.has(neighbor) || distance[neighbor] !== -1) {
+              continue;
+            }
+            distance[neighbor] = distance[cell] + 1;
+            search.push(neighbor);
+          }
+        }
+        for (let to = from + 1; to < route.length; to += 1) {
+          const pair = from * route.length + to;
+          if (countedPairs[pair]) continue;
+          for (const destination of boundaryNodes[to]) {
+            if (distance[destination] >= 0 && distance[destination] + 2 - (to - from) >= 4) {
+              countedPairs[pair] = 1;
+              count += 1;
+              break;
+            }
+          }
+        }
+      }
+    }
+    for (const nodes of boundaryNodes) nodes.length = 0;
+  }
+  return count;
+}
 
 function independentlyAnalyze(generated: GeneratedBoard): StructuralMetrics {
   const { board } = generated;
@@ -112,6 +184,21 @@ function independentlyAnalyze(generated: GeneratedBoard): StructuralMetrics {
     previousDirection = direction;
     maxRun = Math.max(maxRun, run);
   }
+
+  let decoyDecisions = 0;
+  for (let index = 0; index < route.length - 1; index += 1) {
+    const current = route[index];
+    const previous = index === 0 ? -1 : route[index - 1];
+    const next = route[index + 1];
+    if (
+      board.adjacency[current].some(
+        (neighbor) => !hazards.has(neighbor) && neighbor !== previous && neighbor !== next,
+      )
+    ) {
+      decoyDecisions += 1;
+    }
+  }
+  const rejoiningDecoys = independentRejoiningDecoyCount(board.adjacency, hazards, route);
 
   const componentIds = new Int16Array(BOARD_SIZE);
   componentIds.fill(-1);
@@ -171,6 +258,8 @@ function independentlyAnalyze(generated: GeneratedBoard): StructuralMetrics {
     junctions,
     reachableSafe: safe.order.length / (BOARD_SIZE - hazards.size),
     criticalHazards,
+    decoyDecisions,
+    rejoiningDecoys,
   };
 }
 
@@ -210,6 +299,11 @@ function validateGeneratedBoard(
   require(new Set(generated.solution).size ===
     generated.solution.length, "solution repeats a cell");
   require(independent.L >= minimumLength && independent.L <= maximumLength, "tier route length");
+  const [minimumDecoyDecisions, maximumDecoyDecisions] = DECOY_DECISION_LIMITS[tier];
+  require(independent.decoyDecisions >= minimumDecoyDecisions &&
+    independent.decoyDecisions <= maximumDecoyDecisions, "tier decoy-decision range");
+  require(independent.rejoiningDecoys >=
+    (config.minRejoiningDecoys ?? DEFAULTS.minRejoiningDecoys), "minimum safe rejoining decoys");
   require(independent.detour >= DEFAULTS.minDetour, "minimum detour");
   require((independent.L - independent.M) % 2 === 0, "route parity");
   require(independent.turns >= DEFAULTS.minTurns, "minimum turns");

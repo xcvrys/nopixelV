@@ -42,6 +42,9 @@ export interface Config {
   minTurns: number;
   maxLeftMoves: number;
   maxShortestPaths: number; // reference boards allow small ties
+  minRejoiningDecoys: number; // safe off-route corridors that rejoin later at least four moves longer
+  minDecoyDecisions: number; // safe off-route choices along the intended route
+  maxDecoyDecisions: number;
   minReachableSafe: number; // share of safe cells the player can actually reach
   minDeadEnds: number; // reachable dead-end decoys
   minGreedyWaste: number; // myopic explorer moves / L
@@ -64,14 +67,23 @@ export const DEFAULTS: Config = {
   minDeadEnds: 5,
   minGreedyWaste: 1.3,
   maxMemorylessWin: 0.05,
+  minRejoiningDecoys: 1,
+  minDecoyDecisions: 6,
+  maxDecoyDecisions: 8,
   growthRecency: 0.75,
   maxAttempts: 400,
 };
 
 export const TIERS = {
-  easy: { minL: 18, maxL: 21 },
-  medium: { minL: 22, maxL: 26 },
-  hard: { minL: 27, maxL: 30 },
+  short: { minL: 18, maxL: 21, minDecoyDecisions: 3, maxDecoyDecisions: 5, minRejoiningDecoys: 0 },
+  mid: { minL: 22, maxL: 26, minDecoyDecisions: 6, maxDecoyDecisions: 8, minRejoiningDecoys: 1 },
+  long: {
+    minL: 27,
+    maxL: 30,
+    minDecoyDecisions: 9,
+    maxDecoyDecisions: BOARD_SIZE,
+    minRejoiningDecoys: 3,
+  },
 } as const;
 
 export type DifficultyTier = keyof typeof TIERS;

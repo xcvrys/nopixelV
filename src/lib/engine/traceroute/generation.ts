@@ -277,6 +277,56 @@ export function buildSkeleton(rng: Rng, config: Config): Skeleton | null {
   return { src, dst, solution, edges: graph.edges() };
 }
 
+interface RejoiningLoopCandidate {
+  a: number;
+  b: number;
+  pair: number;
+  corridor: number[];
+}
+
+function findRejoiningLoopCandidates(graph: Graph, solution: number[]): RejoiningLoopCandidate[] {
+  const routeIndex = new Int16Array(BOARD_SIZE).fill(-1);
+  solution.forEach((cell, index) => {
+    routeIndex[cell] = index;
+  });
+  const candidates: RejoiningLoopCandidate[] = [];
+
+  for (let from = 0; from < solution.length; from += 1) {
+    const distance = new Int16Array(BOARD_SIZE).fill(-1);
+    const parent = new Int16Array(BOARD_SIZE).fill(-1);
+    const queue = [solution[from]];
+    distance[solution[from]] = 0;
+    for (let cursor = 0; cursor < queue.length; cursor += 1) {
+      const cell = queue[cursor];
+      for (const neighbor of graph.adjacency[cell]) {
+        if (routeIndex[neighbor] !== -1 || distance[neighbor] !== -1) continue;
+        distance[neighbor] = distance[cell] + 1;
+        parent[neighbor] = cell;
+        queue.push(neighbor);
+      }
+    }
+
+    for (const cell of queue) {
+      for (const destination of gridNeighbors(cell)) {
+        const to = routeIndex[destination];
+        if (to <= from || graph.has(cell, destination)) continue;
+        if (distance[cell] + 1 - (to - from) < 4) continue;
+        const corridor: number[] = [];
+        for (let current = cell; current !== solution[from]; current = parent[current]) {
+          corridor.push(current);
+        }
+        candidates.push({
+          a: cell,
+          b: destination,
+          pair: from * solution.length + to,
+          corridor,
+        });
+      }
+    }
+  }
+  return candidates;
+}
+
 function addLoopsAndPlugs(
   graph: Graph,
   rng: Rng,
@@ -284,11 +334,44 @@ function addLoopsAndPlugs(
   source: number,
   destination: number,
   solutionLength: number,
+  solution: number[],
   solutionCells: Set<number>,
   hazards: Set<number>,
-): { added: number; target: number } {
+): { added: number; target: number; protectedCells: Set<number> } {
   const blocked = new Uint8Array(BOARD_SIZE);
   for (const hazard of hazards) blocked[hazard] = 1;
+
+  const configuredTarget =
+    config.minRejoiningDecoys > 0
+      ? randomInteger(rng, config.extraEdges[0], config.extraEdges[1])
+      : null;
+  const protectedCells = new Set<number>();
+  if (configuredTarget !== null && configuredTarget < config.minRejoiningDecoys) {
+    return { added: 0, target: configuredTarget, protectedCells };
+  }
+
+  let added = 0;
+  if (config.minRejoiningDecoys > 0) {
+    const rejoiningPairs = new Set<number>();
+    const rejoiningCandidates = findRejoiningLoopCandidates(graph, solution);
+    shuffle(rejoiningCandidates, rng);
+    for (const candidate of rejoiningCandidates) {
+      if (rejoiningPairs.size >= config.minRejoiningDecoys) break;
+      if (rejoiningPairs.has(candidate.pair)) continue;
+
+      graph.add(candidate.a, candidate.b);
+      if (bfs(graph, source, blocked).dist[destination] !== solutionLength) {
+        graph.del(candidate.a, candidate.b);
+        continue;
+      }
+      rejoiningPairs.add(candidate.pair);
+      added += 1;
+      for (const cell of candidate.corridor) protectedCells.add(cell);
+    }
+    if (rejoiningPairs.size < config.minRejoiningDecoys) {
+      return { added, target: configuredTarget ?? 0, protectedCells };
+    }
+  }
 
   const candidates: [number, number][] = [];
   for (let a = 0; a < BOARD_SIZE; a += 1) {
@@ -299,8 +382,7 @@ function addLoopsAndPlugs(
     }
   }
   shuffle(candidates, rng);
-  const target = randomInteger(rng, config.extraEdges[0], config.extraEdges[1]);
-  let added = 0;
+  const target = configuredTarget ?? randomInteger(rng, config.extraEdges[0], config.extraEdges[1]);
 
   for (const [a, b] of candidates) {
     if (added >= target) break;
@@ -312,7 +394,9 @@ function addLoopsAndPlugs(
       const result = bfs(graph, source, blocked);
       if (result.dist[destination] === solutionLength) break;
 
-      const options = pathTo(result, destination).filter((cell) => !solutionCells.has(cell));
+      const options = pathTo(result, destination).filter(
+        (cell) => !solutionCells.has(cell) && !protectedCells.has(cell),
+      );
       if (options.length === 0 || hazards.size >= config.hazards) {
         accepted = false;
         break;
@@ -336,7 +420,7 @@ function addLoopsAndPlugs(
     }
   }
 
-  return { added, target };
+  return { added, target, protectedCells };
 }
 
 function fillHazards(
@@ -345,13 +429,16 @@ function fillHazards(
   config: Config,
   solutionCells: Set<number>,
   hazards: Set<number>,
+  protectedCells: Set<number>,
 ): boolean {
   if (hazards.size > config.hazards) return false;
 
   while (hazards.size < config.hazards) {
     const candidates: number[] = [];
     for (let cell = 0; cell < BOARD_SIZE; cell += 1) {
-      if (!solutionCells.has(cell) && !hazards.has(cell)) candidates.push(cell);
+      if (!solutionCells.has(cell) && !hazards.has(cell) && !protectedCells.has(cell)) {
+        candidates.push(cell);
+      }
     }
     if (candidates.length === 0) return false;
 
@@ -359,7 +446,7 @@ function fillHazards(
     hazards.add(current);
     for (let length = 1; hazards.size < config.hazards && length < 4 && rng() < 0.5; length += 1) {
       const neighbors = [...graph.adjacency[current]].filter(
-        (cell) => !solutionCells.has(cell) && !hazards.has(cell),
+        (cell) => !solutionCells.has(cell) && !hazards.has(cell) && !protectedCells.has(cell),
       );
       if (neighbors.length === 0) break;
       current = pick(neighbors, rng);
@@ -385,10 +472,14 @@ export function buildCandidate(rng: Rng, config: Config): Candidate | null {
     skeleton.src,
     skeleton.dst,
     skeleton.solution.length - 1,
+    skeleton.solution,
     solutionCells,
     hazards,
   );
-  if (loops.added !== loops.target || !fillHazards(graph, rng, config, solutionCells, hazards)) {
+  if (
+    loops.added !== loops.target ||
+    !fillHazards(graph, rng, config, solutionCells, hazards, loops.protectedCells)
+  ) {
     return null;
   }
 
@@ -399,8 +490,11 @@ export function buildCandidate(rng: Rng, config: Config): Candidate | null {
     hazardList.length !== config.hazards ||
     metrics.L !== skeleton.solution.length - 1 ||
     metrics.shortestPaths > config.maxShortestPaths ||
-    metrics.reachableSafe < config.minReachableSafe ||
+    metrics.decoyDecisions < config.minDecoyDecisions ||
+    metrics.decoyDecisions > config.maxDecoyDecisions ||
+    metrics.rejoiningDecoys < config.minRejoiningDecoys ||
     metrics.deadEnds < config.minDeadEnds ||
+    metrics.reachableSafe < config.minReachableSafe ||
     metrics.greedyWaste < config.minGreedyWaste ||
     metrics.memorylessWinRate > config.maxMemorylessWin
   ) {
