@@ -10,25 +10,15 @@ import type { Config } from "../../src/lib/engine/traceroute/types";
 import { generateBoard } from "../../src/lib/engine/traceroute";
 
 const PUBLIC_GENERATION_FIXTURES = [
-  { tier: "short", seed: 1, config: TIERS.short },
-  { tier: "mid", seed: 0, config: TIERS.mid },
-  { tier: "long", seed: 0, config: TIERS.long },
+  { tier: "easy", seed: 1, config: TIERS.easy },
+  { tier: "medium", seed: 0, config: TIERS.medium },
+  { tier: "hard", seed: 0, config: TIERS.hard },
 ] as const;
 
-const DECOY_DECISION_LIMITS = {
-  short: [3, 5],
-  mid: [6, 8],
-  long: [9, BOARD_SIZE],
-} as const;
-
 describe("Traceroute public board generation", () => {
-  it("uses path-length names for public tier IDs", () => {
-    expect(Object.keys(TIERS)).toEqual(["short", "mid", "long"]);
-  });
-
   it.each(PUBLIC_GENERATION_FIXTURES)(
     "adapts a deterministic $tier board to the game representation",
-    ({ tier, seed, config }) => {
+    ({ seed, config }) => {
       const generated = generateBoard(seed, config);
       const board = generated.board;
       const source = board.nodes[board.sourceId];
@@ -51,9 +41,6 @@ describe("Traceroute public board generation", () => {
       expect(generated.solution[0]).toBe(board.sourceId);
       expect(generated.solution.at(-1)).toBe(board.destinationId);
       expect(generated.solution.length - 1).toBe(board.initialTTL);
-      const [minimumDecoyDecisions, maximumDecoyDecisions] = DECOY_DECISION_LIMITS[tier];
-      expect(generated.metrics.decoyDecisions).toBeGreaterThanOrEqual(minimumDecoyDecisions);
-      expect(generated.metrics.decoyDecisions).toBeLessThanOrEqual(maximumDecoyDecisions);
       for (let index = 1; index < generated.solution.length; index += 1) {
         const previous = generated.solution[index - 1];
         const current = generated.solution[index];
@@ -77,8 +64,8 @@ describe("Traceroute public board generation", () => {
   );
 
   it("repeats the same board and labels for the same seed and tier", () => {
-    const first = generateBoard(0, TIERS.mid);
-    expect(generateBoard(0, TIERS.mid)).toEqual(first);
+    const first = generateBoard(0, TIERS.medium);
+    expect(generateBoard(0, TIERS.medium)).toEqual(first);
     expect(
       first.board.nodes
         .filter((node) => node.kind === "normal")
@@ -99,16 +86,6 @@ describe("Traceroute public board generation", () => {
       code: "TRACEROUTE_GENERATION_EXHAUSTED",
       context: { seed: 123, attempts: 3 },
     });
-  });
-
-  it("rejects candidates that miss the configured decoy-decision minimum", () => {
-    const candidate = buildCandidate(mulberry32(0), {
-      ...DEFAULTS,
-      ...TIERS.mid,
-      minDecoyDecisions: BOARD_SIZE,
-    });
-
-    expect(candidate).toBeNull();
   });
 });
 
@@ -292,7 +269,7 @@ describe("Traceroute seeded skeleton generation", () => {
   });
 
   it("is deterministic for the same RNG seed and returns a valid skeleton", () => {
-    const config = { ...DEFAULTS, ...TIERS.mid };
+    const config = { ...DEFAULTS, ...TIERS.medium };
     const first = buildSkeleton(mulberry32(0x12345678), config);
     const second = buildSkeleton(mulberry32(0x12345678), config);
     expect(first).not.toBeNull();
@@ -310,15 +287,15 @@ describe("Traceroute seeded skeleton generation", () => {
   });
 });
 const CANDIDATE_FIXTURE_SEEDS: Record<keyof typeof TIERS, number> = {
-  short: 55,
-  mid: 0,
-  long: 20,
+  easy: 1,
+  medium: 0,
+  hard: 0,
 };
 
 const CANDIDATE_FIXTURE_EXTRA_EDGES: Record<keyof typeof TIERS, number> = {
-  short: 8,
-  mid: 10,
-  long: 8,
+  easy: 11,
+  medium: 10,
+  hard: 11,
 };
 
 describe("Traceroute candidate generation", () => {
@@ -332,9 +309,6 @@ describe("Traceroute candidate generation", () => {
       if (candidate === null) throw new Error(`known-success ${tier} fixture returned null`);
 
       assertCandidateTopology(candidate, config);
-      expect(candidate.metrics.rejoiningDecoys).toBeGreaterThanOrEqual(config.minRejoiningDecoys);
-      expect(candidate.metrics.decoyDecisions).toBeGreaterThanOrEqual(config.minDecoyDecisions);
-      expect(candidate.metrics.decoyDecisions).toBeLessThanOrEqual(config.maxDecoyDecisions);
       expect(candidate.edges.length - (BOARD_SIZE - 1)).toBe(
         CANDIDATE_FIXTURE_EXTRA_EDGES[tierName],
       );
@@ -345,15 +319,10 @@ describe("Traceroute candidate generation", () => {
   );
 
   it("shows that a shortcut exists only when its route is plugged", () => {
-    const config = {
-      ...DEFAULTS,
-      ...TIERS.mid,
-      minDecoyDecisions: 0,
-      maxDecoyDecisions: BOARD_SIZE,
-    };
-    const candidate = buildCandidate(mulberry32(CANDIDATE_FIXTURE_SEEDS.mid), config);
+    const config = { ...DEFAULTS, ...TIERS.medium };
+    const candidate = buildCandidate(mulberry32(CANDIDATE_FIXTURE_SEEDS.medium), config);
     expect(candidate).not.toBeNull();
-    if (candidate === null) throw new Error("known-success mid fixture returned null");
+    if (candidate === null) throw new Error("known-success medium fixture returned null");
 
     const routeLength = candidate.solution.length - 1;
     expect(shortestDistance(candidate.edges, candidate.src, candidate.dst)).toBeLessThan(
@@ -365,30 +334,22 @@ describe("Traceroute candidate generation", () => {
   });
 
   it("honors an exact configured extra-edge target", () => {
-    const config = {
-      ...DEFAULTS,
-      ...TIERS.mid,
-      minDecoyDecisions: 0,
-      maxDecoyDecisions: BOARD_SIZE,
-      extraEdges: [10, 10] as [number, number],
-    };
-    const candidate = buildCandidate(mulberry32(CANDIDATE_FIXTURE_SEEDS.mid), config);
+    const config = { ...DEFAULTS, ...TIERS.medium, extraEdges: [10, 10] as [number, number] };
+    const candidate = buildCandidate(mulberry32(CANDIDATE_FIXTURE_SEEDS.medium), config);
     expect(candidate).not.toBeNull();
     if (candidate === null) throw new Error("known-success exact-loop fixture returned null");
     expect(candidate.edges.length - (BOARD_SIZE - 1)).toBe(10);
   });
 
   it("rejects a candidate when the configured edge target is impossible", () => {
-    const config = { ...DEFAULTS, ...TIERS.mid, extraEdges: [56, 56] as [number, number] };
+    const config = { ...DEFAULTS, ...TIERS.medium, extraEdges: [56, 56] as [number, number] };
     expect(buildCandidate(mulberry32(0), config)).toBeNull();
   });
 
   it("honors an overridden hazard count", () => {
     const config = {
       ...DEFAULTS,
-      ...TIERS.mid,
-      minDecoyDecisions: 0,
-      maxDecoyDecisions: BOARD_SIZE,
+      ...TIERS.medium,
       hazards: 8,
       extraEdges: [10, 10] as [number, number],
     };

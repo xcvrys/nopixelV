@@ -8,14 +8,14 @@ afterEach(() => {
 });
 
 describe("TracerouteStore difficulty selection", () => {
-  it("defaults to Mid", () => {
-    expect(new TracerouteStore().selectedTier).toBe("mid");
+  it("defaults to Medium", () => {
+    expect(new TracerouteStore().selectedTier).toBe("medium");
   });
 
   it.each([
-    { tier: "short", minimum: 18, maximum: 21 },
-    { tier: "mid", minimum: 22, maximum: 26 },
-    { tier: "long", minimum: 27, maximum: 30 },
+    { tier: "easy", minimum: 18, maximum: 21 },
+    { tier: "medium", minimum: 22, maximum: 26 },
+    { tier: "hard", minimum: 27, maximum: 30 },
   ] satisfies { tier: DifficultyTier; minimum: number; maximum: number }[])(
     "starts a $tier round within its route-length window",
     ({ tier, minimum, maximum }) => {

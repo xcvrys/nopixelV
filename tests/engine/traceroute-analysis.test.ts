@@ -45,55 +45,6 @@ describe("Traceroute Analysis - Graph Metrics", () => {
     expect(metrics.memorylessWinRate).toBe(1);
   });
 
-  it("counts safe off-route choices along the intended path", () => {
-    const edges: [number, number][] = [
-      [0, 1],
-      [1, 2],
-      [2, 14],
-      [14, 26],
-      [0, 12],
-      [1, 13],
-      [13, 14],
-      [2, 3],
-    ];
-    const metrics = analyze(edges, [13], 0, 26, mulberry32(1), [0, 1, 2, 14, 26]);
-
-    expect(metrics.decoyDecisions).toBe(2);
-  });
-  it("counts only safe rejoining corridors at least four moves longer", () => {
-    const solution = [0, 1, 2, 14, 26];
-    const longCorridor: [number, number][] = [
-      [0, 1],
-      [1, 2],
-      [2, 14],
-      [14, 26],
-      [0, 12],
-      [12, 13],
-      [13, 25],
-      [25, 37],
-      [37, 49],
-      [49, 50],
-      [50, 51],
-      [51, 39],
-      [39, 27],
-      [27, 15],
-      [15, 3],
-      [3, 2],
-    ];
-    const shortCorridor: [number, number][] = [
-      [0, 1],
-      [1, 2],
-      [2, 14],
-      [14, 26],
-      [0, 12],
-      [12, 13],
-      [13, 14],
-    ];
-
-    expect(analyze(longCorridor, [], 0, 26, mulberry32(1), solution).rejoiningDecoys).toBe(1);
-    expect(analyze(shortCorridor, [], 0, 26, mulberry32(1), solution).rejoiningDecoys).toBe(0);
-  });
-
   it("handles a hazard blocking a shortcut and causing a detour", () => {
     // 0 - 1(H) - 2
     // |          |
@@ -190,9 +141,9 @@ describe("Traceroute Analysis - Graph Metrics", () => {
   });
 });
 const CANDIDATE_FIXTURE_SEEDS: Record<keyof typeof TIERS, number> = {
-  short: 55,
-  mid: 0,
-  long: 20,
+  easy: 1,
+  medium: 0,
+  hard: 0,
 };
 
 describe("Traceroute candidate acceptance metrics", () => {
@@ -207,9 +158,6 @@ describe("Traceroute candidate acceptance metrics", () => {
     expect(candidate.metrics.shortestPaths).toBeLessThanOrEqual(config.maxShortestPaths);
     expect(candidate.metrics.reachableSafe).toBeGreaterThanOrEqual(config.minReachableSafe);
     expect(candidate.metrics.deadEnds).toBeGreaterThanOrEqual(config.minDeadEnds);
-    expect(candidate.metrics.decoyDecisions).toBeGreaterThanOrEqual(config.minDecoyDecisions);
-    expect(candidate.metrics.rejoiningDecoys).toBeGreaterThanOrEqual(config.minRejoiningDecoys);
-    expect(candidate.metrics.decoyDecisions).toBeLessThanOrEqual(config.maxDecoyDecisions);
     expect(candidate.metrics.greedyWaste).toBeGreaterThanOrEqual(config.minGreedyWaste);
     expect(candidate.metrics.memorylessWinRate).toBeLessThanOrEqual(config.maxMemorylessWin);
   });

@@ -84,8 +84,6 @@ export interface Metrics {
   loops: number;
   deadEnds: number;
   junctions: number;
-  decoyDecisions: number;
-  rejoiningDecoys: number;
   reachableSafe: number;
   criticalHazards: number;
   greedyWaste: number;
@@ -163,65 +161,6 @@ function memorylessWins(
   return wins / runs;
 }
 
-function countRejoiningDecoys(g: Graph, blocked: Uint8Array, solution: number[]): number {
-  const routeIndex = new Int16Array(N).fill(-1);
-  solution.forEach((cell, index) => {
-    routeIndex[cell] = index;
-  });
-  const visited = new Uint8Array(N);
-  const countedPairs = new Uint8Array(solution.length * solution.length);
-  const boundaryNodes = Array.from({ length: solution.length }, () => [] as number[]);
-  let count = 0;
-
-  for (let start = 0; start < N; start += 1) {
-    if (routeIndex[start] !== -1 || blocked[start] || visited[start]) continue;
-    const queue = [start];
-    visited[start] = 1;
-    for (let cursor = 0; cursor < queue.length; cursor += 1) {
-      const cell = queue[cursor];
-      for (const neighbor of g.adj[cell]) {
-        if (routeIndex[neighbor] !== -1) {
-          boundaryNodes[routeIndex[neighbor]].push(cell);
-        } else if (!blocked[neighbor] && !visited[neighbor]) {
-          visited[neighbor] = 1;
-          queue.push(neighbor);
-        }
-      }
-    }
-
-    for (let from = 0; from < solution.length; from += 1) {
-      for (const source of boundaryNodes[from]) {
-        const distance = new Int16Array(N).fill(-1);
-        const search = [source];
-        distance[source] = 0;
-        for (let cursor = 0; cursor < search.length; cursor += 1) {
-          const cell = search[cursor];
-          for (const neighbor of g.adj[cell]) {
-            if (routeIndex[neighbor] !== -1 || blocked[neighbor] || distance[neighbor] !== -1) {
-              continue;
-            }
-            distance[neighbor] = distance[cell] + 1;
-            search.push(neighbor);
-          }
-        }
-        for (let to = from + 1; to < solution.length; to += 1) {
-          const pair = from * solution.length + to;
-          if (countedPairs[pair]) continue;
-          for (const destination of boundaryNodes[to]) {
-            if (distance[destination] >= 0 && distance[destination] + 2 - (to - from) >= 4) {
-              countedPairs[pair] = 1;
-              count += 1;
-              break;
-            }
-          }
-        }
-      }
-    }
-    for (const nodes of boundaryNodes) nodes.length = 0;
-  }
-  return count;
-}
-
 export function analyze(
   edges: [number, number][],
   hazards: number[],
@@ -269,22 +208,6 @@ export function analyze(
     if (sd >= 3) junctions++;
   }
 
-  let decoyDecisions = 0;
-  for (let index = 0; index < sol.length - 1; index += 1) {
-    const current = sol[index];
-    const previous = index === 0 ? -1 : sol[index - 1];
-    const next = sol[index + 1];
-    let hasDecoyChoice = false;
-    for (const neighbor of g.adj[current]) {
-      if (!flags[neighbor] && neighbor !== previous && neighbor !== next) {
-        hasDecoyChoice = true;
-        break;
-      }
-    }
-    if (hasDecoyChoice) decoyDecisions++;
-  }
-  const rejoiningDecoys = countRejoiningDecoys(g, flags, sol);
-
   let critical = 0;
   for (const h of hazards) {
     const f2 = flags.slice();
@@ -311,8 +234,6 @@ export function analyze(
     loops: E - N + C,
     deadEnds,
     junctions,
-    decoyDecisions,
-    rejoiningDecoys,
     reachableSafe: r.order.length / (N - hazards.length),
     criticalHazards: critical,
     greedyWaste: waste / RUNS / L,
