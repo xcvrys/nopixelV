@@ -141,9 +141,9 @@ describe("Traceroute Analysis - Graph Metrics", () => {
   });
 });
 const CANDIDATE_FIXTURE_SEEDS: Record<keyof typeof TIERS, number> = {
-  easy: 1,
+  short: 1,
   medium: 0,
-  hard: 0,
+  long: 0,
 };
 
 describe("Traceroute candidate acceptance metrics", () => {

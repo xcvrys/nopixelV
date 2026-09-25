@@ -10,9 +10,9 @@ import type { Config } from "../../src/lib/engine/traceroute/types";
 import { generateBoard } from "../../src/lib/engine/traceroute";
 
 const PUBLIC_GENERATION_FIXTURES = [
-  { tier: "easy", seed: 1, config: TIERS.easy },
+  { tier: "short", seed: 1, config: TIERS.short },
   { tier: "medium", seed: 0, config: TIERS.medium },
-  { tier: "hard", seed: 0, config: TIERS.hard },
+  { tier: "long", seed: 0, config: TIERS.long },
 ] as const;
 
 describe("Traceroute public board generation", () => {
@@ -287,15 +287,15 @@ describe("Traceroute seeded skeleton generation", () => {
   });
 });
 const CANDIDATE_FIXTURE_SEEDS: Record<keyof typeof TIERS, number> = {
-  easy: 1,
+  short: 1,
   medium: 0,
-  hard: 0,
+  long: 0,
 };
 
 const CANDIDATE_FIXTURE_EXTRA_EDGES: Record<keyof typeof TIERS, number> = {
-  easy: 11,
+  short: 11,
   medium: 10,
-  hard: 11,
+  long: 11,
 };
 
 describe("Traceroute candidate generation", () => {

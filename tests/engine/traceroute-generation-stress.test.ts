@@ -14,9 +14,9 @@ import type { Config } from "../../src/lib/engine/traceroute/types";
 // Set TRACEROUTE_GENERATION_STRESS=1 for the full sweep; default to 1,000 seeds for normal tests.
 const SEED_COUNT = process.env.TRACEROUTE_GENERATION_STRESS === "1" ? 100_000 : 1_000;
 const TIERS_BY_SEED: { name: DifficultyTier; config: Partial<Config> }[] = [
-  { name: "easy", config: TIERS.easy },
+  { name: "short", config: TIERS.short },
   { name: "medium", config: TIERS.medium },
-  { name: "hard", config: TIERS.hard },
+  { name: "long", config: TIERS.long },
 ];
 
 interface StructuralMetrics {
