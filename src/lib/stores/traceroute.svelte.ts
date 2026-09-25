@@ -1,25 +1,34 @@
 import {
   generateBoard,
+  TIERS,
   TracerouteGame,
   type Direction,
+  type DifficultyTier,
   type GameSnapshot,
 } from "$lib/engine/traceroute";
-
 const REFRESH_INTERVAL_MS = 100;
 
 export class TracerouteStore {
   public snapshot = $state.raw<GameSnapshot | null>(null);
+
+  public selectedTier = $state<DifficultyTier>("medium");
 
   private game: TracerouteGame | null = null;
   private interval: number | null = null;
 
   public start(): void {
     this.stop();
-    const board = generateBoard();
+    const seed = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(seed);
+    const { board } = generateBoard(seed[0], TIERS[this.selectedTier]);
     const startedAt = performance.now();
     this.game = new TracerouteGame(board, startedAt);
     this.publish(this.game.tick(startedAt));
     this.interval = window.setInterval(() => this.tick(), REFRESH_INTERVAL_MS);
+  }
+  public setTier(tier: DifficultyTier): void {
+    if (this.snapshot?.status === "playing") return;
+    this.selectedTier = tier;
   }
 
   public move(direction: Direction): void {

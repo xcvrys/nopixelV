@@ -1,6 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { BOARD_COLUMNS, BOARD_SIZE, edgeKey, type Direction } from "$lib/engine/traceroute";
+  import {
+    BOARD_COLUMNS,
+    BOARD_SIZE,
+    edgeKey,
+    type Direction,
+    type DifficultyTier,
+  } from "$lib/engine/traceroute";
   import { TracerouteStore } from "$lib/stores/traceroute.svelte";
 
   const game = new TracerouteStore();
@@ -20,6 +26,15 @@
     a: "left",
     d: "right",
   };
+  const tierOptions = [
+    { value: "easy", label: "EASY", range: "18–21" },
+    { value: "medium", label: "MEDIUM", range: "22–26" },
+    { value: "hard", label: "HARD", range: "27–30" },
+  ] as const satisfies {
+    value: DifficultyTier;
+    label: string;
+    range: string;
+  }[];
 
   let snapshot = $derived(game.snapshot);
   let countdown = $state<number | null>(null);
@@ -198,6 +213,26 @@
           </div>
         {/if}
       </div>
+      {#if countdown === null && (snapshot === null || snapshot.status !== "playing")}
+        <div
+          class="mt-3 flex items-center justify-center gap-1.5"
+          role="group"
+          aria-label="Difficulty"
+        >
+          {#each tierOptions as tier (tier.value)}
+            <button
+              type="button"
+              class="traceroute-tier-button"
+              class:selected={game.selectedTier === tier.value}
+              aria-pressed={game.selectedTier === tier.value}
+              onclick={() => game.setTier(tier.value)}
+            >
+              {tier.label} <span class="text-neutral-600">{tier.range}</span>
+            </button>
+          {/each}
+        </div>
+      {/if}
+
       <div
         class="mt-3.5 flex min-h-8 w-full items-center justify-center px-4"
         aria-live="polite"
@@ -278,6 +313,35 @@
     .traceroute-stage {
       width: min(100%, calc(100vw - 300px));
     }
+  }
+
+  .traceroute-tier-button {
+    border: 1px solid #333;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    color: #737373;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    transition:
+      color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .traceroute-tier-button:hover,
+  .traceroute-tier-button:focus-visible {
+    border-color: #aaa;
+    color: #fff;
+  }
+
+  .traceroute-tier-button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  .traceroute-tier-button.selected {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
   .traceroute-board-frame {
     aspect-ratio: 1000 / 460;
