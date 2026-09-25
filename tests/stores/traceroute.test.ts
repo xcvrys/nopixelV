@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { DifficultyTier } from "../../src/lib/engine/traceroute/types";
+import { TIERS, type DifficultyTier } from "../../src/lib/engine/traceroute/types";
 import { TracerouteStore } from "../../src/lib/stores/traceroute.svelte";
 
 afterEach(() => {
@@ -8,14 +8,18 @@ afterEach(() => {
 });
 
 describe("TracerouteStore difficulty selection", () => {
+  it("exposes short, medium, and long tiers", () => {
+    expect(Object.keys(TIERS)).toEqual(["short", "medium", "long"]);
+  });
+
   it("defaults to Medium", () => {
     expect(new TracerouteStore().selectedTier).toBe("medium");
   });
 
   it.each([
-    { tier: "easy", minimum: 18, maximum: 21 },
+    { tier: "short", minimum: 18, maximum: 21 },
     { tier: "medium", minimum: 22, maximum: 26 },
-    { tier: "hard", minimum: 27, maximum: 30 },
+    { tier: "long", minimum: 27, maximum: 30 },
   ] satisfies { tier: DifficultyTier; minimum: number; maximum: number }[])(
     "starts a $tier round within its route-length window",
     ({ tier, minimum, maximum }) => {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Button from "$lib/components/ui/Button.svelte";
   import { onMount } from "svelte";
   import {
     BOARD_COLUMNS,
@@ -27,9 +28,9 @@
     d: "right",
   };
   const tierOptions = [
-    { value: "easy", label: "EASY", range: "18–21" },
+    { value: "short", label: "SHORT", range: "18–21" },
     { value: "medium", label: "MEDIUM", range: "22–26" },
-    { value: "hard", label: "HARD", range: "27–30" },
+    { value: "long", label: "LONG", range: "27–30" },
   ] as const satisfies {
     value: DifficultyTier;
     label: string;
@@ -83,9 +84,9 @@
   }
 
   function handleKeydown(event: KeyboardEvent): void {
-    if (event.code === "Space") {
-      if (event.target instanceof HTMLButtonElement) return;
-      event.preventDefault();
+    if (event.code === "Space" || event.key.toLowerCase() === "e") {
+      if (event.code === "Space" && event.target instanceof HTMLButtonElement) return;
+      if (event.code === "Space") event.preventDefault();
       if (countdown !== null || snapshot?.status === "playing") return;
       startCountdown();
       return;
@@ -105,6 +106,27 @@
   <section
     class="traceroute-stage relative isolate mx-auto w-full max-w-[1000px] overflow-hidden bg-black"
   >
+    <div
+      class="absolute top-[61px] left-1/2 z-40 flex -translate-x-1/2 select-none flex-col items-center gap-2.5 md:top-[21px]"
+      class:opacity-40={countdown !== null || snapshot?.status === "playing"}
+    >
+      <div
+        class="flex items-center border border-neutral-900 bg-black p-1 shadow-2xl"
+        role="group"
+        aria-label="Difficulty"
+      >
+        {#each tierOptions as tier (tier.value)}
+          <Button
+            variant={game.selectedTier === tier.value ? "primary" : "quiet"}
+            ariaPressed={game.selectedTier === tier.value}
+            onclick={() => game.setTier(tier.value)}
+            class="px-3.5 py-1.5"
+          >
+            {tier.label} <span class="text-neutral-600">{tier.range}</span>
+          </Button>
+        {/each}
+      </div>
+    </div>
     <div class="absolute inset-0 flex flex-col items-center justify-center px-1">
       <div class="traceroute-board-frame relative w-full max-w-[1000px]">
         {#if snapshot && countdown === null}
@@ -213,25 +235,6 @@
           </div>
         {/if}
       </div>
-      {#if countdown === null && (snapshot === null || snapshot.status !== "playing")}
-        <div
-          class="mt-3 flex items-center justify-center gap-1.5"
-          role="group"
-          aria-label="Difficulty"
-        >
-          {#each tierOptions as tier (tier.value)}
-            <button
-              type="button"
-              class="traceroute-tier-button"
-              class:selected={game.selectedTier === tier.value}
-              aria-pressed={game.selectedTier === tier.value}
-              onclick={() => game.setTier(tier.value)}
-            >
-              {tier.label} <span class="text-neutral-600">{tier.range}</span>
-            </button>
-          {/each}
-        </div>
-      {/if}
 
       <div
         class="mt-3.5 flex min-h-8 w-full items-center justify-center px-4"
@@ -262,24 +265,27 @@
           >
             TRACE FAILED — TTL EXHAUSTED
           </span>
-        {:else if countdown === null && snapshot === null}
-          <button type="button" class={promptClass} onclick={startCountdown}>
-            PRESS SPACE TO START
-          </button>
         {:else if countdown !== null}
           <span class="sr-only">TRACE STARTING</span>
-        {:else}
+        {:else if snapshot?.status === "playing"}
           <span class="sr-only">TRACE IN PROGRESS</span>
         {/if}
       </div>
       <div class="mt-2 flex min-h-6 w-full items-center justify-center">
         {#if countdown === null && snapshot && snapshot.status !== "playing"}
           <button type="button" class={promptClass} onclick={startCountdown}>
-            PRESS SPACE TO RESTART
+            PRESS E TO RESTART
           </button>
         {/if}
       </div>
     </div>
+    {#if snapshot === null && countdown === null}
+      <div class="pointer-events-none absolute inset-0 z-20 grid place-items-center">
+        <button type="button" class="{promptClass} pointer-events-auto" onclick={startCountdown}>
+          PRESS E TO START
+        </button>
+      </div>
+    {/if}
 
     <div
       class="absolute bottom-20 left-4 right-4 grid w-auto translate-x-0 grid-cols-2 gap-2 text-center text-[11px] font-bold italic uppercase tracking-wider text-white select-none pointer-events-none md:bottom-6 md:left-1/2 md:right-auto md:w-max md:-translate-x-1/2 md:gap-10"
@@ -315,34 +321,6 @@
     }
   }
 
-  .traceroute-tier-button {
-    border: 1px solid #333;
-    background: transparent;
-    padding: 0.25rem 0.5rem;
-    color: #737373;
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    transition:
-      color 120ms ease,
-      border-color 120ms ease;
-  }
-
-  .traceroute-tier-button:hover,
-  .traceroute-tier-button:focus-visible {
-    border-color: #aaa;
-    color: #fff;
-  }
-
-  .traceroute-tier-button:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-  }
-
-  .traceroute-tier-button.selected {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
   .traceroute-board-frame {
     aspect-ratio: 1000 / 460;
   }

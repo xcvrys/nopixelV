@@ -69,9 +69,9 @@ export const DEFAULTS: Config = {
 };
 
 export const TIERS = {
-  easy: { minL: 18, maxL: 21 },
+  short: { minL: 18, maxL: 21 },
   medium: { minL: 22, maxL: 26 },
-  hard: { minL: 27, maxL: 30 },
+  long: { minL: 27, maxL: 30 },
 } as const;
 
 export type DifficultyTier = keyof typeof TIERS;
