@@ -14,6 +14,12 @@ Practice trainer for the NoPixel V lockpick spam minigame.
   - **Maxing**: Endless mode where decay rate and tap resistance increase every level. Tracks and saves your personal best streak and completion time to IndexedDB.
   - **Single**: Practice against a fixed difficulty (`easy`, `medium`, `hard`) or custom physics.
 
+### Traceroute (`/minigames/traceroute`)
+
+Timed route-tracing trainer: reach `DST` from `SRC` before the timer or TTL expires, while avoiding red `IDS` hazards.
+
+- **Controls**: Choose Short (18–21 moves), Medium (22–26), or Long (27–30); move with WASD or the arrow keys. Press `E` or Space to start or restart.
+
 ### Machinery Planner (`/calculation/machinery`)
 
 Interactive visual factory planner and real-time production network calculator.
@@ -66,7 +72,7 @@ nopixelV/
 │   │   ├── components/
 │   │   │   ├── layout/         # Launcher, navigation sidebar, footer
 │   │   │   ├── machinery/      # Canvas, custom nodes, panels, recipe picker
-│   │   │   ├── minigames/      # Minigame views (LockpickView, SafeDialView)
+│   │   │   ├── minigames/      # Lockpick, SafeDial, and Traceroute views
 │   │   │   └── ui/             # Shared primitive components (DropdownMenu, Button)
 │   │   ├── data/               # Catalog registries
 │   │   │   ├── items/          # Ores, craftables, fuels with energy metadata
@@ -77,16 +83,17 @@ nopixelV/
 │   │   ├── engine/
 │   │   │   ├── audio.ts        # Procedural Web Audio synthesizer
 │   │   │   ├── lockpick/       # Headless lockpick domain engine
-│   │   │   └── machinery/      # Production graph solver (Tarjan, Kahn, DSU, ports)
+│   │   │   ├── machinery/      # Production graph solver (Tarjan, Kahn, DSU, ports)
+│   │   │   └── traceroute/     # Network generation, route analysis, and movement logic
 │   │   └── stores/             # Svelte 5 rune stores
 │   │       ├── machinery/      # Pure engine & layout stores
-│   │       └── *.svelte.ts     # Machinery, UI, audio, and lockpick store facades
+│   │       └── *.svelte.ts     # Machinery, UI, audio, lockpick, and Traceroute store facades
 │   └── routes/                 # SvelteKit pages and layout
 └── tests/
     ├── data/                   # Catalog & recipe integrity tests
-    ├── engine/                 # Machinery solver, graph, and connection unit tests
+    ├── engine/                 # Traceroute and machinery engine tests
     ├── minigames/              # Lockpick & safedial engine tests
-    └── stores/                 # Workflow persistence and reactive store tests
+    └── stores/                 # Workflow persistence, Traceroute, and reactive store tests
 ```
 
 ## Getting Started
