@@ -22,11 +22,5 @@
   "env": {
     "builtin": true
   },
-  "ignorePatterns": [
-    ".svelte-kit/**",
-    "build/**",
-    "node_modules/**",
-    "docs/**",
-    "CLAUDE_REFERENCE_MADE.ts"
-  ]
+  "ignorePatterns": [".svelte-kit/**", "build/**", "node_modules/**", "docs/**"]
 }
