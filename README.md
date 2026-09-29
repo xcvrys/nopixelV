@@ -20,6 +20,14 @@ Timed route-tracing trainer: reach `DST` from `SRC` before the timer or TTL expi
 
 - **Controls**: Choose Short (18–21 moves), Medium (22–26), or Long (27–30); move with WASD or the arrow keys. Press `E` or Space to start or restart.
 
+### Cargo Crate (`/minigames/cargo-crate`)
+
+Three-lane rhythm trainer: crates scroll right to left, and you score only by pressing a lane key while its crate sits inside the judge band.
+
+- **Controls**: Press any key or click to start. Tap `A` (Track A), `S` (Track B), or `D` (Track C) as a crate crosses the left-hand guide lines; the keycaps double as touch buttons. Press `Enter` to restart a finished run.
+- **Rules**: A press inside the band scores +1 progress and +1 streak. A press on an empty lane, or a crate that scrolls off the left edge unpressed, costs +1 miss and resets the streak. A crate stays on screen past the band but is no longer hittable, so the miss posts as it leaves. 24 progress wins; 6 misses ends the run. Best streak and best progress persist to IndexedDB.
+- **Difficulty**: Crate speed and band width stay fixed. The spawn gap is jittered 0.8x–1.25x around a base that tightens from 0.52s to 0.33s across the 24 targets, so pacing is randomized without swinging into waves. About 30% of spawns queue a **chord**: a partner crate on a free lane 45ms later, so two keys (for example `A` and `D`) are demanded inside the same window. A 24-progress run with 5 misses lands around 9.6s from first spawn to completion.
+
 ### Machinery Planner (`/calculation/machinery`)
 
 Interactive visual factory planner and real-time production network calculator.
