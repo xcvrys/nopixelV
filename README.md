@@ -43,8 +43,8 @@ Interactive visual factory planner and real-time production network calculator.
   - Brownouts ($\text{Grid Efficiency} < 1.0$) scale consumer machine cycle speeds proportionally across that subnet. Passive logistics nodes draw 0 kW.
 - **Port-Based Connection Architecture** ([`schema/port.ts`](src/lib/engine/machinery/schema/port.ts)):
   - Sockets use normalized typed ports (`solid` and `energy`) decoupled from item IDs, supporting identical multi-inputs and generic logistics routing.
-- **State & Spatial Decoupling** ([`stores/machinery/`](src/lib/stores/machinery/)):
-  - Node $(x, y)$ coordinate dragging updates layout state without invalidating the mathematical solver. Wire dragging uses precomputed $O(1)$ port compatibility checks.
+- **Graph State & Persistence** ([`stores/machinery.svelte.ts`](src/lib/stores/machinery.svelte.ts)):
+  - Node $(x, y)$ dragging is committed on drag stop by `commitNodePositions()`, which clones the node array and schedules a debounced, queued IndexedDB write. Wire dragging uses precomputed $O(1)$ port compatibility checks.
   - Handle remeasurements are batched via RAF ([`NodeInternalsCoordinator.svelte.ts`](src/lib/components/machinery/canvas/NodeInternalsCoordinator.svelte.ts)) to prevent layout reflow storms.
 - **Single-Instance Modal** ([`MachineryCanvas.svelte`](src/lib/components/machinery/canvas/MachineryCanvas.svelte)):
   - The recipe selector mounts as a single root-level dialog rather than mounting redundant dialog trees inside every node.
