@@ -59,7 +59,7 @@
 </script>
 
 <div class="flex min-h-[100dvh] w-full items-center justify-center bg-black px-4 py-10 select-none">
-  <div class="w-full max-w-5xl">
+  <div class="w-[716px] max-w-full">
     <div class="relative overflow-hidden border border-neutral-800 {isIdle ? 'opacity-40' : ''}">
       {#each CARGO_TRACKS as track, trackIndex (track)}
         {@const theme = trackTheme[track]}
@@ -69,16 +69,16 @@
             : ''} {rowFeedbackClass(track)}"
         >
           <span
-            class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold tracking-[0.2em] text-neutral-600 uppercase md:left-4 md:text-sm"
+            class="absolute top-1/2 left-2 -translate-y-1/2 text-xs font-bold tracking-[0.12em] text-neutral-600 uppercase"
           >
             Track {track}
           </span>
 
           {#each guidePositions as position, guideIndex (position)}
             <div
-              class="absolute inset-y-0 w-px {theme.guide} {guideIndex === 1
-                ? 'opacity-90'
-                : 'opacity-35'}"
+              class="absolute inset-y-0 {theme.guide} {guideIndex === 1
+                ? 'w-[3px] -ml-[1.5px] opacity-90'
+                : 'w-px opacity-35'}"
               style="left: {position * 100}%"
             ></div>
           {/each}
@@ -86,7 +86,7 @@
           <div class="absolute inset-0" aria-hidden="true">
             {#each cratesFor(track) as crate (crate.id)}
               <div
-                class="absolute top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 -rotate-45 border-2 md:size-12 {theme.crate}"
+                class="absolute top-1/2 size-[34px] -translate-x-1/2 -translate-y-1/2 -rotate-45 border-2 {theme.crate}"
                 style="left: {crate.x * 100}%"
               ></div>
             {/each}
