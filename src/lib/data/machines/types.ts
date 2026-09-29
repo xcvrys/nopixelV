@@ -34,7 +34,7 @@ export type MachineClass =
 export type MachineType = MachineId | MachineClass;
 
 export interface MachineDefinition {
-  id: string;
+  id: MachineId;
   machineClass: string;
   name: string;
   category: MachineCategory;

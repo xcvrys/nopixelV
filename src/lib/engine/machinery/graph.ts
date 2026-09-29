@@ -58,12 +58,8 @@ export function createMachineNode(
   position: Position = { x: 200, y: 200 },
   index = 0,
 ): MachineryNode {
-  const recipeId =
-    machineType === "furnace"
-      ? "smelt_iron_scrap"
-      : machineType === "processor"
-        ? "craft_circuit_board"
-        : null;
+  const recipes = getRecipesForMachine(machineType);
+  const recipeId = recipes[Math.floor(Math.random() * recipes.length)]?.id ?? null;
 
   return {
     id: `machine-${crypto.randomUUID()}`,

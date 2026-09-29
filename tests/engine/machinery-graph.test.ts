@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { getRecipe } from "../../src/lib/data/recipes";
+import { REPOSITORY_MACHINES } from "../../src/lib/data/machines";
 import {
   canConnect,
   connectEdge,
@@ -39,8 +41,16 @@ describe("machinery graph", () => {
     expect(node).toMatchObject({
       type: "machine",
       position: { x: 40, y: 80 },
-      data: { machineType: "furnace", recipeId: "smelt_iron_scrap", showImage: true },
+      data: { machineType: "furnace", showImage: true },
     });
+  });
+
+  it("never assigns a recipe the catalogue cannot resolve", () => {
+    for (const machine of REPOSITORY_MACHINES) {
+      const node = createMachineNode(machine.id);
+      const recipeId = node.type === "machine" ? node.data.recipeId : null;
+      if (recipeId !== null) expect(getRecipe(recipeId)).toBeDefined();
+    }
   });
 
   it("updates only the requested node data", () => {
