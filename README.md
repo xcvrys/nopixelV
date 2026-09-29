@@ -72,7 +72,7 @@ nopixelV/
 │   │   ├── components/
 │   │   │   ├── layout/         # Launcher, navigation sidebar, footer
 │   │   │   ├── machinery/      # Canvas, custom nodes, panels, recipe picker
-│   │   │   ├── minigames/      # Lockpick, SafeDial, and Traceroute views
+│   │   │   ├── minigames/      # Lockpick and Traceroute views
 │   │   │   └── ui/             # Shared primitive components (DropdownMenu, Button)
 │   │   ├── data/               # Catalog registries
 │   │   │   ├── items/          # Ores, craftables, fuels with energy metadata
@@ -92,7 +92,7 @@ nopixelV/
 └── tests/
     ├── data/                   # Catalog & recipe integrity tests
     ├── engine/                 # Traceroute and machinery engine tests
-    ├── minigames/              # Lockpick & safedial engine tests
+    ├── minigames/              # Lockpick engine tests
     └── stores/                 # Workflow persistence, Traceroute, and reactive store tests
 ```
 
