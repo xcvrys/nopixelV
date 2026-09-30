@@ -3,12 +3,15 @@ import { getValue, setValue } from "$lib/db/storage";
 import { detectInputMode, type InputMode } from "$lib/input/device";
 import {
   LockpickLogic,
+  bucketTap,
   STAGE_TIMEOUT,
+  traceCps,
+  type CpsTrace,
   type GameMode,
   type LockpickSnapshot,
 } from "$lib/engine/lockpick";
 
-export type { GameMode, LockpickSnapshot };
+export type { CpsTrace, GameMode, LockpickSnapshot };
 
 export interface LockpickSettings {
   mode: GameMode;
@@ -24,6 +27,11 @@ export interface LockpickStats {
 
 const LOCKPICK_SETTINGS_KEY = "nopixelv_lockpick_settings_v1";
 const LOCKPICK_STATS_KEY = "nopixelv_lockpick_stats_v1";
+const LOCKPICK_BEST_CPS_KEY = "nopixelv_lockpick_best_cps_v1";
+
+function isCpsTrace(trace: CpsTrace | undefined): boolean {
+  return typeof trace?.duration === "number" && Array.isArray(trace?.buckets);
+}
 
 export class LockpickStore {
   private readonly engine = new LockpickLogic();
@@ -36,12 +44,19 @@ export class LockpickStore {
   private isStarted = false;
   private keyboardInputRegistered = false;
   private persistedStats: LockpickStats | null = null;
+  private bestCpsByConfig: Record<string, CpsTrace> = {};
 
   public readonly stageTimeout = STAGE_TIMEOUT;
   public inputMode = $state<InputMode>("keyboard");
   public snapshot = $state<LockpickSnapshot>(this.engine.snapshot);
   public isKeyPressed = $state(false);
   public isFailedShaking = $state(false);
+  /** Tap counts per 250ms bucket for the run in progress, bounded in length. */
+  public tapBuckets: number[] = $state([]);
+  /** Fastest run recorded for the current mode and difficulty. */
+  public bestTrace: CpsTrace | null = $state(null);
+  /** True once a run outgrew the trace ceiling, so the chart stops extending. */
+  public traceTruncated = $state(false);
 
   public async start(): Promise<void> {
     if (this.isStarted) return;
@@ -83,6 +98,7 @@ export class LockpickStore {
     this.flashKeycap();
 
     const result = this.engine.tap();
+    if (!bucketTap(this.tapBuckets, this.engine.runElapsedTime)) this.traceTruncated = true;
     this.syncState();
 
     if (result.runWon) {
@@ -96,12 +112,18 @@ export class LockpickStore {
 
   public setMode(mode: GameMode): void {
     this.engine.setMode(mode);
+    this.tapBuckets = [];
+    this.traceTruncated = false;
+    this.refreshBestTrace();
     this.syncState();
     this.persistSettings();
   }
 
   public setSingleDifficulty(difficulty: "easy" | "medium" | "hard"): void {
     this.engine.setSingleDifficulty(difficulty);
+    this.tapBuckets = [];
+    this.traceTruncated = false;
+    this.refreshBestTrace();
     this.syncState();
     this.persistSettings();
   }
@@ -123,7 +145,10 @@ export class LockpickStore {
   public reset(): void {
     this.clearTimers();
     this.isFailedShaking = false;
+    this.recordRunIfBest();
     this.engine.reset();
+    this.tapBuckets = [];
+    this.traceTruncated = false;
     this.syncState();
   }
 
@@ -138,6 +163,32 @@ export class LockpickStore {
 
   private persistSettings(): void {
     void setValue(LOCKPICK_SETTINGS_KEY, this.currentSettings());
+  }
+
+  private configKey(): string {
+    return `${this.engine.mode}:${this.engine.singleDifficulty}`;
+  }
+
+  /** Keeps the run just finished only if its average cadence beats the stored best. */
+  private recordRunIfBest(): void {
+    const duration = this.engine.runElapsedTime;
+    if (this.tapBuckets.length < 2 || duration <= 0) return;
+
+    const candidate: CpsTrace = {
+      buckets: [...this.tapBuckets],
+      duration,
+      truncated: this.traceTruncated,
+    };
+    const stored = this.bestCpsByConfig[this.configKey()] ?? null;
+    if (stored && traceCps(stored) >= traceCps(candidate)) return;
+
+    this.bestCpsByConfig[this.configKey()] = candidate;
+    this.bestTrace = candidate;
+    void setValue(LOCKPICK_BEST_CPS_KEY, this.bestCpsByConfig);
+  }
+
+  private refreshBestTrace(): void {
+    this.bestTrace = this.bestCpsByConfig[this.configKey()] ?? null;
   }
 
   private syncState(): void {
@@ -159,9 +210,10 @@ export class LockpickStore {
   }
 
   private async restorePersistedState(): Promise<void> {
-    const [settings, stats] = await Promise.all([
+    const [settings, stats, bestCps] = await Promise.all([
       getValue<LockpickSettings>(LOCKPICK_SETTINGS_KEY),
       getValue<LockpickStats>(LOCKPICK_STATS_KEY),
+      getValue<Record<string, CpsTrace>>(LOCKPICK_BEST_CPS_KEY),
     ]);
 
     if (settings) {
@@ -183,6 +235,12 @@ export class LockpickStore {
       bestStreak: this.engine.bestStreak,
       bestStreakTime: this.engine.bestStreakTime,
     };
+    // Storage is not validated on read, so a record left by an older build
+    // would otherwise reach cpsSeries and throw on a missing buckets array.
+    this.bestCpsByConfig = Object.fromEntries(
+      Object.entries(bestCps ?? {}).filter(([, trace]) => isCpsTrace(trace)),
+    );
+    this.refreshBestTrace();
     this.syncState();
   }
 

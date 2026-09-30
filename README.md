@@ -13,6 +13,7 @@ Practice trainer for the NoPixel V lockpick spam minigame.
   - **3-Progressive**: Standard 3-stage heist lock (Easy &rarr; Medium &rarr; Hard). Completing each stage grants a brief pause before the next lock activates.
   - **Maxing**: Endless mode where decay rate and tap resistance increase every level. Tracks and saves your personal best streak and completion time to IndexedDB.
   - **Single**: Practice against a fixed difficulty (`easy`, `medium`, `hard`) or custom physics.
+- **Tap Cadence**: A live line chart of clicks per second over a 1s sliding window, drawn under the lock, so you can see whether you sustain or fade across a run. Your fastest run for the current mode and difficulty is kept in IndexedDB and drawn behind the live trace on the same seconds axis, so the two can be read against the same clock.
 
 ### Traceroute (`/minigames/traceroute`)
 
@@ -80,7 +81,7 @@ nopixelV/
 │   │   ├── components/
 │   │   │   ├── layout/         # Launcher, navigation sidebar, footer
 │   │   │   ├── machinery/      # Canvas, custom nodes, panels, recipe picker
-│   │   │   ├── minigames/      # Lockpick and Traceroute views
+│   │   │   ├── minigames/      # Lockpick, Traceroute, and Cargo Crate views
 │   │   │   └── ui/             # Shared primitive components (DropdownMenu, Button)
 │   │   ├── data/               # Catalog registries
 │   │   │   ├── items/          # Ores, craftables, fuels with energy metadata

@@ -6,6 +6,7 @@
   import LockpickModeSelector from "./LockpickModeSelector.svelte";
   import LockpickStageTracker from "./LockpickStageTracker.svelte";
   import LockpickStatsPanel from "./LockpickStats.svelte";
+  import LockpickCpsChart from "./LockpickCpsChart.svelte";
   import LockpickSettingsPanel from "./LockpickSettings.svelte";
 
   const lockpick = createLockpickStore();
@@ -157,6 +158,15 @@
         UNLOCKED
       </span>
     {/if}
+  </div>
+
+  <div class="mt-7 flex justify-center px-4">
+    <LockpickCpsChart
+      buckets={lockpick.tapBuckets}
+      duration={lockpick.snapshot.runElapsedTime}
+      best={lockpick.bestTrace}
+      truncated={lockpick.traceTruncated}
+    />
   </div>
 
   <LockpickStatsPanel snapshot={lockpick.snapshot} />

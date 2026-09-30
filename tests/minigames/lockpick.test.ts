@@ -4,6 +4,14 @@ import {
   DIFFICULTY_PRESETS,
   PROGRESSIVE_STAGES,
   getMaxingConfig,
+  bucketTap,
+  chartColumns,
+  cpsSeries,
+  smoothSeries,
+  traceCps,
+  BUCKET_SECONDS,
+  MAX_BUCKETS,
+  type CpsTrace,
 } from "../../src/lib/engine/lockpick";
 
 describe("LockpickLogic Engine", () => {
@@ -159,5 +167,146 @@ describe("LockpickLogic Engine", () => {
     expect(timeoutRes.failed).toBe(true);
     expect(timeoutRes.failReason).toBe("timeout");
     expect(prog.status).toBe("failed");
+  });
+});
+
+describe("tap cadence analytics", () => {
+  function traceOf(tapTimes: number[]): CpsTrace {
+    const buckets: number[] = [];
+    for (const t of tapTimes) bucketTap(buckets, t);
+    const duration = tapTimes.length > 0 ? Math.max(...tapTimes) : 0;
+    return { buckets, duration, truncated: false };
+  }
+
+  it("stops growing once the trace reaches its ceiling", () => {
+    const buckets: number[] = [];
+    let accepted = 0;
+    for (let i = 0; i < MAX_BUCKETS + 500; i += 1) {
+      if (bucketTap(buckets, i * BUCKET_SECONDS)) accepted += 1;
+    }
+    expect(accepted).toBe(MAX_BUCKETS);
+    expect(buckets).toHaveLength(MAX_BUCKETS);
+  });
+
+  it("counts several taps landing in the same bucket", () => {
+    const buckets: number[] = [];
+    for (const t of [0.01, 0.05, 0.26, 0.3]) bucketTap(buckets, t);
+    expect(buckets).toEqual([2, 2]);
+  });
+
+  it("returns nothing for a run with no taps", () => {
+    expect(cpsSeries(traceOf([]), 50)).toEqual([]);
+  });
+
+  it("spans the run from its first instant to its last", () => {
+    // Sampling each column at its right edge leaves the trace starting a whole
+    // column in from the left, so the run never reaches the axis origin.
+    const points = cpsSeries(traceOf([0.25, 0.5, 0.75, 1]), 40);
+    expect(points[0].t).toBe(0);
+    expect(points[points.length - 1].t).toBeCloseTo(1);
+  });
+
+  it("emits a sample per column plus the closing instant", () => {
+    const long = traceOf(Array.from({ length: 2000 }, (_, i) => i * 0.25));
+    expect(cpsSeries(long, 200)).toHaveLength(201);
+    expect(cpsSeries(long, 37)).toHaveLength(38);
+  });
+
+  it("ramps up as the window fills, then tracks the steady rate", () => {
+    const steady = traceOf(Array.from({ length: 16 }, (_, i) => (i + 1) * 0.25));
+    const points = cpsSeries(steady, 40);
+    // The window always spans the full second, so a young run under-reports
+    // rather than spiking; it settles on the true rate once it has filled.
+    expect(points[4].cps).toBeLessThan(points[20].cps);
+    expect(points[20].t).toBeCloseTo(2);
+    expect(points[20].cps).toBeCloseTo(4);
+  });
+
+  it("spikes above a steady baseline", () => {
+    const taps = [
+      ...Array.from({ length: 8 }, (_, i) => 0.1 + i * 0.1),
+      ...Array.from({ length: 16 }, (_, i) => 2 + i * 0.25),
+    ];
+    const points = cpsSeries(traceOf(taps), 40);
+    const atBurst = points.find((p) => p.t >= 0.8);
+    const later = points.find((p) => p.t >= 5);
+    expect(atBurst?.cps).toBeCloseTo(8);
+    expect(later?.cps).toBeCloseTo(4);
+  });
+
+  it("decays to zero once the player stops tapping", () => {
+    // The run keeps going after the last tap, so the window has to slide past
+    // the recorded buckets instead of re-reading the last few of them.
+    const stopped: CpsTrace = {
+      buckets: traceOf([0.25, 0.5, 0.75, 1]).buckets,
+      duration: 6,
+      truncated: false,
+    };
+    const points = cpsSeries(stopped, 60);
+    expect(points.find((p) => p.t >= 2.5)?.cps).toBeCloseTo(0);
+    expect(points[points.length - 1].t).toBeCloseTo(6);
+    expect(points[points.length - 1].cps).toBeCloseTo(0);
+  });
+
+  it("never draws more columns than the run has buckets", () => {
+    // 600 columns over 40 buckets would draw each value nine times over,
+    // which is what turns the trace into a staircase of vertical lines.
+    expect(chartColumns(40 * BUCKET_SECONDS, 600)).toBe(40);
+  });
+
+  it("caps at the plot width once a run outruns it", () => {
+    expect(chartColumns(5000 * BUCKET_SECONDS, 600)).toBe(600);
+  });
+
+  it("draws nothing for a run with no time", () => {
+    expect(chartColumns(0, 600)).toBe(0);
+  });
+
+  it("anchors columns to absolute time so the trace holds still", () => {
+    // Re-normalising a growing run by its own duration moves every point on
+    // each new bucket, which reads as a snake. Columns must land on the same
+    // instants however far the run has gone.
+    const buckets: number[] = [];
+    for (let i = 0; i < 40; i += 1) bucketTap(buckets, (i + 0.5) * BUCKET_SECONDS);
+    const at10s = cpsSeries({ buckets, duration: 10, truncated: false }, chartColumns(10, 600));
+    const at20s = cpsSeries({ buckets, duration: 20, truncated: false }, chartColumns(20, 600));
+    for (let i = 0; i < 40; i += 1) {
+      expect(at20s[i].t).toBeCloseTo(at10s[i].t);
+    }
+  });
+
+  it("smooths without moving points in time", () => {
+    const flat = [
+      { t: 0, cps: 4 },
+      { t: 1, cps: 4 },
+      { t: 2, cps: 4 },
+    ];
+    expect(smoothSeries(flat).map((p) => p.cps)).toEqual([4, 4, 4]);
+    expect(smoothSeries(flat).map((p) => p.t)).toEqual([0, 1, 2]);
+  });
+
+  it("pulls a spike down toward its neighbours", () => {
+    const spiky = [
+      { t: 0, cps: 0 },
+      { t: 1, cps: 8 },
+      { t: 2, cps: 0 },
+    ];
+    const smoothed = smoothSeries(spiky);
+    expect(smoothed[1].cps).toBeLessThan(8);
+    expect(smoothed[1].cps).toBeGreaterThan(0);
+  });
+
+  it("leaves the series untouched when smoothing is off", () => {
+    const points = [
+      { t: 0, cps: 0 },
+      { t: 1, cps: 8 },
+      { t: 2, cps: 0 },
+    ];
+    expect(smoothSeries(points, 1)).toEqual(points);
+  });
+
+  it("ranks a run by its average cadence", () => {
+    expect(traceCps(traceOf([0.25, 0.5, 0.75, 1]))).toBeCloseTo(4);
+    expect(traceCps({ buckets: [], duration: 0, truncated: false })).toBe(0);
   });
 });
