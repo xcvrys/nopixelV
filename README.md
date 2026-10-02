@@ -29,6 +29,13 @@ Three-lane rhythm trainer: crates scroll right to left, and you score only by pr
 - **Rules**: A press inside the band scores +1 progress and +1 streak. A press on an empty lane, or a crate that scrolls off the left edge unpressed, costs +1 miss and resets the streak. A crate stays on screen past the band but is no longer hittable, so the miss posts as it leaves. 24 progress wins; 6 misses ends the run. Best streak and best progress persist to IndexedDB.
 - **Difficulty**: Crate speed and band width stay fixed. The spawn gap is jittered 0.8x–1.25x around a base that tightens from 0.52s to 0.33s across the 24 targets, so pacing is randomized without swinging into waves. About 30% of spawns queue a **chord**: a partner crate on a free lane 45ms later, so two keys (for example `A` and `D`) are demanded inside the same window. A 24-progress run with 5 misses lands around 9.6s from first spawn to completion.
 
+### Firewall Run (`/minigames/firewall-run`)
+
+Dodge trainer: firewall walls descend a six-lane board, each sealing five lanes and leaving one gap you have to be standing in.
+
+- **Controls**: Press any key or click to start, then change lane with `←`/`→` or `A`/`D`. Lane changes apply on the next frame with no cooldown; holding a direction sweeps at the browser's key-repeat rate. Press `Enter` to restart a finished run.
+- **Rules**: Survive 20s to breach. Every wall is drawn as exactly five sealed 36x36 rectangles and one open lane — no shadows, no hitbox tails; the drawn rectangle is the whole hitbox. The run drops the instant one of those rectangles physically touches the 24x24 player chip in a sealed lane, marked with a red dot on the crash. Rows sit 256px apart and descent is a flat 480 px/s, so a wall crosses the board in about a second.
+
 ### Machinery Planner (`/calculation/machinery`)
 
 Interactive visual factory planner and real-time production network calculator.
@@ -81,7 +88,7 @@ nopixelV/
 │   │   ├── components/
 │   │   │   ├── layout/         # Launcher, navigation sidebar, footer
 │   │   │   ├── machinery/      # Canvas, custom nodes, panels, recipe picker
-│   │   │   ├── minigames/      # Lockpick, Traceroute, and Cargo Crate views
+│   │   │   ├── minigames/      # Lockpick, Traceroute, Cargo Crate, and Firewall Run views
 │   │   │   └── ui/             # Shared primitive components (DropdownMenu, Button)
 │   │   ├── data/               # Catalog registries
 │   │   │   ├── items/          # Ores, craftables, fuels with energy metadata
